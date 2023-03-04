@@ -1,8 +1,8 @@
 package ru.quipy.logic
 
 import ru.quipy.api.ProjectCreatedEvent
-import ru.quipy.api.TagAssignedToTaskEvent
-import ru.quipy.api.TagCreatedEvent
+import ru.quipy.api.TaskStatusAssignedToTaskEvent
+import ru.quipy.api.TaskStatusCreatedEvent
 import ru.quipy.api.TaskCreatedEvent
 import java.util.*
 
@@ -22,21 +22,21 @@ fun ProjectAggregateState.addTask(name: String): TaskCreatedEvent {
     return TaskCreatedEvent(projectId = this.getId(), taskId = UUID.randomUUID(), taskName = name)
 }
 
-fun ProjectAggregateState.createTag(name: String): TagCreatedEvent {
-    if (projectTags.values.any { it.name == name }) {
-        throw IllegalArgumentException("Tag already exists: $name")
+fun ProjectAggregateState.createTaskStatus(name: String): TaskStatusCreatedEvent {
+    if (taskStatuses.values.any { it.name == name }) {
+        throw IllegalArgumentException("Task status already exists: $name")
     }
-    return TagCreatedEvent(projectId = this.getId(), tagId = UUID.randomUUID(), tagName = name)
+    return TaskStatusCreatedEvent(projectId = this.getId(), taskStatusId = UUID.randomUUID(), taskStatusName = name)
 }
 
-fun ProjectAggregateState.assignTagToTask(tagId: UUID, taskId: UUID): TagAssignedToTaskEvent {
-    if (!projectTags.containsKey(tagId)) {
-        throw IllegalArgumentException("Tag doesn't exists: $tagId")
+fun ProjectAggregateState.assignTaskStatusToTask(taskStatusId: UUID, taskId: UUID): TaskStatusAssignedToTaskEvent {
+    if (!taskStatuses.containsKey(taskStatusId)) {
+        throw IllegalArgumentException("Task status doesn't exists: $taskStatusId")
     }
 
     if (!tasks.containsKey(taskId)) {
         throw IllegalArgumentException("Task doesn't exists: $taskId")
     }
 
-    return TagAssignedToTaskEvent(projectId = this.getId(), tagId = tagId, taskId = taskId)
+    return TaskStatusAssignedToTaskEvent(projectId = this.getId(), taskStatusId = taskStatusId, taskId = taskId)
 }
