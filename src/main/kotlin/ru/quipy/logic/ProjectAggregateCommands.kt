@@ -1,42 +1,43 @@
 package ru.quipy.logic
 
 import ru.quipy.api.ProjectCreatedEvent
-import ru.quipy.api.TaskStatusAssignedToTaskEvent
+import ru.quipy.api.ProjectMemberAddedEvent
+import ru.quipy.api.ProjectTitleChangedEvent
 import ru.quipy.api.TaskStatusCreatedEvent
-import ru.quipy.api.TaskCreatedEvent
+import ru.quipy.api.TaskStatusRemovedEvent
 import java.util.*
 
+fun ProjectAggregateState.create(id: UUID = UUID.randomUUID(), title: String, creatorId: UUID): ProjectCreatedEvent =
+    ProjectCreatedEvent(projectId = id, title = title, creatorId = creatorId)
 
-// Commands : takes something -> returns event
-// Here the commands are represented by extension functions, but also can be the class member functions
+fun ProjectAggregateState.changeTitle(id: UUID, title: String): ProjectTitleChangedEvent {
+    if (this.title == title) {
+        throw IllegalStateException("New title must differ from existing: $title")
+    }
 
-fun ProjectAggregateState.create(id: UUID, title: String, creatorId: String): ProjectCreatedEvent {
-    return ProjectCreatedEvent(
-        projectId = id,
-        title = title,
-        creatorId = creatorId,
-    )
+    return ProjectTitleChangedEvent(projectId = id, title = title)
 }
 
-fun ProjectAggregateState.addTask(name: String): TaskCreatedEvent {
-    return TaskCreatedEvent(projectId = this.getId(), taskId = UUID.randomUUID(), taskName = name)
+fun ProjectAggregateState.addProjectMember(projectId: UUID, memberId: UUID): ProjectMemberAddedEvent {
+    if (memberId in memberIds) {
+        throw IllegalStateException("Project member already in project: $memberId")
+    }
+
+    return ProjectMemberAddedEvent(projectId = projectId, memberId = memberId)
 }
 
 fun ProjectAggregateState.createTaskStatus(name: String): TaskStatusCreatedEvent {
     if (taskStatuses.values.any { it.name == name }) {
-        throw IllegalArgumentException("Task status already exists: $name")
+        throw IllegalStateException("Task status already exists: $name")
     }
+
     return TaskStatusCreatedEvent(projectId = this.getId(), taskStatusId = UUID.randomUUID(), taskStatusName = name)
 }
 
-fun ProjectAggregateState.assignTaskStatusToTask(taskStatusId: UUID, taskId: UUID): TaskStatusAssignedToTaskEvent {
+fun ProjectAggregateState.removeTaskStatus(taskStatusId: UUID): TaskStatusRemovedEvent {
     if (!taskStatuses.containsKey(taskStatusId)) {
-        throw IllegalArgumentException("Task status doesn't exists: $taskStatusId")
+        throw IllegalStateException("No such task status: $taskStatusId")
     }
 
-    if (!tasks.containsKey(taskId)) {
-        throw IllegalArgumentException("Task doesn't exists: $taskId")
-    }
-
-    return TaskStatusAssignedToTaskEvent(projectId = this.getId(), taskStatusId = taskStatusId, taskId = taskId)
+    return TaskStatusRemovedEvent(projectId = this.getId(), taskStatusId = UUID.randomUUID())
 }
