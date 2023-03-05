@@ -1,24 +1,15 @@
 package ru.quipy.logic
 
-import org.springframework.beans.factory.annotation.Autowired
 import ru.quipy.api.ExecutorAssignedToTaskEvent
 import ru.quipy.api.ExecutorRetractedFromTaskEvent
-import ru.quipy.api.ProjectAggregate
 import ru.quipy.api.TaskAggregate
 import ru.quipy.api.TaskCreatedEvent
 import ru.quipy.api.TaskStatusAssignedToTaskEvent
-import ru.quipy.core.EventSourcingService
 import ru.quipy.core.annotations.StateTransitionFunc
 import ru.quipy.domain.AggregateState
 import java.util.*
 
 class TaskAggregateState() : AggregateState<UUID, TaskAggregate> {
-
-    // TODO think if it`s OK to inject this service
-    @Autowired
-    private lateinit var projectEsService: EventSourcingService<UUID, ProjectAggregate, ProjectAggregateState>
-
-
     private lateinit var taskId: UUID
     var createdAt: Long = System.currentTimeMillis()
     var updatedAt: Long = System.currentTimeMillis()
@@ -38,14 +29,7 @@ class TaskAggregateState() : AggregateState<UUID, TaskAggregate> {
         projectId = event.projectId
         name = event.taskName
         creatorId = event.creatorId
-
-        projectEsService.getState(projectId)!!
-            .taskStatuses
-            .values
-            .first { it.name == TaskStatusEntity.DEFAULT_TASK_STATUS_NAME }
-            .also {
-                taskStatusId = it.id
-            }
+        taskStatusId = event.defaultTaskStatusId
 
         createdAt = event.createdAt
         updatedAt = event.createdAt

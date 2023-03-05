@@ -8,6 +8,7 @@ import ru.quipy.api.TaskStatusCreatedEvent
 import ru.quipy.api.TaskStatusRemovedEvent
 import ru.quipy.core.annotations.StateTransitionFunc
 import ru.quipy.domain.AggregateState
+import ru.quipy.exception.NotFoundException
 import java.util.*
 
 // Service's business logic
@@ -61,7 +62,7 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
     @StateTransitionFunc
     fun taskStatusRemovedApply(event: TaskStatusRemovedEvent) {
         taskStatuses.remove(event.taskStatusId)
-            ?: throw IllegalStateException("No such task status: ${event.taskStatusId}")
+            ?: throw NotFoundException("No such task status: ${event.taskStatusId}")
         updatedAt = event.createdAt
     }
 }

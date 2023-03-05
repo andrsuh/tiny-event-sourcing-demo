@@ -39,5 +39,5 @@ fun ProjectAggregateState.removeTaskStatus(taskStatusId: UUID): TaskStatusRemove
         throw IllegalStateException("No such task status: $taskStatusId")
     }
 
-    return TaskStatusRemovedEvent(projectId = this.getId(), taskStatusId = UUID.randomUUID())
+    return TaskStatusRemovedEvent(projectId = this.getId(), taskStatusId = taskStatusId)
 }

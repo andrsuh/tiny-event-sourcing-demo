@@ -4,6 +4,7 @@ import ru.quipy.api.ExecutorAssignedToTaskEvent
 import ru.quipy.api.ExecutorRetractedFromTaskEvent
 import ru.quipy.api.TaskCreatedEvent
 import ru.quipy.api.TaskStatusAssignedToTaskEvent
+import ru.quipy.exception.NotFoundException
 import java.util.*
 
 fun TaskAggregateState.create(
@@ -11,11 +12,19 @@ fun TaskAggregateState.create(
     taskId: UUID = UUID.randomUUID(),
     taskName: String,
     creatorId: UUID,
-): TaskCreatedEvent = TaskCreatedEvent(projectId = projectId, taskId = taskId, taskName = taskName, creatorId = creatorId)
+    defaultTaskStatusId: UUID,
+): TaskCreatedEvent =
+    TaskCreatedEvent(
+        projectId = projectId,
+        taskId = taskId,
+        taskName = taskName,
+        creatorId = creatorId,
+        defaultTaskStatusId = defaultTaskStatusId,
+    )
 
 fun TaskAggregateState.assignTaskStatus(projectId: UUID, taskId: UUID, taskStatusId: UUID): TaskStatusAssignedToTaskEvent {
     if (this.projectId != projectId) {
-        throw IllegalArgumentException("Invalid project id: $projectId")
+        throw IllegalStateException("Invalid project id: $projectId")
     }
     if (this.taskStatusId == taskStatusId) {
         throw IllegalStateException("Task status already assigned: $taskStatusId")
@@ -34,7 +43,7 @@ fun TaskAggregateState.assignExecutor(projectId: UUID, taskId: UUID, executorId:
 
 fun TaskAggregateState.retractExecutor(projectId: UUID, taskId: UUID, executorId: UUID): ExecutorRetractedFromTaskEvent {
     if (executorId !in executorIds) {
-        throw IllegalStateException("Task has not such executor: $executorId")
+        throw NotFoundException("Task has not such executor: $executorId")
     }
 
     return ExecutorRetractedFromTaskEvent(projectId = projectId, taskId = taskId, executorId = executorId)
