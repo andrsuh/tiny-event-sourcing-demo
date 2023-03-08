@@ -65,7 +65,7 @@ class ProjectController(
 
     @PostMapping("/{projectId}/members")
     fun addProjectMember(@PathVariable projectId: UUID, @RequestParam memberId: UUID): ProjectMemberAddedEvent {
-        userEsService.getState(memberId)
+        userEsService.getState(memberId )
             ?: throw NotFoundException("No such user: $memberId")
 
         return projectEsService.update(projectId) {

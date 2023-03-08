@@ -10,13 +10,8 @@ import java.util.*
 fun ProjectAggregateState.create(id: UUID = UUID.randomUUID(), title: String, creatorId: UUID): ProjectCreatedEvent =
     ProjectCreatedEvent(projectId = id, title = title, creatorId = creatorId)
 
-fun ProjectAggregateState.changeTitle(id: UUID, title: String): ProjectTitleChangedEvent {
-    if (this.title == title) {
-        throw IllegalStateException("New title must differ from existing: $title")
-    }
-
-    return ProjectTitleChangedEvent(projectId = id, title = title)
-}
+fun ProjectAggregateState.changeTitle(id: UUID, title: String): ProjectTitleChangedEvent =
+    ProjectTitleChangedEvent(projectId = id, title = title)
 
 fun ProjectAggregateState.addProjectMember(projectId: UUID, memberId: UUID): ProjectMemberAddedEvent {
     if (memberId in memberIds) {
