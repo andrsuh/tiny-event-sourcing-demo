@@ -20,10 +20,13 @@ class UserController(
 ) {
 
     @PostMapping
-    fun createUser(@RequestParam login: String, @RequestParam password: String): UserCreatedEvent =
-        userEsService.create {
+    fun createUser(@RequestParam login: String, @RequestParam password: String): UserCreatedEvent {
+        // TODO check of there is no already a user with the same login
+
+        return userEsService.create {
             it.create(login = login, password = password)
         }
+    }
 
     @GetMapping("/{userId}")
     fun getUser(@PathVariable userId: UUID): UserAggregateState? = userEsService.getState(userId)

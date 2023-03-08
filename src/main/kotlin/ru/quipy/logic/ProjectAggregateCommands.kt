@@ -21,18 +21,8 @@ fun ProjectAggregateState.addProjectMember(projectId: UUID, memberId: UUID): Pro
     return ProjectMemberAddedEvent(projectId = projectId, memberId = memberId)
 }
 
-fun ProjectAggregateState.createTaskStatus(name: String): TaskStatusCreatedEvent {
-    if (taskStatuses.values.any { it.name == name }) {
-        throw IllegalStateException("Task status already exists: $name")
-    }
+fun ProjectAggregateState.createTaskStatus(name: String): TaskStatusCreatedEvent =
+    TaskStatusCreatedEvent(projectId = this.getId(), taskStatusId = UUID.randomUUID(), taskStatusName = name)
 
-    return TaskStatusCreatedEvent(projectId = this.getId(), taskStatusId = UUID.randomUUID(), taskStatusName = name)
-}
-
-fun ProjectAggregateState.removeTaskStatus(taskStatusId: UUID): TaskStatusRemovedEvent {
-    if (!taskStatuses.containsKey(taskStatusId)) {
-        throw IllegalStateException("No such task status: $taskStatusId")
-    }
-
-    return TaskStatusRemovedEvent(projectId = this.getId(), taskStatusId = taskStatusId)
-}
+fun ProjectAggregateState.removeTaskStatus(taskStatusId: UUID): TaskStatusRemovedEvent =
+    TaskStatusRemovedEvent(projectId = this.getId(), taskStatusId = taskStatusId)

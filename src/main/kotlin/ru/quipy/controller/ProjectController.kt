@@ -80,10 +80,13 @@ class ProjectController(
         }
 
     @DeleteMapping("/{projectId}/taskStatuses/{taskStatusId}")
-    fun removeTaskStatus(@PathVariable projectId: UUID, @PathVariable taskStatusId: UUID): TaskStatusRemovedEvent =
-        projectEsService.update(projectId) {
+    fun removeTaskStatus(@PathVariable projectId: UUID, @PathVariable taskStatusId: UUID): TaskStatusRemovedEvent {
+        // TODO check that no task in this project has this status
+
+        return projectEsService.update(projectId) {
             it.removeTaskStatus(taskStatusId)
         }
+    }
 
     @PostMapping("/{projectId}/tasks/")
     fun createTask(
