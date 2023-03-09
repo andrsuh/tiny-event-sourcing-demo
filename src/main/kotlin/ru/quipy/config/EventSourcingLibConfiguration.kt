@@ -34,6 +34,4 @@ class EventSourcingLibConfiguration {
     fun userEsService(): EventSourcingService<UUID, UserAggregate, UserAggregateState> =
         eventSourcingServiceFactory.create<UUID, UserAggregate, UserAggregateState>()
 
-
-
 }
