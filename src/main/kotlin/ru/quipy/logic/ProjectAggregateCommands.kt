@@ -1,9 +1,6 @@
 package ru.quipy.logic
 
-import ru.quipy.api.ProjectCreatedEvent
-import ru.quipy.api.TagAssignedToTaskEvent
-import ru.quipy.api.TagCreatedEvent
-import ru.quipy.api.TaskCreatedEvent
+import ru.quipy.api.*
 import java.util.*
 
 
@@ -18,8 +15,12 @@ fun ProjectAggregateState.create(id: UUID, title: String, creatorId: String): Pr
     )
 }
 
-fun ProjectAggregateState.addTask(name: String): TaskCreatedEvent {
-    return TaskCreatedEvent(projectId = this.getId(), taskId = UUID.randomUUID(), taskName = name)
+//fun ProjectAggregateState.addTask(name: String): TaskCreatedEvent {
+//    return TaskCreatedEvent(projectId = this.getId(), taskId = UUID.randomUUID(), taskName = name)
+//}
+
+fun ProjectAggregateState.addTask(task: TaskEntity): TaskAddedEvent {
+    return TaskAddedEvent(projectId = this.getId(), task = task)
 }
 
 fun ProjectAggregateState.createTag(name: String): TagCreatedEvent {
@@ -39,4 +40,30 @@ fun ProjectAggregateState.assignTagToTask(tagId: UUID, taskId: UUID): TagAssigne
     }
 
     return TagAssignedToTaskEvent(projectId = this.getId(), tagId = tagId, taskId = taskId)
+}
+
+fun ProjectAggregateState.createStatus(name: String, color: String): StatusCreatedEvent {
+    return StatusCreatedEvent(projectId = this.getId(), statusName = name, color = color)
+}
+
+fun ProjectAggregateState.deleteStatus(name: String, color: String): StatusDeletedEvent {
+    if (!statuses.contains(StatusEntity(name, color))) {
+        throw IllegalArgumentException("Status doesn't exists: $name")
+    }
+    return StatusDeletedEvent(projectId = this.getId(), statusName = name, color = color)
+}
+
+fun ProjectAggregateState.addMember(id: UUID): MemberAddedEvent {
+    return MemberAddedEvent(projectId = this.getId(), memberId = id)
+}
+
+fun ProjectAggregateState.deleteMember(id: UUID): MemberDeletedEvent {
+    if (!members.contains(id)) {
+        throw IllegalArgumentException("Member doesn't exists: $id")
+    }
+    return MemberDeletedEvent(projectId = this.getId(), memberId = id)
+}
+
+fun ProjectAggregateState.renameProject(newTitle: String): ProjectRenamedEvent {
+    return ProjectRenamedEvent(projectId = this.getId(), title = newTitle)
 }
