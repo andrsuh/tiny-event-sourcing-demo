@@ -1,0 +1,8 @@
+CREATE SCHEMA IF NOT EXISTS validation;
+
+SET SEARCH_PATH TO validation;
+
+CREATE TABLE IF NOT EXISTS login
+(
+ login    TEXT PRIMARY KEY
+);

@@ -9,5 +9,15 @@ services:
       - 27017:27017
     volumes:
       - mongo_data:/data/db
+
+  postgresql:
+    image: postgres:14
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_DB: task-manager
+      POSTGRES_USER: task-manager
+      POSTGRES_PASSWORD: task-manager
+
 volumes:
   mongo_data: { }
