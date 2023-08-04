@@ -15,7 +15,7 @@ import org.springframework.test.web.servlet.MockMvc
 import ru.quipy.api.UserAggregate
 import ru.quipy.core.EventSourcingService
 import ru.quipy.logic.UserAggregateState
-import ru.quipy.logic.createProjectUser
+import ru.quipy.logic.createUser
 import java.util.*
 
 
@@ -62,7 +62,7 @@ class UserControllerTest {
     fun `get user`() {
         val id = UUID.randomUUID()
         userEsService.create {
-            it.createProjectUser(
+            it.createUser(
                 userId = id,
                 nickname = "first_user",
                 name = "First User",

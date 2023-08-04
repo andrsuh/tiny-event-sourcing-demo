@@ -341,7 +341,7 @@ class TaskControllerTest {
     private fun createProjectUser(): UUID {
         val userId = UUID.randomUUID()
         userEsService.create {
-            it.createProjectUser(
+            it.createUser(
                 userId = userId,
                 name = "A user",
                 nickname = "a-user",

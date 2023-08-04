@@ -3,7 +3,7 @@ package ru.quipy.logic
 import ru.quipy.api.UserCreatedEvent
 import java.util.UUID
 
-fun UserAggregateState.createProjectUser(
+fun UserAggregateState.createUser(
     userId: UUID,
     nickname: String,
     name: String,
