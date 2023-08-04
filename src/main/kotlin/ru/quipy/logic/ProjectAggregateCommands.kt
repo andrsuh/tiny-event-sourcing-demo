@@ -1,42 +1,55 @@
 package ru.quipy.logic
 
-import ru.quipy.api.ProjectCreatedEvent
-import ru.quipy.api.TagAssignedToTaskEvent
-import ru.quipy.api.TagCreatedEvent
-import ru.quipy.api.TaskCreatedEvent
+import ru.quipy.api.*
 import java.util.*
+import kotlin.collections.LinkedHashSet
 
 
 // Commands : takes something -> returns event
 // Here the commands are represented by extension functions, but also can be the class member functions
 
-fun ProjectAggregateState.create(id: UUID, title: String, creatorId: String): ProjectCreatedEvent {
+fun ProjectAggregateState.createProject(projectId: UUID, name: String, creatorId: UUID): ProjectCreatedEvent {
     return ProjectCreatedEvent(
-        projectId = id,
-        title = title,
+        projectId = projectId,
+        projectName = name,
         creatorId = creatorId,
+        defaultStatusId = UUID.randomUUID(),
     )
 }
 
-fun ProjectAggregateState.addTask(name: String): TaskCreatedEvent {
-    return TaskCreatedEvent(projectId = this.getId(), taskId = UUID.randomUUID(), taskName = name)
+fun ProjectAggregateState.addProjectMember(memberId: UUID): ProjectMemberAddedEvent {
+    if (members.contains(memberId)) {
+        throw UniqueConstraintViolation("User is already a member of the project")
+    }
+    return ProjectMemberAddedEvent(projectId = getId(), memberId = memberId)
 }
 
-fun ProjectAggregateState.createTag(name: String): TagCreatedEvent {
-    if (projectTags.values.any { it.name == name }) {
-        throw IllegalArgumentException("Tag already exists: $name")
+fun ProjectAggregateState.createTaskStatus(name: String, color: Color): TaskStatusCreatedEvent {
+    if (taskStatuses.values.any { it.name == name }) {
+        throw UniqueConstraintViolation("Status with the same name already exists")
     }
-    return TagCreatedEvent(projectId = this.getId(), tagId = UUID.randomUUID(), tagName = name)
+    return TaskStatusCreatedEvent(projectId = getId(), statusId = UUID.randomUUID(), statusName = name, color = color)
 }
 
-fun ProjectAggregateState.assignTagToTask(tagId: UUID, taskId: UUID): TagAssignedToTaskEvent {
-    if (!projectTags.containsKey(tagId)) {
-        throw IllegalArgumentException("Tag doesn't exists: $tagId")
+fun ProjectAggregateState.deleteTaskStatus(statusId: UUID): TaskStatusDeletedEvent {
+    if (!taskStatuses.containsKey(statusId)) {
+        throw NoSuchEntity("Task status $statusId does not exist")
     }
-
-    if (!tasks.containsKey(taskId)) {
-        throw IllegalArgumentException("Task doesn't exists: $taskId")
+    val status = taskStatuses.getValue(statusId)
+    if (status.isDefault) {
+        throw IllegalStateException("Task status $statusId is the default status and cannot be deleted")
     }
+    return TaskStatusDeletedEvent(projectId = getId(), statusId = statusId)
+}
 
-    return TagAssignedToTaskEvent(projectId = this.getId(), tagId = tagId, taskId = taskId)
+fun ProjectAggregateState.setTaskStatusesOrder(statusesIds: LinkedHashSet<UUID>): TaskStatusesOrderSetEvent {
+    statusesIds.forEach {
+        if (!taskStatuses.containsKey(it)) {
+            throw NoSuchEntity("Task status $it does not exist")
+        }
+    }
+    if (taskStatuses.count() != statusesIds.count()) {
+        throw IllegalStateException("IDs list must include all the statuses")
+    }
+    return TaskStatusesOrderSetEvent(projectId = getId(), statusesIds = statusesIds)
 }
