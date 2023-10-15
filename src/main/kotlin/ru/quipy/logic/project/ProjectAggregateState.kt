@@ -26,18 +26,6 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
         creatorId = event.creatorId
         updatedAt = createdAt
     }
-
-    @StateTransitionFunc
-    fun tagCreatedApply(event: TagCreatedEvent) {
-        projectTags[event.tagId] = TagEntity(event.tagId, event.tagName)
-        updatedAt = createdAt
-    }
-
-    @StateTransitionFunc
-    fun taskCreatedApply(event: TaskCreatedEvent) {
-        tasks[event.taskId] = TaskEntity(event.taskId, event.taskName, mutableSetOf())
-        updatedAt = createdAt
-    }
 }
 
 data class TaskEntity(
@@ -54,9 +42,9 @@ data class TagEntity(
 /**
  * Demonstrates that the transition functions might be representer by "extension" functions, not only class members functions
  */
-@StateTransitionFunc
-fun ProjectAggregateState.tagAssignedApply(event: TagAssignedToTaskEvent) {
-    tasks[event.taskId]?.tagsAssigned?.add(event.tagId)
-        ?: throw IllegalArgumentException("No such task: ${event.taskId}")
-    updatedAt = createdAt
-}
+//@StateTransitionFunc
+//fun ProjectAggregateState.tagAssignedApply(event: TagAssignedToTaskEvent) {
+//    tasks[event.taskId]?.tagsAssigned?.add(event.tagId)
+//        ?: throw IllegalArgumentException("No such task: ${event.taskId}")
+//    updatedAt = createdAt
+//}

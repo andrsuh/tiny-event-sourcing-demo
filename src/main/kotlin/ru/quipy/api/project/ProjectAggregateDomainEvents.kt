@@ -34,7 +34,7 @@ class UserInvitedEvent(
 class StatusCreatedEvent(
     val statusId: UUID,
     val projectId: UUID,
-    val name: String,
+    val statusName: String,
     createdAt: Long = System.currentTimeMillis(),
 ) : Event<ProjectAggregate>(
     name = STATUS_CREATED_EVENT,
