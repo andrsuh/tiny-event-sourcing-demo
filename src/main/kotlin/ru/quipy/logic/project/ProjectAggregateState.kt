@@ -14,7 +14,7 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
     lateinit var projectTitle: String
     lateinit var creatorId: String
     var projectStatuses = mutableMapOf<UUID, StatusEntity>()
-    var projectUsers = mutableMapOf<UUID, UserEntity>()
+    var projectUsers = mutableMapOf<UUID, UserEntityProject>()
 
     override fun getId() = projectId
 
@@ -34,16 +34,16 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
 
     @StateTransitionFunc
     fun userInvitedApply(event: UserInvitedEvent) {
-        projectUsers[event.userId] = UserEntity(event.userId)
+        projectUsers[event.userId] = UserEntityProject(event.userId)
         updatedAt = createdAt
     }
 }
 
 data class StatusEntity(
-    val id: UUID = UUID.randomUUID(),
+    val id: UUID ,
     val name: String
 )
 
-data class UserEntity(
-    val userId: UUID = UUID.randomUUID()
+data class UserEntityProject(
+    val userId: UUID
 )

@@ -14,7 +14,7 @@ class TaskAggregateState : AggregateState<UUID, TaskAggregate> {
 
     lateinit var taskTitle: String
     lateinit var creatorId: String
-    var executors = mutableMapOf<UUID, UserEntity>()
+    var executors = mutableMapOf<UUID, UserEntityTask>()
 
     override fun getId() = taskId
 
@@ -30,11 +30,11 @@ class TaskAggregateState : AggregateState<UUID, TaskAggregate> {
     @StateTransitionFunc
     fun userExecutorApply(event: TaskAddedExecutorEvent) {
         taskId = event.taskId
-        executors[event.executorId] = UserEntity(event.executorId)
+        executors[event.executorId] = UserEntityTask(event.executorId)
         updatedAt = createdAt
     }
 }
 
-data class UserEntity(
+data class UserEntityTask(
         val userId: UUID
 )
