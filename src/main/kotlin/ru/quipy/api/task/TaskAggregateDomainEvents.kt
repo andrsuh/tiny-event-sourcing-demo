@@ -22,27 +22,27 @@ class TaskCreatedEvent(
     createdAt = createdAt,
 )
 
-@DomainEvent(name = STATUS_ASSIGNED_TO_TASK_EVENT)
-class StatusAssignedToTaskEvent(
-    val projectId: UUID,
-    val taskId: UUID,
-    val statusId: UUID,
-    createdAt: Long = System.currentTimeMillis(),
-) : Event<TaskAggregate>(
-    name = STATUS_ASSIGNED_TO_TASK_EVENT,
-    createdAt = createdAt
-)
-
-@DomainEvent(name = TASK_DATA_CHANGED_EVENT)
-class TaskDataChangedEvent(
-    val taskId: UUID,
-    val projectId: UUID,
-    val title: String,
-    createdAt: Long = System.currentTimeMillis(),
-) : Event<TaskAggregate>(
-    name = TASK_CREATED_EVENT,
-    createdAt = createdAt,
-)
+//@DomainEvent(name = STATUS_ASSIGNED_TO_TASK_EVENT)
+//class StatusAssignedToTaskEvent(
+//    val projectId: UUID,
+//    val taskId: UUID,
+//    val statusId: UUID,
+//    createdAt: Long = System.currentTimeMillis(),
+//) : Event<TaskAggregate>(
+//    name = STATUS_ASSIGNED_TO_TASK_EVENT,
+//    createdAt = createdAt
+//)
+//
+//@DomainEvent(name = TASK_DATA_CHANGED_EVENT)
+//class TaskDataChangedEvent(
+//    val taskId: UUID,
+//    val projectId: UUID,
+//    val title: String,
+//    createdAt: Long = System.currentTimeMillis(),
+//) : Event<TaskAggregate>(
+//    name = TASK_CREATED_EVENT,
+//    createdAt = createdAt,
+//)
 
 @DomainEvent(name = TASK_ADDED_EXECUTOR_EVENT)
 class TaskAddedExecutorEvent(
