@@ -8,9 +8,11 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import ru.quipy.api.ProjectAggregate
 import ru.quipy.api.ProjectCreatedEvent
+import ru.quipy.api.StatusCreatedEvent
 import ru.quipy.core.EventSourcingService
 import ru.quipy.logic.ProjectAggregateState
 import ru.quipy.logic.create
+import ru.quipy.logic.createStatus
 import java.util.*
 
 @RestController
@@ -25,14 +27,13 @@ class ProjectController(
     }
 
     @GetMapping("/{projectId}")
-    fun getAccount(@PathVariable projectId: UUID) : ProjectAggregateState? {
+    fun getProject(@PathVariable projectId: UUID) : ProjectAggregateState? {
         return projectEsService.getState(projectId)
     }
 
-//    @PostMapping("/{projectId}/tasks/{taskName}")
-//    fun createTask(@PathVariable projectId: UUID, @PathVariable taskName: String) : TaskCreatedEvent {
-//        return projectEsService.update(projectId) {
-//            it.addTask(taskName)
-//        }
-//    }
+    @PostMapping("/status/{statusTitle}")
+    fun createStatus(@PathVariable statusTitle: String, @RequestParam creatorId: String) : StatusCreatedEvent {
+        return projectEsService.create { it.createStatus(statusTitle) }
+    }
+
 }

@@ -1,6 +1,8 @@
 package ru.quipy.logic
 
 import ru.quipy.api.ProjectCreatedEvent
+import ru.quipy.api.StatusCreatedEvent
+import ru.quipy.api.UserInvitedEvent
 import ru.quipy.api.project.*
 import java.util.*
 
@@ -16,16 +18,20 @@ fun ProjectAggregateState.create(id: UUID, title: String, creatorId: String): Pr
     )
 }
 
-//fun ProjectAggregateState.addTask(name: String): TaskCreatedEvent {
-//    return TaskCreatedEvent(projectId = this.getId(), taskId = UUID.randomUUID(), taskName = name)
-//}
+fun ProjectAggregateState.createStatus(name: String): StatusCreatedEvent {
+    if (projectStatuses.values.any { it.name == name }) {
+        throw IllegalArgumentException("Status already exists: $name")
+    }
+    return StatusCreatedEvent(projectId = this.getId(), statusId = UUID.randomUUID(), statusName = name)
+}
 
-//fun ProjectAggregateState.createTag(name: String): TagCreatedEvent {
-//    if (projectTags.values.any { it.name == name }) {
-//        throw IllegalArgumentException("Tag already exists: $name")
-//    }
-//    return TagCreatedEvent(projectId = this.getId(), tagId = UUID.randomUUID(), tagName = name)
-//}
+fun ProjectAggregateState.inviteUser(id: UUID): UserInvitedEvent {
+    if (projectUsers.values.any { it.userId == id }) {
+        throw IllegalArgumentException("User already exists: $id")
+    }
+    return UserInvitedEvent(projectId = this.getId(), userId = id)
+}
+
 //
 //fun ProjectAggregateState.assignTagToTask(tagId: UUID, taskId: UUID): TagAssignedToTaskEvent {
 //    if (!projectTags.containsKey(tagId)) {
