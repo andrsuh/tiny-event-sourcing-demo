@@ -61,6 +61,9 @@ class EventSourcingLibConfiguration {
     @Bean
     fun taskEsService() =  eventSourcingServiceFactory.create<UUID, TaskAggregate, TaskAggregateState>()
 
+    @Bean
+    fun userEsService() = eventSourcingServiceFactory.create<UUID, ProjectAggregate, ProjectAggregateState>()
+
     @PostConstruct
     fun init() {
         // Demonstrates how to explicitly subscribe the instance of annotation based subscriber to some stream. See the [AggregateSubscriptionsManager]
