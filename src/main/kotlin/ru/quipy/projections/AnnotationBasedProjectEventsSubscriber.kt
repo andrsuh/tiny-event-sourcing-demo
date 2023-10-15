@@ -19,7 +19,7 @@ class AnnotationBasedProjectEventsSubscriber {
 
     @SubscribeEvent
     fun taskCreatedSubscriber(event: TaskCreatedEvent) {
-        logger.info("Task created: {}", event.taskName)
+        logger.info("Task created: {}", event.title)
     }
 
     @SubscribeEvent
