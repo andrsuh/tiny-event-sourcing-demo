@@ -9,10 +9,12 @@ import org.springframework.web.bind.annotation.RestController
 import ru.quipy.api.ProjectAggregate
 import ru.quipy.api.ProjectCreatedEvent
 import ru.quipy.api.StatusCreatedEvent
+import ru.quipy.api.UserInvitedEvent
 import ru.quipy.core.EventSourcingService
 import ru.quipy.logic.ProjectAggregateState
 import ru.quipy.logic.create
 import ru.quipy.logic.createStatus
+import ru.quipy.logic.inviteUser
 import java.util.*
 
 @RestController
@@ -34,6 +36,11 @@ class ProjectController(
     @PostMapping("/status/{statusTitle}")
     fun createStatus(@PathVariable statusTitle: String, @RequestParam creatorId: String) : StatusCreatedEvent {
         return projectEsService.create { it.createStatus(statusTitle) }
+    }
+
+    @PostMapping("/members/{userId}")
+    fun createStatus(@PathVariable userId: UUID, @RequestParam creatorId: String) : UserInvitedEvent {
+        return projectEsService.create { it.inviteUser(userId) }
     }
 
 }
