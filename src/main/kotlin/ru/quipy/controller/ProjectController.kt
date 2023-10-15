@@ -38,9 +38,4 @@ class ProjectController(
         return projectEsService.create { it.createStatus(statusTitle) }
     }
 
-    @PostMapping("/members/{userId}")
-    fun createStatus(@PathVariable userId: UUID, @RequestParam creatorId: String) : UserInvitedEvent {
-        return projectEsService.create { it.inviteUser(userId) }
-    }
-
 }
