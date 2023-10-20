@@ -31,16 +31,3 @@ fun ProjectAggregateState.inviteUser(id: UUID): UserInvitedEvent {
     }
     return UserInvitedEvent(projectId = this.getId(), userId = id)
 }
-
-//
-//fun ProjectAggregateState.assignTagToTask(tagId: UUID, taskId: UUID): TagAssignedToTaskEvent {
-//    if (!projectTags.containsKey(tagId)) {
-//        throw IllegalArgumentException("Tag doesn't exists: $tagId")
-//    }
-//
-//    if (!tasks.containsKey(taskId)) {
-//        throw IllegalArgumentException("Task doesn't exists: $taskId")
-//    }
-//
-//    return TagAssignedToTaskEvent(projectId = this.getId(), tagId = tagId, taskId = taskId)
-//}
