@@ -4,10 +4,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import ru.quipy.api.ProjectAggregate
-import ru.quipy.api.TagAssignedToTaskEvent
-import ru.quipy.api.TagCreatedEvent
-import ru.quipy.api.TaskCreatedEvent
+import ru.quipy.api.*
 import ru.quipy.streams.AggregateSubscriptionsManager
 import javax.annotation.PostConstruct
 
@@ -23,16 +20,40 @@ class ProjectEventsSubscriber {
     fun init() {
         subscriptionsManager.createSubscriber(ProjectAggregate::class, "some-meaningful-name") {
 
-            `when`(TaskCreatedEvent::class) { event ->
+            `when`(ProjectCreatedEvent::class) { event ->
+                logger.info("Task created: {} by user {}", event.title, event.creatorId)
+            }
+
+            `when`(ProjectTaskCreatedEvent::class) { event ->
                 logger.info("Task created: {}", event.taskName)
             }
 
-            `when`(TagCreatedEvent::class) { event ->
-                logger.info("Tag created: {}", event.tagName)
+            `when`(ProjectStatusAddedEvent::class) { event ->
+                logger.info("Status created: {} with color {}", event.statusName, event.statusColor)
             }
 
-            `when`(TagAssignedToTaskEvent::class) { event ->
-                logger.info("Tag {} assigned to task {}: ", event.tagId, event.taskId)
+            `when`(ProjectTaskStatusChangedEvent::class) { event ->
+                logger.info("Status {} assigned to task {}: ", event.statusId, event.taskId)
+            }
+
+            `when`(ProjectMemberAddedEvent::class) { event ->
+                logger.info("User {} added to project {}: ", event.memberId, event.projectId)
+            }
+
+            `when`(ProjectTitleChangedEvent::class) { event ->
+                logger.info("Project {} changed title to {}: ", event.projectId, event.title)
+            }
+
+            `when`(ProjectStatusDeletedEvent::class) { event ->
+                logger.info("Status {} deleted from project {}: ", event.statusId, event.projectId)
+            }
+
+            `when`(ProjectTaskMemberAssignedEvent::class) { event ->
+                logger.info("User {} assigned to task {}: ", event.memberId, event.taskId)
+            }
+
+            `when`(ProjectTaskTitleChangedEvent::class) { event ->
+                logger.info("Task {} changed title to {}: ", event.taskId, event.title)
             }
         }
     }
