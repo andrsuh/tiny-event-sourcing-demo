@@ -17,9 +17,9 @@ import java.util.*
 class TaskController (
         val taskEsService: EventSourcingService<UUID, TaskAggregate, TaskAggregateState>
 ) {
-    @PostMapping("/{taskTitle}")
-    fun createTask(@PathVariable taskTitle: String, @RequestParam creatorId: String) : TaskCreatedEvent{
-        return taskEsService.create { it.create(UUID.randomUUID(), taskTitle, creatorId, UUID.randomUUID())  }
+    @PostMapping("/{taskTitle}/{projectId}")
+    fun createTask(@PathVariable taskTitle: String,@PathVariable projectId: UUID,  @RequestParam creatorId: String) : TaskCreatedEvent{
+        return taskEsService.create { it.create(UUID.randomUUID(), taskTitle, creatorId, projectId)  }
     }
 
     @GetMapping("/get/{taskId}")

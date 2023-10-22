@@ -35,7 +35,7 @@ class ProjectController(
 
     @PostMapping("/status/{projectId}/{statusTitle}")
     fun createStatus(@PathVariable projectId: UUID, @PathVariable statusTitle: String) : StatusCreatedEvent {
-        return projectEsService.create { it.createStatus(statusTitle) }
+        return projectEsService.update(projectId) { it.createStatus(statusTitle) }
     }
 
     @PostMapping("/invite/{projectId}/{userId}")
