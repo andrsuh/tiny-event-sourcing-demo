@@ -16,6 +16,8 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
     var tasks = mutableMapOf<UUID, TaskEntity>()
     var projectTags = mutableMapOf<UUID, TagEntity>()
 
+    var membersList=mutableMapOf<UUID, UserEntity>()
+
     override fun getId() = projectId
 
     // State transition functions which is represented by the class member function
@@ -38,6 +40,26 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
         tasks[event.taskId] = TaskEntity(event.taskId, event.taskName, mutableSetOf())
         updatedAt = createdAt
     }
+
+    @StateTransitionFunc
+    fun userAddedToProjectApply(event: UserAddedToProjectEvent) {
+        membersList[event.userId] = UserEntity(event.userId)
+        updatedAt = createdAt
+    }
+    @StateTransitionFunc
+    fun projectNameChangedEventApply(event: ProjectNameChangedEvent) {
+        projectTitle = event.title
+        updatedAt = createdAt
+    }
+    @StateTransitionFunc
+    fun statusDeletedEventApply(event: StatusDeletedEvent) {
+        projectTags.remove(event.tagId)
+        updatedAt = createdAt
+
+    }
+
+
+
 }
 
 data class TaskEntity(
@@ -50,6 +72,11 @@ data class TagEntity(
     val id: UUID = UUID.randomUUID(),
     val name: String
 )
+data class UserEntity(
+        val id: UUID
+)
+
+
 
 /**
  * Demonstrates that the transition functions might be representer by "extension" functions, not only class members functions
