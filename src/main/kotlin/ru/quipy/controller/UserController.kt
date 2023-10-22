@@ -17,9 +17,9 @@ class UserController(
 ) {
 
     @PostMapping("/create")
-    fun createProject(@RequestParam name: String,
-                      @RequestParam nickname: String,
-                      @RequestParam password: String) : UserCreatedEvent {
+    fun addUser(@RequestParam name: String,
+                @RequestParam nickname: String,
+                @RequestParam password: String) : UserCreatedEvent {
         return userEsService.create { it.create(UUID.randomUUID(), name, nickname, password) }
     }
 }
