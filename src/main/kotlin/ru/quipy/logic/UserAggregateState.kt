@@ -1,6 +1,7 @@
 package ru.quipy.logic
 
 import ru.quipy.api.UserAggregate
+import ru.quipy.api.UserChangedNameEvent
 import ru.quipy.api.UserCreatedEvent
 import ru.quipy.core.annotations.StateTransitionFunc
 import ru.quipy.domain.AggregateState
@@ -23,5 +24,10 @@ class UserAggregateState : AggregateState<UUID, UserAggregate> {
         nickname = event.nickname
         name = event.firstname
         password = event.password
+    }
+
+    @StateTransitionFunc
+    fun userChangedNameApply(event: UserChangedNameEvent) {
+        name = event.newName
     }
 }

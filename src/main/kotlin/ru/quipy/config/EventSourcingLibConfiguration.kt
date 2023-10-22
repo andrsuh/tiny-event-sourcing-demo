@@ -10,6 +10,7 @@ import ru.quipy.core.EventSourcingServiceFactory
 import ru.quipy.logic.ProjectAggregateState
 import ru.quipy.logic.UserAggregateState
 import ru.quipy.projections.AnnotationBasedProjectEventsSubscriber
+import ru.quipy.projections.UserViewService
 import ru.quipy.streams.AggregateEventStreamManager
 import ru.quipy.streams.AggregateSubscriptionsManager
 import java.util.*
@@ -52,6 +53,9 @@ class EventSourcingLibConfiguration {
     @Autowired
     private lateinit var eventStreamManager: AggregateEventStreamManager
 
+    @Autowired
+    private lateinit var userViewService: UserViewService
+
     /**
      * Use this object to create/update the aggregate
      */
@@ -65,6 +69,7 @@ class EventSourcingLibConfiguration {
     fun init() {
         // Demonstrates how to explicitly subscribe the instance of annotation based subscriber to some stream. See the [AggregateSubscriptionsManager]
         subscriptionsManager.subscribe<ProjectAggregate>(projectEventSubscriber)
+        subscriptionsManager.subscribe<UserAggregate>(userViewService)
 
         // Demonstrates how you can set up the listeners to the event stream
         eventStreamManager.maintenance {
