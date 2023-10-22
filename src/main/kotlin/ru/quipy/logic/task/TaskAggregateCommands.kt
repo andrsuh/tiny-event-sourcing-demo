@@ -1,9 +1,6 @@
 package ru.quipy.logic
 
-import ru.quipy.api.StatusAssignedToTaskEvent
-import ru.quipy.api.TaskAddedExecutorEvent
-import ru.quipy.api.TaskCreatedEvent
-import ru.quipy.api.TaskTitleChangedEvent
+import ru.quipy.api.*
 import ru.quipy.api.project.*
 import java.util.*
 
@@ -24,10 +21,9 @@ fun TaskAggregateState.changeTitle(id: UUID, title: String): TaskTitleChangedEve
     )
 }
 
-fun TaskAggregateState.assignStatus(id: UUID, projectId: UUID, statusId: UUID): StatusAssignedToTaskEvent {
+fun TaskAggregateState.assignStatus(id: UUID, statusId: UUID): StatusAssignedToTaskEvent {
     return StatusAssignedToTaskEvent(
         taskId = id,
-        projectId = projectId,
         statusId = statusId,
     )
 }
@@ -37,4 +33,12 @@ fun TaskAggregateState.addExecutor(id: UUID): TaskAddedExecutorEvent {
         throw IllegalArgumentException("User already exists: $id")
     }
     return TaskAddedExecutorEvent(taskId = this.getId(), executorId = id)
+}
+
+fun TaskAggregateState.removeExecutor(id: UUID): TaskRemovedExecutor {
+    if (!executors.values.any { it.userId == id }) {
+        throw IllegalArgumentException("User doesn't exists: $id")
+    }
+
+    return TaskRemovedExecutor(taskId = this.getId(), executorId = id)
 }

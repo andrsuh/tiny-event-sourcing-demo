@@ -33,9 +33,14 @@ class ProjectController(
         return projectEsService.getState(projectId)
     }
 
-    @PostMapping("/status/{statusTitle}")
-    fun createStatus(@PathVariable statusTitle: String, @RequestParam creatorId: String) : StatusCreatedEvent {
+    @PostMapping("/status/{projectId}/{statusTitle}")
+    fun createStatus(@PathVariable projectId: UUID, @PathVariable statusTitle: String) : StatusCreatedEvent {
         return projectEsService.create { it.createStatus(statusTitle) }
+    }
+
+    @PostMapping("/invite/{projectId}/{userId}")
+    fun inviteUser(@PathVariable projectId: UUID, @PathVariable userId: UUID) : UserInvitedEvent? {
+        return projectEsService.update(projectId) {it.inviteUser(userId)}
     }
 
 }

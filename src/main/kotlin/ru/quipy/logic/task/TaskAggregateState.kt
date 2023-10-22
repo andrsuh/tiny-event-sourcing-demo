@@ -42,10 +42,16 @@ class TaskAggregateState : AggregateState<UUID, TaskAggregate> {
     }
 
     @StateTransitionFunc
-    fun taskAssignedApply(event: StatusAssignedToTaskEvent) {
+    fun taskStatusAssignedApply(event: StatusAssignedToTaskEvent) {
         taskId = event.taskId
         updatedAt = event.createdAt
         statusId = event.statusId
+    }
+
+    @StateTransitionFunc
+    fun removeExecutor(event: TaskRemovedExecutor) {
+        taskId = event.taskId
+        executors.remove(event.executorId)
     }
 }
 
