@@ -1,9 +1,6 @@
 package ru.quipy.logic
 
-import ru.quipy.api.ProjectCreatedEvent
-import ru.quipy.api.TagAssignedToTaskEvent
-import ru.quipy.api.TagCreatedEvent
-import ru.quipy.api.TaskCreatedEvent
+import ru.quipy.api.*
 import java.util.*
 
 
@@ -39,4 +36,21 @@ fun ProjectAggregateState.assignTagToTask(tagId: UUID, taskId: UUID): TagAssigne
     }
 
     return TagAssignedToTaskEvent(projectId = this.getId(), tagId = tagId, taskId = taskId)
+}
+
+fun ProjectAggregateState.addUserToProject(userId: UUID, userNewId: UUID ): UserAddedToProjectEvent {
+    if (!membersList.containsKey(userId)) {
+        throw IllegalArgumentException("This User doesn't exists in project: $userId")
+    }
+    return UserAddedToProjectEvent(projectId = this.getId(), userId = userId)
+}
+fun ProjectAggregateState.changeProjectName(userId: UUID, title: String ): ProjectNameChangedEvent {
+    return ProjectNameChangedEvent(projectId = this.getId(), title = title)
+}
+
+fun ProjectAggregateState.deleteStatus(tagId: UUID ): StatusDeletedEvent {
+    if (!projectTags.containsKey(tagId)) {
+        throw IllegalArgumentException("Tag doesn't exists: $tagId")
+    }
+    return StatusDeletedEvent(projectId = this.getId(), tagId = tagId)
 }
