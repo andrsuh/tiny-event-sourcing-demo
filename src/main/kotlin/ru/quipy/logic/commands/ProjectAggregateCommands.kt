@@ -20,7 +20,7 @@ fun ProjectAggregateState.addTask(name: String): ProjectTaskCreatedEvent {
     return ProjectTaskCreatedEvent(projectId = this.getId(), taskId = UUID.randomUUID(), taskName = name)
 }
 
-fun ProjectAggregateState.createStatus(name: String, color: String): ProjectStatusAddedEvent {
+fun ProjectAggregateState.projectStatusCreate(name: String, color: String): ProjectStatusAddedEvent {
     if (projectStatuses.values.any { it.name == name }) {
         throw IllegalArgumentException("Status already exists: $name")
     }
