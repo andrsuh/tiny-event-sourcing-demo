@@ -4,12 +4,20 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import ru.quipy.api.*
+import ru.quipy.api.aggregate.ProjectAggregate
+import ru.quipy.api.aggregate.UserAggregate
+import ru.quipy.api.event.*
+import ru.quipy.core.EventSourcingService
+import ru.quipy.logic.commands.addProject
+import ru.quipy.logic.state.UserAggregateState
 import ru.quipy.streams.AggregateSubscriptionsManager
+import java.util.*
 import javax.annotation.PostConstruct
 
 @Service
-class ProjectEventsSubscriber {
+class ProjectEventsSubscriber (
+    val userEsService: EventSourcingService<UUID, UserAggregate, UserAggregateState>
+) {
 
     val logger: Logger = LoggerFactory.getLogger(ProjectEventsSubscriber::class.java)
 
@@ -19,9 +27,11 @@ class ProjectEventsSubscriber {
     @PostConstruct
     fun init() {
         subscriptionsManager.createSubscriber(ProjectAggregate::class, "some-meaningful-name") {
-
             `when`(ProjectCreatedEvent::class) { event ->
-                logger.info("Task created: {} by user {}", event.title, event.creatorId)
+                logger.info("Project created: {} by user {}", event.title, event.creatorId)
+                userEsService.update(event.creatorId) {
+                    it.addProject(event.projectId)
+                }
             }
 
             `when`(ProjectTaskCreatedEvent::class) { event ->

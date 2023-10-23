@@ -7,12 +7,13 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import ru.quipy.api.*
+import ru.quipy.api.aggregate.ProjectAggregate
+import ru.quipy.api.event.*
 import ru.quipy.core.EventSourcingService
-import ru.quipy.logic.ProjectAggregateState
-import ru.quipy.logic.addTask
-import ru.quipy.logic.create
-import ru.quipy.logic.projectTaskStatusChange
+import ru.quipy.logic.state.ProjectAggregateState
+import ru.quipy.logic.commands.addTask
+import ru.quipy.logic.commands.create
+import ru.quipy.logic.commands.projectTaskStatusChange
 import java.util.*
 
 @RestController

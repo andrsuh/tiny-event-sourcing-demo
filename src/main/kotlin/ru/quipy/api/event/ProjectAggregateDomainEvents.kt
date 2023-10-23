@@ -1,5 +1,6 @@
-package ru.quipy.api
+package ru.quipy.api.event
 
+import ru.quipy.api.aggregate.ProjectAggregate
 import ru.quipy.core.annotations.DomainEvent
 import ru.quipy.domain.Event
 import java.util.*

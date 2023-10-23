@@ -1,6 +1,7 @@
-package ru.quipy.logic
+package ru.quipy.logic.state
 
-import ru.quipy.api.*
+import ru.quipy.api.aggregate.ProjectAggregate
+import ru.quipy.api.event.*
 import ru.quipy.core.annotations.StateTransitionFunc
 import ru.quipy.domain.AggregateState
 import java.util.*
