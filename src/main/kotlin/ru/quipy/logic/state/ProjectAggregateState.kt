@@ -27,6 +27,7 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
         projectTitle = event.title
         creatorId = event.creatorId
         updatedAt = createdAt
+        members[creatorId] = creatorId
         projectStatuses[UUID.fromString("00000000-0000-0000-0000-000000000000")] = StatusEntity(UUID.fromString("00000000-0000-0000-0000-000000000000"), "CREATED", "default")
     }
 
