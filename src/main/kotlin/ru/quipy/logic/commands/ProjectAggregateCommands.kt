@@ -75,5 +75,8 @@ fun ProjectAggregateState.projectStatusDelete(statusId: UUID): ProjectStatusDele
     if (!projectStatuses.values.any { it.id == statusId }) {
         throw IllegalArgumentException("Status doesn't exist: $statusId")
     }
+    if (tasks.values.any { it.statusAssigned == statusId}) {
+        throw IllegalArgumentException("Status is not empty: $statusId")
+    }
     return ProjectStatusDeletedEvent(projectId = this.getId(), statusId = statusId)
 }
