@@ -23,7 +23,7 @@ class AnnotationBasedProjectEventsSubscriber {
     }
 
     @SubscribeEvent
-    fun tagCreatedSubscriber(event: TagCreatedEvent) {
-        logger.info("Tag created: {}", event.tagName)
+    fun statusCreatedSubscriber(event: StatusCreatedEvent) {
+        logger.info("Status created: {}", event.statusName)
     }
 }
