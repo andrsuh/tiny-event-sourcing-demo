@@ -9,7 +9,7 @@ fun TaskAggregateState.createTask(projectId: UUID,
                                   statusId: UUID): TaskCreatedEvent{
     return  TaskCreatedEvent(projectId = projectId, taskId = taskId, statusId = statusId, taskName = taskName)
 }
-fun TaskAggregateState.changeTask(taskId: UUID, taskName: String) : TaskNameChangeEvent {
+fun TaskAggregateState.changeTaskTitle(taskId: UUID, taskName: String) : TaskNameChangeEvent {
     if (name == taskName) {
         throw IllegalArgumentException("Task with this name already exists: $taskName")
     }

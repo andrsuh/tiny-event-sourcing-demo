@@ -25,7 +25,7 @@ class TaskAggregateState : AggregateState<UUID, TaskAggregate>{
     }
 
     @StateTransitionFunc
-    fun changeTask(event: TaskNameChangeEvent){
+    fun changeTaskTitle(event: TaskNameChangeEvent){
         name = event.taskName
     }
 

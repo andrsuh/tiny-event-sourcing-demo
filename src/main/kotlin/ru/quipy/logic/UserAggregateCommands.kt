@@ -9,3 +9,7 @@ fun UserAggregateState.createUser(userId: UUID,
                                   role: String): UserCreatedEvent{
     return  UserCreatedEvent(userId = userId, login = login, password = password, role = role)
 }
+
+fun TaskAggregateState.changeUserName(userId: UUID, userName: String) : TaskNameChangeEvent {
+    return ChangeUserNameEvent(userId = userId, userName = userName)
+}

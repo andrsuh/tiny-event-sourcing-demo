@@ -18,8 +18,7 @@ class ProjectCreatedEvent(
     val title: String,
     val creatorId: String,
 ) : Event<ProjectAggregate>(
-    name = PROJECT_CREATED_EVENT,
-    createdAt = createdAt,
+    name = PROJECT_CREATED_EVENT
 )
 
 @DomainEvent(name = ADD_PARTICIPANT_TO_PROJECT_EVENT)
@@ -27,8 +26,7 @@ class AddParticipantToProjectEvent(
     val projectId: UUID,
     val participantId: UUID,
 ) : Event<ProjectAggregate>(
-    name = ADD_PARTICIPANT_TO_PROJECT_EVENT,
-    createdAt = createdAt
+    name = ADD_PARTICIPANT_TO_PROJECT_EVENT
 )
 
 @DomainEvent(name = STATUS_CREATED_EVENT)
@@ -38,8 +36,7 @@ class StatusCreatedEvent(
     val statusName: String,
     val color: String,
 ) : Event<ProjectAggregate>(
-    name = STATUS_CREATED_EVENT,
-    createdAt = createdAt,
+    name = STATUS_CREATED_EVENT
 )
 
 @DomainEvent(name = STAUS_ASSIGNED_TO_TASK_EVENT)
@@ -49,8 +46,7 @@ class StatusAssignedToTaskEvent(
     val statusId: UUID,
     val oldStatusId: UUID,
 ) : Event<ProjectAggregate>(
-    name = STAUS_ASSIGNED_TO_TASK_EVENT,
-    createdAt = createdAt
+    name = STAUS_ASSIGNED_TO_TASK_EVENT
 )
 
 @DomainEvent(name = CHANGE_STATUS_EVENT)
@@ -59,8 +55,7 @@ class ChangeStatusEvent(
     val statusId: UUID,
     val statusName: String,
 ) : Event<ProjectAggregate>(
-    name = CHANGE_STATUS_EVENT,
-    createdAt = createdAt
+    name = CHANGE_STATUS_EVENT
 )
 
 @DomainEvent(name = DELETE_STATUS_EVENT)
@@ -68,6 +63,5 @@ class DeleteStatusEvent(
     val projectId: UUID,
     val statusId: UUID,
 ) : Event<ProjectAggregate>(
-    name = DELETE_STATUS_EVENT,
-    createdAt = createdAt
+    name = DELETE_STATUS_EVENT
 )

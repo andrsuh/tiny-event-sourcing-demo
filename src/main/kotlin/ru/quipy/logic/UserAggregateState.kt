@@ -20,4 +20,9 @@ class UserAggregateState : AggregateState<UUID, UserAggregate> {
         password = event.password
         role = event.role
     }
+
+    @StateTransitionFunc
+    fun changeUserName(event: ChangeUserNameEvent){
+        name = event.userName
+    }
 }
