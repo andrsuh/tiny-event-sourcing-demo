@@ -15,7 +15,7 @@ class ProjectController(
 ) {
     @PostMapping("/{projectTitle}")
     fun createProject(@PathVariable projectTitle: String, @RequestParam creatorId: String) : ProjectCreatedEvent {
-        return projectEsService.create { it.create(UUID.randomUUID(), projectTitle, creatorId) }
+        return projectEsService.create { it.createProject(UUID.randomUUID(), projectTitle, creatorId) }
     }
 
     @GetMapping("/{projectId}")
@@ -24,24 +24,24 @@ class ProjectController(
     }
 
     @PostMapping("/{projectId}/status/createStatus/{statusName}")
-    fun createStatus(@PathVariable projectId: UUID, @PathVariable statusName: String) : StatusCreatedEvent{
+    fun createStatus(@PathVariable projectId: UUID, @PathVariable statusName: String, @RequestParam color: String) : StatusCreatedEvent{
         return projectEsService.update(projectId) {
-            it.createStauts(statusName)
+            it.createStatus(statusName, color)
         }
     }
 
-    @PostMapping("/{projectId}/{taskId}/addStatus/{statusId}")
-    fun assignStatusToTask(@PathVariable projectId: UUID, @PathVariable taskId: UUID, @PathVariable statusId: UUID):
-            AssignedStatusToTaskEvent {
-        val task = taskEsService.getState(taskId)
-            ?: throw IllegalArgumentException("No such task: $taskId")
-        projectEsService.update(projectId)  {
-            it.assignStatusToTask(statusId, taskId, task.status)
-        }
-        return taskEsService.update(taskId){
-            it.statusAssignedToTaskEvent(projectId, taskId, statusId)
-        }
-    }
+//    @PostMapping("/{projectId}/{taskId}/addStatus/{statusId}")
+//    fun assignStatusToTask(@PathVariable projectId: UUID, @PathVariable taskId: UUID, @PathVariable statusId: UUID):
+//            StatusAssignedToTaskEvent {
+////        val task = taskEsService.getState(taskId)
+////            ?: throw IllegalArgumentException("No such task: $taskId")
+////        projectEsService.update(projectId)  {
+////            it.assignStatusToTask(projectId, taskId, task.status)
+////        }
+////        return taskEsService.update(taskId){
+////            it.assignStatusToTask(projectId, taskId, statusId)
+////        }
+//    }
 
     @DeleteMapping("/{projectId}/status/deleteStatus/{statusId}")
     fun deleteStatus(@PathVariable projectId: UUID, @PathVariable statusId: UUID) : DeleteStatusEvent{

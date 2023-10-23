@@ -35,6 +35,7 @@ class StatusCreatedEvent(
     val statusId: UUID,
     val statusName: String,
     val color: String,
+    val taskQuantity: Int,
 ) : Event<ProjectAggregate>(
     name = STATUS_CREATED_EVENT
 )
@@ -53,7 +54,7 @@ class StatusAssignedToTaskEvent(
 class ChangeStatusEvent(
     val projectId: UUID,
     val statusId: UUID,
-    val statusName: String,
+    val statusName: String
 ) : Event<ProjectAggregate>(
     name = CHANGE_STATUS_EVENT
 )

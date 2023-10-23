@@ -23,13 +23,11 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
         projectId = event.projectId
         projectTitle = event.title
         creatorId = event.creatorId
-        val taskStatus = StatusEntityEntity(event.defaultStatusId, event.defaultStatusName, event.defaultStatusColor, 0)
-        statuses[taskStatus.id] = taskStatus
     }
 
     @StateTransitionFunc
     fun addParticipantToProject(event: AddParticipantToProjectEvent){
-        participants[event.userId] = UserEntity(event.userId)
+        participants[event.participantId] = UserEntity(event.participantId)
     }
 
     @StateTransitionFunc
@@ -39,8 +37,9 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
 
     @StateTransitionFunc
     fun changeStatus(event: ChangeStatusEvent){
-        val taskquantity = statuses[event.tagId]?.taskquantity
-        statuses[event.statusId] = StatusEntity(event.statusId, event.statusName, color, taskquantity)
+        val qtyTask = statuses[event.statusId]?.taskQuantity
+        val colorStatus = statuses[event.statusId]?.color
+        statuses[event.statusId] = StatusEntity(event.statusId, event.statusName, StatusEntity.DEFAULT_COLOR, qtyTask)
     }
 
     @StateTransitionFunc
@@ -63,10 +62,11 @@ data class StatusEntity(
     val statusId: UUID,
     val statusName: String,
     val color: String,
-    val taskquantity: Int?
+    val taskQuantity: Int?
 ){
     companion object {
         const val DEFAULT_STATUS = "CREATED"
+        const val DEFAULT_COLOR = "WHITE"
     }
 }
 
@@ -74,14 +74,14 @@ data class StatusEntity(
  * Demonstrates that the transition functions might be representer by "extension" functions, not only class members functions
  */
 @StateTransitionFunc
-fun ProjectAggregateState.assignStatusToTask(event: statusAssignedToTaskEvent) {
-    val key = statuses.get(event.statusId)
-        ?: throw IllegalArgumentException("No such status: ${event.statusId}")
-    key.count = key.count?.plus(1)
-    val key2 = statuses.get(event.oldStatusId)
-        ?: throw IllegalArgumentException("No such staus: ${event.oldStatusId}")
-    if(key2.name != DEFAULT_TAG){
-        key2.count = key2.count?.minus(1)
-    }
+fun ProjectAggregateState.assignStatusToTask(event: StatusAssignedToTaskEvent) {
+//    val key = statuses.get(event.statusId)
+//        ?: throw IllegalArgumentException("No such status: ${event.statusId}")
+//    key.taskquantity = key.taskquantity?.plus(1)
+//    val key2 = statuses.get(event.oldStatusId)
+//        ?: throw IllegalArgumentException("No such staus: ${event.oldStatusId}")
+//    if(key2.statusName != DEFAULT_STATUS){
+//        key2.taskquantity? = key2.taskquantity?.minus(1)
+//    }
 }
 

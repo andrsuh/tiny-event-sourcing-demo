@@ -18,22 +18,22 @@ class TaskController(
         val proj = projectEsService.getState(projectId)
             ?: throw IllegalArgumentException("No such project: $projectId")
         val taskStatus = proj.statuses.entries
-            .filter { it.value.name == StatusEntity.DEFAULT_STATUS }
+            .filter { it.value.statusName == StatusEntity.DEFAULT_STATUS }
             .map { it.key }
         return taskEsService.create { it.createTask(projectId, UUID.randomUUID(), taskName, taskStatus.first()) }
     }
 
     @PostMapping("/{projectId}/{taskId}/changeTask/{newName}")
-    fun changeTask(@PathVariable projectId: UUID, @PathVariable taskId: UUID, @PathVariable newName: String) : TaskNameChangeEvent? {
+    fun changeTaskTitle(@PathVariable projectId: UUID, @PathVariable taskId: UUID, @PathVariable newName: String) : TaskNameChangeEvent? {
         return taskEsService.update(taskId){
-            it.changeTask(taskId, newName)
+            it.changeTaskTitle(taskId, newName)
         }
     }
 
     @PostMapping("/{taskId}/addUser/{userId}")
-    fun addExecutorToTask(@PathVariable taskId: UUID, @PathVariable userId: UUID) : ListExecutorsUpdatedEvent?{
+    fun addExecutorToTask(@PathVariable taskId: UUID, @PathVariable userId: UUID) : AssignedExcutorToTaskEvent?{
         return taskEsService.update(taskId){
-            it.addUser(userId, taskId)
+            it.addExecutorToTask(userId, taskId)
         }
     }
 

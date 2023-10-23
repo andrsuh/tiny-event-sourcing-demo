@@ -23,7 +23,7 @@ fun ProjectAggregateState.addParticipantToProject(userId: UUID): AddParticipantT
     if(participants.containsKey(userId)){
         throw IllegalArgumentException("User with id: $userId already exists in project")
     }
-    return AddParticipantToProjectEvent(projectId = this.getId(), userId = userId)
+    return AddParticipantToProjectEvent(projectId = this.getId(), participantId = userId)
 }
 
 fun ProjectAggregateState.assignStatusToTask(statusId: UUID, taskId: UUID, oldStatusId: UUID): StatusAssignedToTaskEvent {
@@ -34,8 +34,8 @@ fun ProjectAggregateState.assignStatusToTask(statusId: UUID, taskId: UUID, oldSt
     return StatusAssignedToTaskEvent(projectId = this.getId(), statusId = statusId, taskId = taskId, oldStatusId = oldStatusId)
 }
 
-fun ProjectAggregateState.createStatus(name: String, color: String): TagCreatedEvent {
-    if (statuses.values.any { it.name == name }) {
+fun ProjectAggregateState.createStatus(name: String, color: String): StatusCreatedEvent {
+    if (statuses.values.any { it.statusName == name }) {
         throw IllegalArgumentException("Status already exists: $name")
     }
     return StatusCreatedEvent(projectId = this.getId(), statusId = UUID.randomUUID(), statusName = name, color = color, 0)
@@ -46,18 +46,19 @@ fun ProjectAggregateState.deleteStatus(statusId: UUID): DeleteStatusEvent{
         throw IllegalArgumentException("Status doesn't exists: $statusId")
     }
     val status = statuses.get(statusId)
-    if(tag?.count!! > 0){
+    if(status?.taskQuantity!! > 0){
         throw IllegalArgumentException("Status have tasks:")
     }
     return DeleteStatusEvent(projectId = this.getId(), statusId = statusId)
 }
 
 fun ProjectAggregateState.changeStatus(statusId: UUID, statusName: String): ChangeStatusEvent{
-    if(!projectTags.containsKey(statusId)){
+    if(!statuses.containsKey(statusId)){
         throw IllegalArgumentException("Status doesn't exists: $statusId")
     }
-    if(projectTags.values.any { it.name == tagName }){
+    if(statuses.values.any { it.statusName == statusName }){
         throw IllegalArgumentException("Stauts already exists: $statusName")
     }
-    return ChangeStausEvent(projectId = this.getId(), statusId = statusId, statusName = statusName)
+    val status_ = statuses[statusId]
+    return ChangeStatusEvent(projectId = this.getId(), statusId = statusId, statusName = statusName)
 }

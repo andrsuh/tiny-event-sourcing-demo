@@ -1,7 +1,6 @@
 package ru.quipy.logic
 
-import ru.quipy.api.UserAggregate
-import ru.quipy.api.ChangeStatusUserEvent
+import ru.quipy.api.*
 import ru.quipy.core.annotations.StateTransitionFunc
 import ru.quipy.domain.AggregateState
 import java.util.*
@@ -23,6 +22,13 @@ class UserAggregateState : AggregateState<UUID, UserAggregate> {
 
     @StateTransitionFunc
     fun changeUserName(event: ChangeUserNameEvent){
-        name = event.userName
+        userId = event.userId
+        login = event.login
+    }
+
+    @StateTransitionFunc
+    fun changeRoleUser(event: ChangeRoleUserEvent){
+        userId = event.userId
+        role = event.newRole
     }
 }
