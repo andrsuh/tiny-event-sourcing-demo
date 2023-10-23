@@ -52,7 +52,7 @@ Now lets add some Task with name "Task" to the project. Take the projectId from 
 POST http://localhost:8081/projects/823d4576-5e95-4027-bd9e-63b27086256c/tasks/Task 
 ```
 
-You will receive corresponding `TASK_CREATED_EVENT` if everything ok
+You will receive corresponding `PROJECT_TASK_CREATED_EVENT` if everything ok
 
 Now lets fetch the current state of the ProjectAggregate:
 
@@ -72,10 +72,10 @@ You will receive something like this:
         "4b2e75be-19c8-4504-82b1-be3a8775a21a": {
             "id": "4b2e75be-19c8-4504-82b1-be3a8775a21a",
             "name": "Task",
-            "tagsAssigned": []
+            "statussAssigned": []
         }
     },
-    "projectTags": {},
+    "projectStatuses": {},
     "id": "823d4576-5e95-4027-bd9e-63b27086256c"
 }
 ```
