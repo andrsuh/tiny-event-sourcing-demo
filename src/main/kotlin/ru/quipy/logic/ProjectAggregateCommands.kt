@@ -1,42 +1,41 @@
 package ru.quipy.logic
 
-import ru.quipy.api.ProjectCreatedEvent
-import ru.quipy.api.TagAssignedToTaskEvent
-import ru.quipy.api.TagCreatedEvent
-import ru.quipy.api.TaskCreatedEvent
+import com.fasterxml.jackson.databind.BeanDescription
+import org.yaml.snakeyaml.events.Event.ID
+import ru.quipy.api.*
 import java.util.*
 
 
 // Commands : takes something -> returns event
 // Here the commands are represented by extension functions, but also can be the class member functions
 
-fun ProjectAggregateState.create(id: UUID, title: String, creatorId: String): ProjectCreatedEvent {
+fun ProjectAggregateState.createProject(title: String, creatorId: String, description: String): ProjectCreatedEvent {
     return ProjectCreatedEvent(
-        projectId = id,
+        projectId = UUID.randomUUID(),
         title = title,
         creatorId = creatorId,
+        description = description
     )
 }
 
-fun ProjectAggregateState.addTask(name: String): TaskCreatedEvent {
-    return TaskCreatedEvent(projectId = this.getId(), taskId = UUID.randomUUID(), taskName = name)
-}
-
-fun ProjectAggregateState.createTag(name: String): TagCreatedEvent {
-    if (projectTags.values.any { it.name == name }) {
+fun ProjectAggregateState.createStatus(projectId: UUID, name: String, color: String): StatusCreatedEvent {
+    if (statuses.values.any { it.statusName == name }) {
         throw IllegalArgumentException("Tag already exists: $name")
     }
-    return TagCreatedEvent(projectId = this.getId(), tagId = UUID.randomUUID(), tagName = name)
+    return StatusCreatedEvent(
+        projectId = projectId, 
+        statusId = UUID.randomUUID(), 
+        statusName = name,
+        statusColor = color
+    )
 }
 
-fun ProjectAggregateState.assignTagToTask(tagId: UUID, taskId: UUID): TagAssignedToTaskEvent {
-    if (!projectTags.containsKey(tagId)) {
-        throw IllegalArgumentException("Tag doesn't exists: $tagId")
+fun ProjectAggregateState.deleteStatus(projectId: UUID, statusId: UUID): StatusDeletedEvent {
+    if (!statuses.values.any { it.statusId == statusId }) {
+        throw IllegalArgumentException("Tag does not exist")
     }
-
-    if (!tasks.containsKey(taskId)) {
-        throw IllegalArgumentException("Task doesn't exists: $taskId")
-    }
-
-    return TagAssignedToTaskEvent(projectId = this.getId(), tagId = tagId, taskId = taskId)
+    return StatusDeletedEvent(
+        projectId = this.getId(),
+        statusId = statusId
+    )
 }
