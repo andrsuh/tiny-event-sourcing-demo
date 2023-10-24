@@ -1,42 +1,39 @@
 package ru.quipy.logic
 
-import ru.quipy.api.ProjectCreatedEvent
-import ru.quipy.api.TagAssignedToTaskEvent
-import ru.quipy.api.TagCreatedEvent
-import ru.quipy.api.TaskCreatedEvent
+import ru.quipy.api.*
 import java.util.*
 
 
 // Commands : takes something -> returns event
 // Here the commands are represented by extension functions, but also can be the class member functions
 
-fun ProjectAggregateState.create(id: UUID, title: String, creatorId: String): ProjectCreatedEvent {
+fun ProjectAggregateState.createProject(id: UUID, name: String, creatorId: UUID, description : String): ProjectCreatedEvent {
+    if (name.length > 255) {
+        throw Exception(message = "Project name should be less than 255 characters!")
+    }
     return ProjectCreatedEvent(
         projectId = id,
-        title = title,
+        projectName = name,
         creatorId = creatorId,
+        description = description
     )
 }
 
-fun ProjectAggregateState.addTask(name: String): TaskCreatedEvent {
-    return TaskCreatedEvent(projectId = this.getId(), taskId = UUID.randomUUID(), taskName = name)
+fun ProjectAggregateState.addParticipantById(userId:UUID): ParticipantAddedEvent {
+    return ParticipantAddedEvent(projectId = this.getId(), userId = userId)
 }
 
-fun ProjectAggregateState.createTag(name: String): TagCreatedEvent {
-    if (projectTags.values.any { it.name == name }) {
-        throw IllegalArgumentException("Tag already exists: $name")
-    }
-    return TagCreatedEvent(projectId = this.getId(), tagId = UUID.randomUUID(), tagName = name)
+fun ProjectAggregateState.leaveProject(userId: UUID): LeaveProjectEvent {
+    return LeaveProjectEvent(projectId = this.getId(), userId = userId)
 }
 
-fun ProjectAggregateState.assignTagToTask(tagId: UUID, taskId: UUID): TagAssignedToTaskEvent {
-    if (!projectTags.containsKey(tagId)) {
-        throw IllegalArgumentException("Tag doesn't exists: $tagId")
+fun ProjectAggregateState.createStatus(statusId:UUID, statusName: String, colour: String): StatusCreatedEvent {
+    if (statusName.length > 255) {
+        throw Exception(message = "Status name should be less than 255 characters!")
     }
+    return StatusCreatedEvent(projectId = this.getId(), statusId = statusId, statusName = statusName, colour = colour)
+}
 
-    if (!tasks.containsKey(taskId)) {
-        throw IllegalArgumentException("Task doesn't exists: $taskId")
-    }
-
-    return TagAssignedToTaskEvent(projectId = this.getId(), tagId = tagId, taskId = taskId)
+fun ProjectAggregateState.deleteStatus(statusId: UUID): StatusDeletedEvent {
+    return StatusDeletedEvent(projectId = this.getId(), statusId = statusId)
 }

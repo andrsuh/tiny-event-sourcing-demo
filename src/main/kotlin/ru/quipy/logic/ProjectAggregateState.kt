@@ -11,52 +11,50 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
     var createdAt: Long = System.currentTimeMillis()
     var updatedAt: Long = System.currentTimeMillis()
 
-    lateinit var projectTitle: String
-    lateinit var creatorId: String
-    var tasks = mutableMapOf<UUID, TaskEntity>()
-    var projectTags = mutableMapOf<UUID, TagEntity>()
-
+    private lateinit var name: String
+    lateinit var description: String
+    var participants = mutableListOf<UUID>()
+    var projectStatuses = mutableMapOf<UUID, StatusEntity>()
     override fun getId() = projectId
 
     // State transition functions which is represented by the class member function
     @StateTransitionFunc
     fun projectCreatedApply(event: ProjectCreatedEvent) {
         projectId = event.projectId
-        projectTitle = event.title
-        creatorId = event.creatorId
+        name = event.projectName
+        description = event.description
+        participants.add(element = event.creatorId)
         updatedAt = createdAt
     }
 
     @StateTransitionFunc
-    fun tagCreatedApply(event: TagCreatedEvent) {
-        projectTags[event.tagId] = TagEntity(event.tagId, event.tagName)
-        updatedAt = createdAt
+    fun participantAddApply(event: ParticipantAddedEvent) {
+        participants.add(element = event.userId)
+        updatedAt = event.createdAt
     }
 
     @StateTransitionFunc
-    fun taskCreatedApply(event: TaskCreatedEvent) {
-        tasks[event.taskId] = TaskEntity(event.taskId, event.taskName, mutableSetOf())
-        updatedAt = createdAt
+    fun leaveProjectApply(event: LeaveProjectEvent) {
+        val success = participants.remove(element = event.userId)
+        if (!success) {
+            throw Exception(message = "User not found!")
+        }
+        updatedAt = event.createdAt
+    }
+    @StateTransitionFunc
+    fun statusCreatedApply(event: StatusCreatedEvent) {
+        projectStatuses[event.statusId] = StatusEntity(id=event.statusId, name = event.statusName, colour = event.colour)
+        updatedAt = event.createdAt
+    }
+    @StateTransitionFunc
+    fun statusDeletedApply(event: StatusDeletedEvent) {
+        projectStatuses.remove(event.statusId) ?: throw Exception(message = "Status not found!")
+        updatedAt = event.createdAt
     }
 }
 
-data class TaskEntity(
-    val id: UUID = UUID.randomUUID(),
+data class StatusEntity(
+    val id: UUID,
     val name: String,
-    val tagsAssigned: MutableSet<UUID>
+    val colour: String
 )
-
-data class TagEntity(
-    val id: UUID = UUID.randomUUID(),
-    val name: String
-)
-
-/**
- * Demonstrates that the transition functions might be representer by "extension" functions, not only class members functions
- */
-@StateTransitionFunc
-fun ProjectAggregateState.tagAssignedApply(event: TagAssignedToTaskEvent) {
-    tasks[event.taskId]?.tagsAssigned?.add(event.tagId)
-        ?: throw IllegalArgumentException("No such task: ${event.taskId}")
-    updatedAt = createdAt
-}

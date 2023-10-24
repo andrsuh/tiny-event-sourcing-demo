@@ -17,7 +17,7 @@ const val STATUS_DELETED_EVENT = "STATUS_DELETED_EVENT"
 class ProjectCreatedEvent(
         val projectId: UUID,
         val projectName: String,
-        val creatorId: String,
+        val creatorId: UUID,
         val description: String,
         createdAt: Long = System.currentTimeMillis(),
 ) : Event<ProjectAggregate>(
@@ -59,6 +59,7 @@ class StatusCreatedEvent(
 
 @DomainEvent(name = STATUS_DELETED_EVENT)
 class StatusDeletedEvent(
+        val projectId: UUID,
         val statusId: UUID,
         createdAt: Long = System.currentTimeMillis(),
 ) : Event<ProjectAggregate>(
