@@ -9,8 +9,9 @@ import java.util.*
 
 fun ProjectAggregateState.createProject(id: UUID, name: String, creatorId: UUID, description : String): ProjectCreatedEvent {
     if (name.length > 255) {
-        throw Exception(message = "Project name should be less than 255 characters!")
+        throw IllegalArgumentException("Project name should be less than 255 characters!")
     }
+
     return ProjectCreatedEvent(
         projectId = id,
         projectName = name,
@@ -29,8 +30,9 @@ fun ProjectAggregateState.leaveProject(userId: UUID): LeaveProjectEvent {
 
 fun ProjectAggregateState.createStatus(statusId:UUID, statusName: String, colour: String): StatusCreatedEvent {
     if (statusName.length > 255) {
-        throw Exception(message = "Status name should be less than 255 characters!")
+        throw IllegalArgumentException("Status name should be less than 255 characters!")
     }
+
     return StatusCreatedEvent(projectId = this.getId(), statusId = statusId, statusName = statusName, colour = colour)
 }
 

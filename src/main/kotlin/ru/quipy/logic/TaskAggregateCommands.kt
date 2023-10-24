@@ -5,7 +5,7 @@ import java.util.*
 
 fun TaskAggregateState.createTask(id: UUID, projectId: UUID, name: String, description: String, deadline: Date): TaskCreatedEvent {
     if (name.length > 255) {
-        throw Exception(message = "Task name should be less than 255 characters!")
+        throw IllegalArgumentException("Task name should be less than 255 characters!")
     }
 
     return TaskCreatedEvent(id, projectId, name, description, deadline)
