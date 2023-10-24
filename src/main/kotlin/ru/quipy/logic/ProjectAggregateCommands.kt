@@ -9,9 +9,9 @@ import java.util.*
 
 fun ProjectAggregateState.create(id: UUID, title: String, creatorId: String): ProjectCreatedEvent {
     return ProjectCreatedEvent(
-        projectId = id,
-        title = title,
-        creatorId = creatorId,
+            projectId = id,
+            title = title,
+            creatorId = creatorId,
     )
 }
 
@@ -38,19 +38,47 @@ fun ProjectAggregateState.assignTagToTask(tagId: UUID, taskId: UUID): TagAssigne
     return TagAssignedToTaskEvent(projectId = this.getId(), tagId = tagId, taskId = taskId)
 }
 
-fun ProjectAggregateState.addUserToProject(userId: UUID, userNewId: UUID ): UserAddedToProjectEvent {
+fun ProjectAggregateState.addUserToProject(userId: UUID, userNewId: UUID): UserAddedToProjectEvent {
     if (!membersList.containsKey(userId)) {
         throw IllegalArgumentException("This User doesn't exists in project: $userId")
     }
     return UserAddedToProjectEvent(projectId = this.getId(), userId = userId)
 }
-fun ProjectAggregateState.changeProjectName(userId: UUID, title: String ): ProjectNameChangedEvent {
+
+fun ProjectAggregateState.changeProjectName(userId: UUID, title: String): ProjectNameChangedEvent {
     return ProjectNameChangedEvent(projectId = this.getId(), title = title)
 }
 
-fun ProjectAggregateState.deleteStatus(tagId: UUID ): StatusDeletedEvent {
+fun ProjectAggregateState.deleteStatus(tagId: UUID): StatusDeletedEvent {
     if (!projectTags.containsKey(tagId)) {
         throw IllegalArgumentException("Tag doesn't exists: $tagId")
     }
+
+    if (!tasks.values.none { userEntity ->
+                tagId in userEntity.tagsAssigned
+            }) {
+        throw IllegalArgumentException("Tag is associated with at least 1 task it cannot be deleted: $tagId")
+    }
     return StatusDeletedEvent(projectId = this.getId(), tagId = tagId)
+}
+
+fun ProjectAggregateState.assignUserToTask(userId: UUID, taskId: UUID): UserAssignedToTaskEvent {
+    if (!membersList.containsKey(userId)) {
+        throw IllegalArgumentException("User doesn't exists in project: $userId")
+    }
+
+    if (!tasks.containsKey(taskId)) {
+        throw IllegalArgumentException("Task doesn't exists: $taskId")
+    }
+
+    return UserAssignedToTaskEvent(projectId = this.getId(), userId = userId, taskId = taskId)
+}
+
+
+fun ProjectAggregateState.changeTaskName(taskId: UUID, title: String): TaskNameChangedEvent {
+    if (!tasks.containsKey(taskId)) {
+        throw IllegalArgumentException("Task doesn't exists: $taskId")
+    }
+
+    return TaskNameChangedEvent(projectId = this.getId(), taskId = taskId, title = title)
 }
