@@ -13,8 +13,8 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
 
     private lateinit var name: String
     lateinit var description: String
-    var participants = mutableListOf<UUID>()
-    var projectStatuses = mutableMapOf<UUID, StatusEntity>()
+    val participants = mutableListOf<UUID>()
+    val projectStatuses = mutableMapOf<UUID, StatusEntity>()
     override fun getId() = projectId
 
     // State transition functions which is represented by the class member function
