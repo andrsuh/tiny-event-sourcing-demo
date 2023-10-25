@@ -5,7 +5,7 @@ import ru.quipy.domain.Event
 import java.util.UUID
 
 const val USER_CREATED_EVENT = "USER_CREATED_EVENT"
-const val USERNAME_CHANGED_EVENT = "USERNAME_CHANGED_EVENT"
+const val NAME_USER_CHANGED_EVENT = "NAME_USER_CHANGED_EVENT"
 
 @DomainEvent(name = USER_CREATED_EVENT)
 class UserCreatedEvent(
@@ -18,12 +18,12 @@ class UserCreatedEvent(
     createdAt = createdAt
 )
 
-@DomainEvent(name = USERNAME_CHANGED_EVENT)
-class UsernameChangedEvent(
+@DomainEvent(name = NAME_USER_CHANGED_EVENT)
+class NameUserChangedEvent(
     val userId: UUID,
-    val username: String,
+    val nameUser: String,
     createdAt: Long = System.currentTimeMillis(),
 ) : Event<UserAggregate> (
-    name = USERNAME_CHANGED_EVENT,
+    name = NAME_USER_CHANGED_EVENT,
     createdAt = createdAt
 )

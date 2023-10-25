@@ -32,9 +32,9 @@ class ProjectController(
     }
 
     @PostMapping("/{projectId}/tasks/{taskName}")
-    fun createTask(@PathVariable projectId: UUID, @PathVariable taskName: String) : TaskCreatedEvent {
+    fun createTask(@RequestParam userId: UUID,@PathVariable projectId: UUID, @PathVariable taskName: String) : TaskCreatedEvent {
         return projectEsService.update(projectId) {
-            it.addTask(taskName)
+            it.addTask(userId,taskName)
         }
     }
 }

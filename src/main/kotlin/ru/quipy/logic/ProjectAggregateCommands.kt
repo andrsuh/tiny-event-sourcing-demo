@@ -15,18 +15,27 @@ fun ProjectAggregateState.create(id: UUID, title: String, creatorId: String): Pr
     )
 }
 
-fun ProjectAggregateState.addTask(name: String): TaskCreatedEvent {
+fun ProjectAggregateState.addTask(userId: UUID,name: String): TaskCreatedEvent {
+    if (!membersList.containsKey(userId)) {
+        throw IllegalArgumentException("This User doesn't exists in project: $userId")
+    }
     return TaskCreatedEvent(projectId = this.getId(), taskId = UUID.randomUUID(), taskName = name)
 }
 
-fun ProjectAggregateState.createTag(name: String): TagCreatedEvent {
-    if (projectTags.values.any { it.name == name }) {
-        throw IllegalArgumentException("Tag already exists: $name")
+fun ProjectAggregateState.createTag(userId: UUID, name: String): TagCreatedEvent {
+    if (!membersList.containsKey(userId)) {
+        throw IllegalArgumentException("This User doesn't exists in project: $userId")
     }
+//    if (projectTags.values.any { it.name == name }) {
+//        throw IllegalArgumentException("Tag already exists: $name")
+//    }
     return TagCreatedEvent(projectId = this.getId(), tagId = UUID.randomUUID(), tagName = name)
 }
 
-fun ProjectAggregateState.assignTagToTask(tagId: UUID, taskId: UUID): TagAssignedToTaskEvent {
+fun ProjectAggregateState.assignTagToTask(userId: UUID,tagId: UUID, taskId: UUID): TagAssignedToTaskEvent {
+    if (!membersList.containsKey(userId)) {
+        throw IllegalArgumentException("This User doesn't exists in project: $userId")
+    }
     if (!projectTags.containsKey(tagId)) {
         throw IllegalArgumentException("Tag doesn't exists: $tagId")
     }
@@ -42,14 +51,23 @@ fun ProjectAggregateState.addUserToProject(userId: UUID, userNewId: UUID): UserA
     if (!membersList.containsKey(userId)) {
         throw IllegalArgumentException("This User doesn't exists in project: $userId")
     }
-    return UserAddedToProjectEvent(projectId = this.getId(), userId = userId)
+    if (membersList.containsKey(userNewId)) {
+        throw IllegalArgumentException("This User exists in project: $userNewId")
+    }
+    return UserAddedToProjectEvent(projectId = this.getId(), userId = userNewId)
 }
 
 fun ProjectAggregateState.changeProjectName(userId: UUID, title: String): ProjectNameChangedEvent {
+    if (!membersList.containsKey(userId)) {
+        throw IllegalArgumentException("This User doesn't exists in project: $userId")
+    }
     return ProjectNameChangedEvent(projectId = this.getId(), title = title)
 }
 
-fun ProjectAggregateState.deleteStatus(tagId: UUID): StatusDeletedEvent {
+fun ProjectAggregateState.deleteTag(userId: UUID,tagId: UUID): TagDeletedEvent {
+    if (!membersList.containsKey(userId)) {
+        throw IllegalArgumentException("This User doesn't exists in project: $userId")
+    }
     if (!projectTags.containsKey(tagId)) {
         throw IllegalArgumentException("Tag doesn't exists: $tagId")
     }
@@ -59,7 +77,7 @@ fun ProjectAggregateState.deleteStatus(tagId: UUID): StatusDeletedEvent {
             }) {
         throw IllegalArgumentException("Tag is associated with at least 1 task it cannot be deleted: $tagId")
     }
-    return StatusDeletedEvent(projectId = this.getId(), tagId = tagId)
+    return TagDeletedEvent(projectId = this.getId(), tagId = tagId)
 }
 
 fun ProjectAggregateState.assignUserToTask(userId: UUID, taskId: UUID): UserAssignedToTaskEvent {
@@ -75,7 +93,10 @@ fun ProjectAggregateState.assignUserToTask(userId: UUID, taskId: UUID): UserAssi
 }
 
 
-fun ProjectAggregateState.changeTaskName(taskId: UUID, title: String): TaskNameChangedEvent {
+fun ProjectAggregateState.changeTaskName(userId: UUID,taskId: UUID, title: String): TaskNameChangedEvent {
+    if (!membersList.containsKey(userId)) {
+        throw IllegalArgumentException("User doesn't exists in project: $userId")
+    }
     if (!tasks.containsKey(taskId)) {
         throw IllegalArgumentException("Task doesn't exists: $taskId")
     }

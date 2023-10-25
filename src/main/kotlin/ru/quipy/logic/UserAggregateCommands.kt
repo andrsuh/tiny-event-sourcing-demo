@@ -12,8 +12,8 @@ fun UserAggregateState.create(id: UUID, username: String, password: String): Use
     )
 }
 
-fun UserAggregateState.changeUsername(id: UUID, username: String): UsernameChangedEvent {
-    return UsernameChangedEvent(
+fun UserAggregateState.changeName(id: UUID, nameUser: String): NameUserChangedEvent {
+    return NameUserChangedEvent(
         userId = this.getId(),
-        username = username)
+        nameUser = nameUser)
 }

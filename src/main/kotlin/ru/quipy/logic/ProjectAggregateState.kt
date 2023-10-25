@@ -54,7 +54,7 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
     }
 
     @StateTransitionFunc
-    fun statusDeletedApply(event: StatusDeletedEvent) {
+    fun tagDeletedApply(event: TagDeletedEvent) {
         projectTags.remove(event.tagId)
         updatedAt = createdAt
 

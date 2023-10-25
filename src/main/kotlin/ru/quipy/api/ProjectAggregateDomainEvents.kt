@@ -80,7 +80,7 @@ class ProjectNameChangedEvent(
 )
 
 @DomainEvent(name = STATUS_DELETED_EVENT)
-class StatusDeletedEvent(
+class TagDeletedEvent(
         val projectId: UUID,
         val tagId: UUID,
         createdAt: Long = System.currentTimeMillis(),
