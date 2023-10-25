@@ -35,7 +35,7 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
 
     @StateTransitionFunc
     fun taskCreatedApply(event: TaskCreatedEvent) {
-        tasks[event.taskId] = TaskEntity(event.taskId, event.taskName, mutableSetOf())
+        tasks[event.taskId] = TaskEntity(event.taskId, event.taskName, null)
         updatedAt = createdAt
     }
 }
@@ -43,7 +43,7 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
 data class TaskEntity(
     val id: UUID = UUID.randomUUID(),
     val name: String,
-    val tagsAssigned: MutableSet<UUID>
+    var tagsAssigned: UUID? // cтатусы
 )
 
 data class TagEntity(
@@ -56,7 +56,7 @@ data class TagEntity(
  */
 @StateTransitionFunc
 fun ProjectAggregateState.tagAssignedApply(event: TagAssignedToTaskEvent) {
-    tasks[event.taskId]?.tagsAssigned?.add(event.tagId)
+    tasks[event.taskId]?.tagsAssigned = (event.tagId)
         ?: throw IllegalArgumentException("No such task: ${event.taskId}")
     updatedAt = createdAt
 }
