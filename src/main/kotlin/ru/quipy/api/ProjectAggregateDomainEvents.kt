@@ -26,6 +26,7 @@ class TagCreatedEvent(
     val projectId: UUID,
     val tagId: UUID,
     val tagName: String,
+    val color: String,
     createdAt: Long = System.currentTimeMillis(),
 ) : Event<ProjectAggregate>(
     name = TAG_CREATED_EVENT,
