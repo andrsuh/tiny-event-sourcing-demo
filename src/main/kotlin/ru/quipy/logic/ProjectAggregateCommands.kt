@@ -19,7 +19,7 @@ fun ProjectAggregateState.create(id: UUID, title: String, creatorId: String): Pr
 fun ProjectAggregateState.addStatus(name: String, color: String): StatusCreatedEvent {
     require(StringUtils.hasText(name)) { "Name cannot be empty" }
     require(StringUtils.hasText(color)) { "Color cannot be empty" }
-    require(Regex("^#(?:[0-9a-fA-F]{3}){1,2}\$").matches(color)) { "Color must be in #hex format" }
+    require(Regex("^(?:[0-9a-fA-F]{3}){1,2}\$").matches(color)) { "Color must be in hex format" }
     return StatusCreatedEvent(
         projectId = this.getId(),
         statusId = UUID.randomUUID(),
@@ -42,8 +42,8 @@ fun ProjectAggregateState.deleteStatus(projectId: UUID, statusId: UUID): StatusD
 
 fun ProjectAggregateState.assignStatus(projectId: UUID, taskId: UUID, statusId: UUID): StatusAssignedToTaskEvent {
     require(this.getId() == projectId)
-    require(!projectStatuses.containsKey(statusId)) { "Status doesn't exists: $statusId" }
-    require(!tasks.containsKey(taskId)) { "Task doesn't exists: $taskId" }
+    require(projectStatuses.containsKey(statusId)) { "Status doesn't exists: $statusId" }
+    require(tasks.containsKey(taskId)) { "Task doesn't exists: $taskId" }
     return StatusAssignedToTaskEvent(
         projectId = projectId,
         taskId = taskId,
@@ -69,7 +69,7 @@ fun ProjectAggregateState.renameTask(projectId: UUID, taskId: UUID, newName: Str
 
 fun ProjectAggregateState.assignUser(projectId: UUID, taskId: UUID, userId: UUID): UserAssignedToTaskEvent {
     require(this.getId() == projectId)
-    require(!tasks.containsKey(taskId)) { "Task doesn't exists: $taskId" }
+    require(tasks.containsKey(taskId)) { "Task doesn't exists: $taskId" }
     // TODO check if user exists in project
     return UserAssignedToTaskEvent(
         projectId = projectId,
