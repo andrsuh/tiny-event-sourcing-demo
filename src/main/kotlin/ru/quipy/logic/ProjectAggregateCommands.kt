@@ -59,7 +59,7 @@ fun ProjectAggregateState.addTask(name: String): TaskCreatedEvent {
 fun ProjectAggregateState.renameTask(projectId: UUID, taskId: UUID, newName: String): TaskRenamedEvent {
     require(this.getId() == projectId)
     require(StringUtils.hasText(newName)) { "New name cannot be empty" }
-    require(!tasks.containsKey(taskId)) { "Task doesn't exists: $taskId" }
+    require(tasks.containsKey(taskId)) { "Task doesn't exists: $taskId" }
     return TaskRenamedEvent(
         projectId = projectId,
         taskId = taskId,
