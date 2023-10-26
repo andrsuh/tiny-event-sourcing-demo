@@ -1,18 +1,15 @@
 package ru.quipy.controller
 
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import ru.quipy.api.ProjectAggregate
 import ru.quipy.api.ProjectCreatedEvent
 import ru.quipy.api.TaskCreatedEvent
+import ru.quipy.api.TaskRenamedEvent
 import ru.quipy.core.EventSourcingService
 import ru.quipy.logic.ProjectAggregateState
 import ru.quipy.logic.addTask
 import ru.quipy.logic.create
+import ru.quipy.logic.renameTask
 import java.util.*
 
 @RestController
@@ -35,6 +32,13 @@ class ProjectController(
     fun createTask(@PathVariable projectId: UUID, @PathVariable taskName: String) : TaskCreatedEvent {
         return projectEsService.update(projectId) {
             it.addTask(taskName)
+        }
+    }
+
+    @PutMapping("/{projectId}/tasks/{taskId}")
+    fun updateTask(@PathVariable projectId: UUID, @PathVariable taskId: UUID, @RequestParam taskName: String) : TaskRenamedEvent {
+        return projectEsService.update(projectId) {
+            it.renameTask(taskId, taskName)
         }
     }
 }

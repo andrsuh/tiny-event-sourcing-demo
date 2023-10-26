@@ -38,11 +38,17 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
         tasks[event.taskId] = TaskEntity(event.taskId, event.taskName, mutableSetOf())
         updatedAt = createdAt
     }
+
+    @StateTransitionFunc
+    fun taskRenamedApply(event: TaskRenamedEvent) {
+        tasks[event.taskId]?.name = event.taskName
+        updatedAt = createdAt
+    }
 }
 
 data class TaskEntity(
     val id: UUID = UUID.randomUUID(),
-    val name: String,
+    var name: String,
     val tagsAssigned: MutableSet<UUID>
 )
 
