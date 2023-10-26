@@ -66,3 +66,13 @@ class TaskRenamedEvent(
     name = TASK_RENAMED_EVENT,
     createdAt = createdAt
 )
+
+@DomainEvent(name = TAG_DELETED_EVENT)
+class TagDeletedEvent(
+    val projectId: UUID,
+    val tagId: UUID,
+    createdAt: Long = System.currentTimeMillis(),
+) : Event<ProjectAggregate>(
+    name = TAG_DELETED_EVENT,
+    createdAt = createdAt
+)

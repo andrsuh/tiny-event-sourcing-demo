@@ -28,6 +28,10 @@ class ProjectEventsSubscriber {
                 logger.info("Tag created: {}", event.tagName)
             }
 
+            `when`(TagDeletedEvent::class) { event ->
+                logger.info("Tag deleted: {}", event.tagId)
+            }
+
             `when`(TagAssignedToTaskEvent::class) { event ->
                 logger.info("Tag {} assigned to task {}: ", event.tagId, event.taskId)
             }

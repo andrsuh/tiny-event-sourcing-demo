@@ -1,15 +1,9 @@
 package ru.quipy.controller
 
 import org.springframework.web.bind.annotation.*
-import ru.quipy.api.ProjectAggregate
-import ru.quipy.api.ProjectCreatedEvent
-import ru.quipy.api.TaskCreatedEvent
-import ru.quipy.api.TaskRenamedEvent
+import ru.quipy.api.*
 import ru.quipy.core.EventSourcingService
-import ru.quipy.logic.ProjectAggregateState
-import ru.quipy.logic.addTask
-import ru.quipy.logic.create
-import ru.quipy.logic.renameTask
+import ru.quipy.logic.*
 import java.util.*
 
 @RestController
@@ -18,8 +12,8 @@ class ProjectController(
     val projectEsService: EventSourcingService<UUID, ProjectAggregate, ProjectAggregateState>
 ) {
 
-    @PostMapping("/{projectTitle}")
-    fun createProject(@PathVariable projectTitle: String, @RequestParam creatorId: String) : ProjectCreatedEvent {
+    @PostMapping()
+    fun createProject(@RequestParam projectTitle: String, @RequestParam creatorId: String) : ProjectCreatedEvent {
         return projectEsService.create { it.create(UUID.randomUUID(), projectTitle, creatorId) }
     }
 
@@ -28,8 +22,21 @@ class ProjectController(
         return projectEsService.getState(projectId)
     }
 
-    @PostMapping("/{projectId}/tasks/{taskName}")
-    fun createTask(@PathVariable projectId: UUID, @PathVariable taskName: String) : TaskCreatedEvent {
+    @PostMapping("/{projectId}/tags")
+    fun createTag(@PathVariable projectId: UUID, @RequestParam tagName: String) : TagCreatedEvent {
+        return projectEsService.update(projectId) {
+            it.createTag(tagName)
+        }
+    }
+
+    @DeleteMapping("/{projectId}/tags/{tagId}")
+    fun deleteTag(@PathVariable projectId: UUID, @PathVariable tagId: UUID) : TagDeletedEvent {
+        return projectEsService.update(projectId) {
+            it.deleteTag(tagId)
+        }
+    }
+    @PostMapping("/{projectId}/tasks")
+    fun createTask(@PathVariable projectId: UUID, @RequestParam taskName: String) : TaskCreatedEvent {
         return projectEsService.update(projectId) {
             it.addTask(taskName)
         }
@@ -39,6 +46,13 @@ class ProjectController(
     fun updateTask(@PathVariable projectId: UUID, @PathVariable taskId: UUID, @RequestParam taskName: String) : TaskRenamedEvent {
         return projectEsService.update(projectId) {
             it.renameTask(taskId, taskName)
+        }
+    }
+
+    @PostMapping("/{projectId}/tasks/{taskId}/assign/{tagId}")
+    fun assignTag(@PathVariable projectId: UUID, @PathVariable taskId: UUID, @PathVariable tagId: UUID ) : TagAssignedToTaskEvent {
+        return projectEsService.update(projectId) {
+            it.assignTagToTask(tagId, taskId)
         }
     }
 }

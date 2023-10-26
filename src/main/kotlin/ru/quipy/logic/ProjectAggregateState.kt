@@ -34,6 +34,12 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
     }
 
     @StateTransitionFunc
+    fun tagDeletedApply(event: TagDeletedEvent) {
+        projectTags.remove(event.tagId)
+        updatedAt = createdAt
+    }
+
+    @StateTransitionFunc
     fun taskCreatedApply(event: TaskCreatedEvent) {
         tasks[event.taskId] = TaskEntity(event.taskId, event.taskName, mutableSetOf())
         updatedAt = createdAt
@@ -42,6 +48,12 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
     @StateTransitionFunc
     fun taskRenamedApply(event: TaskRenamedEvent) {
         tasks[event.taskId]?.name = event.taskName
+        updatedAt = createdAt
+    }
+
+    @StateTransitionFunc
+    fun tagAssignedToTaskApply(event: TagAssignedToTaskEvent) {
+        tasks[event.taskId]?.tagsAssigned?.add(event.tagId)
         updatedAt = createdAt
     }
 }
