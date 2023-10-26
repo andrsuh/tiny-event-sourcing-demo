@@ -30,9 +30,9 @@ class ProjectAggregateStateTest {
         private val taskName = "Name-b8e468ec-995a-4b52-ac14-468c830f8dd0"
         private val taskNewName = "NewName-b8e468ec-995a-4b52-ac14-468c830f8dd0"
 
-        private val statusId= UUID.fromString("7074d67c-1831-44e7-a29e-a4210e69eb39")
+        private val statusId = UUID.fromString("7074d67c-1831-44e7-a29e-a4210e69eb39")
         private val statusName = "7074d67c-1831-44e7-a29e-a4210e69eb39Name"
-        private val statusColor = "#000000"
+        private val statusColor = "4287f5"
 
         private val testProjectName = "testProjectName$541(*@#&91459"
     }
@@ -104,9 +104,13 @@ class ProjectAggregateStateTest {
         val createdTaskEvent: TaskCreatedEvent = projectEsService.update(testId) {
             it.addTask(taskName)
         }
-        Assertions.assertThrows(IllegalArgumentException:: class.java){
-            projectEsService.update(testId) {
+        projectEsService.update(testId) {
             it.assignStatus(testId, createdTaskEvent.taskId, createdStatusEvent.statusId)
-        }}
+        }
+        Assertions.assertThrows(IllegalArgumentException::class.java) {
+            projectEsService.update(testId) {
+                it.deleteStatus(testId, createdStatusEvent.statusId)
+            }
+        }
     }
 }
