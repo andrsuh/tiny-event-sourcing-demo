@@ -32,6 +32,7 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
     fun statusCreatedApply(event: StatusCreatedEvent) {
         require(projectId == event.projectId)
         projectStatuses[event.statusId] = StatusEntity(event.statusId, event.statusName, event.statusColor)
+        //TODO why updated = created? May be = event.createdAt or = currentTime
         updatedAt = createdAt
     }
 
@@ -43,27 +44,42 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
 
     @StateTransitionFunc
     fun statusAssignedApply(event: StatusAssignedToTaskEvent) {
+        require(projectId == event.projectId)
         tasks[event.taskId]?.let { it.status = event.statusId }
             ?: throw IllegalArgumentException("No such task: ${event.taskId}")
+        //TODO why updated = created? May be = event.createdAt or = currentTime
         updatedAt = createdAt
     }
 
     @StateTransitionFunc
     fun taskCreatedApply(event: TaskCreatedEvent) {
-        tasks[event.taskId] = TaskEntity(event.taskId, event.taskName, createdStatusEntity.id)
+        require(projectId == event.projectId)
+        tasks[event.taskId] = TaskEntity(event.taskId, event.taskName, createdStatusEntity.id, mutableSetOf())
+        //TODO why updated = created? May be = event.createdAt or = currentTime
         updatedAt = createdAt
     }
 
-    //TaskRenamedEvent
-    //UserAssignedToTaskEvent
+    @StateTransitionFunc
+    fun taskRenamedApply(event: TaskRenamedEvent) {
+        require(projectId == event.projectId)
+        tasks[event.taskId]?.let { it.name = event.newName }
+            ?: throw IllegalArgumentException("No such task: ${event.taskId}")
+    }
 
+    @StateTransitionFunc
+    fun userAssignedApply(event: UserAssignedToTaskEvent) {
+        require(projectId == event.projectId)
+        tasks[event.taskId]?.assignedUsers?.add(event.userId)
+            ?: throw IllegalArgumentException("No such task: ${event.taskId}")
+    }
 
 }
 
 data class TaskEntity(
     val id: UUID = UUID.randomUUID(),
     var name: String,
-    var status: UUID
+    var status: UUID,
+    val assignedUsers: MutableSet<UUID>
 )
 
 data class StatusEntity(
@@ -73,7 +89,3 @@ data class StatusEntity(
 )
 
 val createdStatusEntity = StatusEntity(UUID.randomUUID(), "CREATED", "#123456")
-
-/**
- * Demonstrates that the transition functions might be representer by "extension" functions, not only class members functions
- */
