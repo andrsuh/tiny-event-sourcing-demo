@@ -15,7 +15,7 @@ class ProjectController(
 ) {
     @PostMapping("/{projectTitle}")
     fun createProject(@PathVariable projectTitle: String, @RequestParam createdBy: UUID) : ProjectCreatedEvent {
-        return projectEsService.create { it.create(UUID.randomUUID(), projectTitle, createdBy) }
+        return projectEsService.create { it.createProject(UUID.randomUUID(), projectTitle, createdBy) }
     }
 
     @PostMapping("/{projectId}/tasks/{taskName}")

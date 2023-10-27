@@ -92,7 +92,7 @@ data class TaskEntity(
     var assignedToID: UUID,
     val createdBy: UUID
 )
-
+// Это зачем?
 data class TagEntity(
     val id: UUID = UUID.randomUUID(),
     val name: String

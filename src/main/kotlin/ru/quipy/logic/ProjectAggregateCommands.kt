@@ -4,7 +4,7 @@ import ru.quipy.api.*
 import java.util.*
 import ru.quipy.logic.StatusColor.GREEN
 
-fun ProjectAggregateState.create(id: UUID, title: String, createdBy: UUID): ProjectCreatedEvent {
+fun ProjectAggregateState.createProject(id: UUID, title: String, createdBy: UUID): ProjectCreatedEvent {
     return ProjectCreatedEvent(
         projectId = id,
         title = title,
