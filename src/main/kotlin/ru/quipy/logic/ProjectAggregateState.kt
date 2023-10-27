@@ -19,6 +19,24 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
 
     override fun getId() = projectId
 
+    fun getTaskById(taskId: UUID): TaskEntity? {
+        return tasks[taskId]
+    }
+
+    fun getAllTasks(): Map<UUID, TaskEntity> {
+        return tasks
+    }
+
+    fun getStatusById(statusId: UUID): StatusEntity? {
+        return projectStatuses[statusId]
+    }
+
+    fun getAllStatuses(): Map<UUID, StatusEntity> {
+        return projectStatuses
+    }
+    fun getAllParticipantsID(): Set<UUID> {
+        return participantsID
+    }
     @StateTransitionFunc
     fun projectCreatedApply(event: ProjectCreatedEvent) {
         projectId = event.projectId
@@ -63,7 +81,7 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
 data class StatusEntity(
     val id: UUID = UUID.randomUUID(),
     val color: StatusColor,
-    val status: Status,
+    val status: String,
 )
 
 data class TaskEntity(
@@ -84,11 +102,6 @@ enum class StatusColor {
     GREEN,
     RED,
     YELLOW,
-}
-
-enum class Status {
-    CLOSED,
-    OPENED,
 }
 
 @StateTransitionFunc

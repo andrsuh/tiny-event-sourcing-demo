@@ -2,7 +2,6 @@ package ru.quipy.logic
 
 import ru.quipy.api.*
 import java.util.*
-import ru.quipy.logic.Status.OPENED
 import ru.quipy.logic.StatusColor.GREEN
 
 fun ProjectAggregateState.create(id: UUID, title: String, createdBy: UUID): ProjectCreatedEvent {
@@ -48,7 +47,7 @@ fun ProjectAggregateState.createTaskInProject(title: String): TaskCreatedEvent {
     if (this.getId() != projectId) {
         throw IllegalArgumentException("Mismatching project ID")
     }
-    val status = createStatusInProject(projectId, GREEN, OPENED)
+    val status = createStatusInProject(projectId, GREEN, "CREATED")
 
     return TaskCreatedEvent(UUID.randomUUID(), title, status.id)
 }
@@ -85,7 +84,7 @@ fun ProjectAggregateState.selfAssignTask(taskId: UUID, userId: UUID): TaskSelfAs
     return TaskSelfAssignedEvent(taskId, userId)
 }
 
-fun ProjectAggregateState.createStatusInProject(projectId: UUID, color: StatusColor, value: Status): StatusCreatedEvent {
+fun ProjectAggregateState.createStatusInProject(projectId: UUID, color: StatusColor, value: String): StatusCreatedEvent {
     if (this.getId() != projectId) {
         throw IllegalArgumentException("Mismatching project ID")
     }
