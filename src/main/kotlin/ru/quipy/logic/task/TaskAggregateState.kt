@@ -17,8 +17,6 @@ class TaskAggregateState : AggregateState<UUID, TaskAggregate> {
     var assignedUserId: UUID? = null;
 
     override fun getId() = taskId
-
-    // State transition functions which is represented by the class member function
     @StateTransitionFunc
     fun taskRenamedApply(event: TaskRenamedEvent) {
         taskTitle = event.title
@@ -26,7 +24,7 @@ class TaskAggregateState : AggregateState<UUID, TaskAggregate> {
     }
 
     @StateTransitionFunc
-    fun userAssignedApply(event: UserAssignedToTaskEvent) { // TODO: add it later
+    fun userAssignedApply(event: UserAssignedToTaskEvent) {
         assignedUserId = event.userId
         updatedAt = createdAt
     }

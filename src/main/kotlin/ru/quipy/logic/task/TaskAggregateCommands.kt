@@ -27,3 +27,4 @@ fun TaskAggregateState.create(id: UUID, projectId: UUID, statusId: UUID, taskTit
         taskTitle = taskTitle,
     )
 }
+

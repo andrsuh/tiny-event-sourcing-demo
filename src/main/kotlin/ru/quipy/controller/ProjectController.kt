@@ -37,11 +37,4 @@ class ProjectController(
     fun getProject(@PathVariable projectId: UUID) : ProjectAggregateState? {
         return projectEsService.getState(projectId)
     }
-
-//    @PostMapping("/{projectId}/tasks/{taskName}")
-//    fun createTask(@PathVariable projectId: UUID, @PathVariable taskName: String) : TaskCreatedEvent {
-//        return projectEsService.update(projectId) {
-//            it.addTask(taskName)
-//        }
-//    }
 }

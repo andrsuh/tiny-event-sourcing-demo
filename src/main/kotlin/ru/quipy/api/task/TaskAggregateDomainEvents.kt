@@ -9,7 +9,6 @@ const val USER_ASSIGNED_TO_TASK_EVENT = "USER_ASSIGNED_TO_TASK_EVENT"
 const val TASK_CREATED_EVENT = "TASK_CREATED_EVENT"
 const val STATUS_ASSIGNED_TO_TASK_EVENT = "STATUS_ASSIGNED_TO_TASK_EVENT"
 
-// API
 @DomainEvent(name = TASK_RENAMED_EVENT)
 class TaskRenamedEvent(
         val taskId: UUID,
@@ -44,7 +43,6 @@ class TaskCreatedEvent(
 
 @DomainEvent(name = STATUS_ASSIGNED_TO_TASK_EVENT)
 class StatusAssignedToTaskEvent(
-    //val projectId: UUID,
         val taskId: UUID,
         val statusId: UUID,
         createdAt: Long = System.currentTimeMillis(),
