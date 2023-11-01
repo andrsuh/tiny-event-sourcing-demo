@@ -40,6 +40,18 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
         tasks[event.taskId] = TaskEntity(event.taskId, event.taskName, null)
         updatedAt = createdAt
     }
+
+    @StateTransitionFunc
+    fun executorChangedApply(event: TaskExecutorChangedEvent) {
+//        tasks[event.taskId] = TaskEntity(event.taskId, event.taskName, null)
+//        updatedAt = createdAt
+    }
+
+    @StateTransitionFunc
+    fun userAssignedToProjectEventApply(event: UserAssignedToProjectEvent) {
+//        tasks[event.taskId] = TaskEntity(event.taskId, event.taskName, null)
+//        updatedAt = createdAt
+    }
 }
 
 data class TaskEntity(
