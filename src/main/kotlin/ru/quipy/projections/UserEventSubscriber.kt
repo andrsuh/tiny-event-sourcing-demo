@@ -6,11 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import ru.quipy.api.ProjectAggregate
 import ru.quipy.api.StatusCreatedEvent
+import ru.quipy.api.UserAggregate
 import ru.quipy.streams.AggregateSubscriptionsManager
 import javax.annotation.PostConstruct
 
 @Service
-class ProjectEventsSubscriber {
+class UserEventSubscriber {
 
     val logger: Logger = LoggerFactory.getLogger(ProjectEventsSubscriber::class.java)
 
@@ -19,10 +20,9 @@ class ProjectEventsSubscriber {
 
     @PostConstruct
     fun init() {
-        subscriptionsManager.createSubscriber(ProjectAggregate::class, "project subs") {
-            `when`(StatusCreatedEvent::class) { event ->
-                logger.info("Tag created: {}", event.statusName)
-            }
+        subscriptionsManager.createSubscriber(UserAggregate::class, "user subs") {
+
+
         }
     }
 }

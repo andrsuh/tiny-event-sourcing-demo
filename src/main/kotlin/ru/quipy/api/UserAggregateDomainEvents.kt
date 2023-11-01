@@ -10,6 +10,7 @@ const val USER_NAME_CHANGED_EVENT = "USER_NAME_CHANGED_EVENT"
 @DomainEvent(name = USER_CREATED_EVENT)
 class UserCreatedEvent(
     val userId: UUID,
+    val password: String,
     val nickname: String,
     val realName: String,
     createdAt: Long = System.currentTimeMillis(),

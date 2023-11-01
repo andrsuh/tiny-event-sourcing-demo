@@ -4,13 +4,12 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import ru.quipy.api.ProjectAggregate
-import ru.quipy.api.StatusCreatedEvent
+import ru.quipy.api.*
 import ru.quipy.streams.AggregateSubscriptionsManager
 import javax.annotation.PostConstruct
 
 @Service
-class ProjectEventsSubscriber {
+class TaskEventSubscriber {
 
     val logger: Logger = LoggerFactory.getLogger(ProjectEventsSubscriber::class.java)
 
@@ -19,9 +18,13 @@ class ProjectEventsSubscriber {
 
     @PostConstruct
     fun init() {
-        subscriptionsManager.createSubscriber(ProjectAggregate::class, "project subs") {
-            `when`(StatusCreatedEvent::class) { event ->
-                logger.info("Tag created: {}", event.statusName)
+        subscriptionsManager.createSubscriber(TaskAggregate::class, "task subs") {
+            `when`(TaskCreatedEvent::class) { event ->
+                logger.info("Task created: {}", event.taskName)
+            }
+
+            `when`(TaskStatusChangedEvent::class) { event ->
+                logger.info("Tag {} assigned to task {}: ", event.statusId, event.taskId)
             }
         }
     }

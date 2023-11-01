@@ -12,6 +12,8 @@ const val TASK_NAME_CHANGED_EVENT = "TASK_NAME_CHANGED_EVENT"
 @DomainEvent(name = TASK_CREATED_EVENT)
 class TaskCreatedEvent(
     val projectId: UUID,
+    val creatorId: UUID,
+    val description: String,
     val taskId: UUID,
     val taskName: String,
     createdAt: Long = System.currentTimeMillis(),
@@ -22,9 +24,8 @@ class TaskCreatedEvent(
 
 @DomainEvent(name = TAG_STATUS_CHANGED_EVENT)
 class TaskStatusChangedEvent(
-    val projectId: UUID,
     val taskId: UUID,
-    val tagId: UUID,
+    val statusId: UUID,
     createdAt: Long = System.currentTimeMillis(),
 ) : Event<TaskAggregate>(
     name = TAG_STATUS_CHANGED_EVENT,
