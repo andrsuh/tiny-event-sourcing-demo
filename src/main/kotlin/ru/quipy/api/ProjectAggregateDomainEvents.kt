@@ -40,7 +40,7 @@ class ProjectInfoUpdatedEvent(
 class ProjectDeletedEvent(
     val userId: UUID,
 ) : Event<ProjectAggregate>(
-    name = PROJECT_UPDATED_EVENT,
+    name = PROJECT_DELETED_EVENT,
 )
 
 @DomainEvent(name = TAG_CREATED_EVENT)
