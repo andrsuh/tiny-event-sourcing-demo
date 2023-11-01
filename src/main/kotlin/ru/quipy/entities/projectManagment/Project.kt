@@ -6,9 +6,9 @@ import java.util.UUID
 class Project(
     val id: UUID,
     var name: String,
-    val participants: List<User>,
-    val statuses: List<Status>,
-    val tasks: List<Task>
+    val participantIds: List<UUID>,
+    val statusIds: List<UUID>,
+    val taskIds: List<UUID>
 )
 {
 }

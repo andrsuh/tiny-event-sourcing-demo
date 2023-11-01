@@ -8,7 +8,7 @@ class Task(
     var name : String,
     val projectId : UUID,
     var statusId : UUID,
-    val assignees : List<User>,
+    val assigneeIds : List<UUID>
 )
 {
 }
