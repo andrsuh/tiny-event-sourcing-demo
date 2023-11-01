@@ -23,7 +23,6 @@ class TaskAggregateState : AggregateState<UUID, TaskAggregate> {
 
     override fun getId() = taskId
 
-
     @StateTransitionFunc
     fun taskCreatedApply(event: TaskCreatedEvent) {
         taskId = event.taskId
@@ -43,7 +42,7 @@ class TaskAggregateState : AggregateState<UUID, TaskAggregate> {
 
     @StateTransitionFunc
     fun taskStatusChangedApply(event: TaskStatusChangedEvent) {
-        tagId = event.statusId;
+        tagId = event.statusId
         updatedAt = System.currentTimeMillis()
     }
 }
