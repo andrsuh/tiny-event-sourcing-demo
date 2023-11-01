@@ -8,8 +8,6 @@ import java.util.*
 // Service's business logic
 class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
     private lateinit var projectId: UUID
-    var createdAt: Long = System.currentTimeMillis()
-    var updatedAt: Long = System.currentTimeMillis()
 
     lateinit var projectTitle: String
     lateinit var creatorId: String
@@ -25,15 +23,12 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
         projectTitle = event.title
         creatorId = event.creatorId
         projectStatuses = mutableMapOf(Pair(createdStatusEntity.id, createdStatusEntity))
-        updatedAt = createdAt
     }
 
     @StateTransitionFunc
     fun statusCreatedApply(event: StatusCreatedEvent) {
         require(projectId == event.projectId)
         projectStatuses[event.statusId] = StatusEntity(event.statusId, event.statusName, event.statusColor)
-        //TODO why updated = created? May be = event.createdAt or = currentTime
-        updatedAt = createdAt
     }
 
     @StateTransitionFunc
@@ -47,16 +42,12 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
         require(projectId == event.projectId)
         tasks[event.taskId]?.let { it.status = event.statusId }
             ?: throw IllegalArgumentException("No such task: ${event.taskId}")
-        //TODO why updated = created? May be = event.createdAt or = currentTime
-        updatedAt = createdAt
     }
 
     @StateTransitionFunc
     fun taskCreatedApply(event: TaskCreatedEvent) {
         require(projectId == event.projectId)
         tasks[event.taskId] = TaskEntity(event.taskId, event.taskName, createdStatusEntity.id, mutableSetOf())
-        //TODO why updated = created? May be = event.createdAt or = currentTime
-        updatedAt = createdAt
     }
 
     @StateTransitionFunc
