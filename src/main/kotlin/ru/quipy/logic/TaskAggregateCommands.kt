@@ -16,6 +16,9 @@ fun TaskAggregateState.assignStatusToTask(statusId: UUID, taskId: UUID): TaskSta
 }
 
 fun TaskAggregateState.assignUser(userId: UUID, taskId: UUID): UserAddedToTaskEvent {
+    if (users.contains(userId)){
+        error("This user has been already assigned to given task")
+    }
     return UserAddedToTaskEvent(taskId = taskId, userId = userId)
 }
 

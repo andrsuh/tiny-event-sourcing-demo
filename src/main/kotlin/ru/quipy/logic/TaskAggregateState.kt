@@ -14,7 +14,7 @@ class TaskAggregateState : AggregateState<UUID, TaskAggregate> {
     lateinit var description: String
     lateinit var taskName: String
     lateinit var statusId: UUID
-    var users = mutableListOf<UUID>()
+    var users = mutableSetOf<UUID>()
 
     override fun getId(): UUID = taskId
 
