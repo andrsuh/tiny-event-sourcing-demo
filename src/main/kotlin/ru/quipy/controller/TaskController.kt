@@ -15,8 +15,8 @@ class TaskController (
     val projectEsService: EventSourcingService<UUID, ProjectAggregate, ProjectAggregateState>
 ){
     @PostMapping("/{taskTitle}")
-    fun createTask(@PathVariable projectId: UUID, @PathVariable taskTitle: String, @RequestParam creatorId: String): TaskCreatedEvent {
-        return taskEsService.create { it.create(UUID.randomUUID(), taskTitle, projectId) }
+    fun createTask(@PathVariable projectId: UUID, @PathVariable taskTitle: String, @RequestParam creatorId: UUID, @RequestParam tagId: UUID): TaskCreatedEvent {
+        return taskEsService.create { it.create(UUID.randomUUID(), taskTitle, projectId, tagId, creatorId) }
     }
 
     @PostMapping("/{taskId}/change-name")

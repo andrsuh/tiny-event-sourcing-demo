@@ -23,10 +23,6 @@ class ProjectEventsSubscriber {
     fun init() {
         subscriptionsManager.createSubscriber(ProjectAggregate::class, "some-meaningful-name") {
 
-            `when`(TaskCreatedEvent::class) { event ->
-                logger.info("Task created: {}", event.taskName)
-            }
-
             `when`(TagCreatedEvent::class) { event ->
                 logger.info("Tag created: {}", event.tagName)
             }

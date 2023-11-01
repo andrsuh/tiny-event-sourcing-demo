@@ -16,11 +16,6 @@ fun ProjectAggregateState.create(id: UUID, title: String, creatorId: String): Pr
     )
 }
 
-// Add Task to Project
-fun ProjectAggregateState.addTask(name: String): TaskCreatedEvent {
-    return TaskCreatedEvent(projectId = this.getId(), taskId = UUID.randomUUID(), taskName = name)
-}
-
 
 // Create Status
 fun ProjectAggregateState.createTag(name: String, color: String): TagCreatedEvent {
