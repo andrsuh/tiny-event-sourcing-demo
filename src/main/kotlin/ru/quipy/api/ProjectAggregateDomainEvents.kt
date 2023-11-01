@@ -23,7 +23,7 @@ const val USER_ASSIGNED_TO_TASK_EVENT = "USER_ASSIGNED_TO_TASK_EVENT"
 class ProjectCreatedEvent(
     val projectId: UUID,
     val title: String,
-    val creatorId: String,
+    val creatorId: UUID,
     createdAt: Long = System.currentTimeMillis(),
 ) : Event<ProjectAggregate>(
     name = PROJECT_CREATED_EVENT,

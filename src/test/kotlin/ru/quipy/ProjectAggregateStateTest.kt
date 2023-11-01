@@ -48,7 +48,7 @@ class ProjectAggregateStateTest {
         mongoTemplate.remove(Query.query(Criteria.where("aggregateId").`is`(testId)), "aggregate-project")
 
         projectEsService.create {
-            it.create(testId, testProjectName, userId.toString());
+            it.create(testId, testProjectName, userId);
         }
     }
 

@@ -7,9 +7,7 @@ import org.springframework.context.annotation.Configuration
 import ru.quipy.api.ProjectAggregate
 import ru.quipy.core.EventSourcingServiceFactory
 import ru.quipy.logic.ProjectAggregateState
-import ru.quipy.projections.AnnotationBasedProjectEventsSubscriber
 import ru.quipy.streams.AggregateEventStreamManager
-import ru.quipy.streams.AggregateSubscriptionsManager
 import java.util.*
 import javax.annotation.PostConstruct
 
@@ -34,15 +32,12 @@ import javax.annotation.PostConstruct
  * ```
  */
 @Configuration
-class EventSourcingLibConfiguration {
+class ProjectBoundedContextConfig {
 
-    private val logger = LoggerFactory.getLogger(EventSourcingLibConfiguration::class.java)
+    private val logger = LoggerFactory.getLogger(ProjectBoundedContextConfig::class.java)
 
-    @Autowired
-    private lateinit var subscriptionsManager: AggregateSubscriptionsManager
-
-    @Autowired
-    private lateinit var projectEventSubscriber: AnnotationBasedProjectEventsSubscriber
+//    @Autowired
+//    private lateinit var subscriptionsManager: AggregateSubscriptionsManager
 
     @Autowired
     private lateinit var eventSourcingServiceFactory: EventSourcingServiceFactory
@@ -58,9 +53,6 @@ class EventSourcingLibConfiguration {
 
     @PostConstruct
     fun init() {
-        // Demonstrates how to explicitly subscribe the instance of annotation based subscriber to some stream. See the [AggregateSubscriptionsManager]
-        subscriptionsManager.subscribe<ProjectAggregate>(projectEventSubscriber)
-
         // Demonstrates how you can set up the listeners to the event stream
         eventStreamManager.maintenance {
             onRecordHandledSuccessfully { streamName, eventName ->

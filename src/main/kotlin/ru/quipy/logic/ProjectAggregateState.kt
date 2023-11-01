@@ -10,7 +10,7 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
     private lateinit var projectId: UUID
 
     lateinit var projectTitle: String
-    lateinit var creatorId: String
+    lateinit var creatorId: UUID
     val tasks = mutableMapOf<UUID, TaskEntity>()
     var projectStatuses = mutableMapOf<UUID, StatusEntity>()
 
