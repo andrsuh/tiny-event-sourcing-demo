@@ -19,6 +19,7 @@ class TaskAggregateState : AggregateState<UUID, TaskAggregate> {
     lateinit var creatorId: UUID
     lateinit var projectId: UUID
     lateinit var tagId: UUID
+    lateinit var executors: List<UUID>
 
     override fun getId() = taskId
 
@@ -31,6 +32,7 @@ class TaskAggregateState : AggregateState<UUID, TaskAggregate> {
         updatedAt = createdAt
         projectId = event.projectId
         tagId = event.tagId
+        executors = event.executors
     }
 
     @StateTransitionFunc

@@ -29,10 +29,10 @@ fun TaskAggregateState.changeTitle(id: UUID, newTitle: String, projectId: UUID):
     )
 }
 
-fun TaskAggregateState.changeStatus(id: UUID, newStatus: String, projectId: UUID): TaskStatusChangedEvent {
+fun TaskAggregateState.changeStatus(id: UUID, statusId: UUID, projectId: UUID): TaskStatusChangedEvent {
     return TaskStatusChangedEvent(
             taskId = id,
             projectId = projectId,
-            newTaskStatus = newStatus,
+            statusId = statusId,
     )
 }

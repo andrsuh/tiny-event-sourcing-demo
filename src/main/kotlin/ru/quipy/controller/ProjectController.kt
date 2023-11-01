@@ -32,7 +32,7 @@ class ProjectController(
         return projectIds.map { projectId -> projectEsService.getState(projectId) }
     }
 
-    @PostMapping("/{projectId}")
+    @PostMapping("/{projectId}/add-user")
     fun addUserToProject(@PathVariable projectId: UUID, @RequestParam userId: UUID): UserAssignedToProjectEvent {
         return projectEsService.update(projectId) {
             it.assignUserToProject(userId)
@@ -44,7 +44,7 @@ class ProjectController(
         return projectEsService.getState(projectId)?.projectMembers?.map { it.value } ?: emptyList()
     }
 
-    @PostMapping("/{projectId}/createTag")
+    @PostMapping("/{projectId}/create-tag")
     fun createTag(@PathVariable projectId: UUID, @RequestParam name: String, @RequestParam color: String): TagCreatedEvent {
         return projectEsService.update(projectId) { it.createTag(name, color) }
     }

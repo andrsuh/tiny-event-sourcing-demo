@@ -49,7 +49,8 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
 
     @StateTransitionFunc
     fun userAssignedToProjectEventApply(event: UserAssignedToProjectEvent) {
-        projectMembers[event.userId] = ProjectMemberEntity(event.userId, event.username, event.nickname)
+        // TODO: добавить имя и ник
+        projectMembers[event.userId] = ProjectMemberEntity(event.userId)
         updatedAt = System.currentTimeMillis()
     }
 }
@@ -68,8 +69,8 @@ data class TagEntity(
 
 data class ProjectMemberEntity(
         val id: UUID = UUID.randomUUID(),
-        val name: String,
-        val nickname: String
+//        val name: String,
+//        val nickname: String
 )
 
 /**

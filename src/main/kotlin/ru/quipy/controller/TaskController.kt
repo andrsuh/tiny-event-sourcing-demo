@@ -35,12 +35,12 @@ class TaskController (
     }
 
     @PutMapping("/{taskId}/set-status")
-    fun setTaskStatus(@PathVariable projectId: UUID, @PathVariable taskId: UUID, @RequestParam newStatus: String) : TaskStatusChangedEvent {
-        return taskEsService.update(taskId) {it.changeStatus(taskId, newStatus, projectId)}
+    fun setTaskStatus(@PathVariable projectId: UUID, @PathVariable taskId: UUID, @RequestParam statusId: UUID) : TaskStatusChangedEvent {
+        return taskEsService.update(taskId) {it.changeStatus(taskId, statusId, projectId)}
     }
 
     @PutMapping("/{taskId}/set-executor")
-    fun setTaskExecutor(@PathVariable projectId: UUID, @PathVariable taskId: UUID, @RequestParam newStatus: String) : TaskExecutorChangedEvent {
-        return projectEsService.update(projectId) {it.assignUserToTask(taskId, newStatus, projectId)}
+    fun setTaskExecutor(@PathVariable projectId: UUID, @PathVariable taskId: UUID, @RequestParam userId: String) : TaskExecutorChangedEvent {
+        return projectEsService.update(projectId) {it.assignUserToTask(taskId, userId, projectId)}
     }
 }
