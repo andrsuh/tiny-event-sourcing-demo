@@ -28,8 +28,8 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
     }
 
     @StateTransitionFunc
-    fun tagCreatedApply(event: TagCreatedEvent) {
-        projectTags[event.tagId] = TagEntity(event.tagId, event.tagName)
+    fun tagCreatedApply(event: StatusCreatedEvent) {
+        projectTags[event.statusId] = TagEntity(event.statusId, event.statusName)
         updatedAt = createdAt
     }
 
@@ -51,12 +51,18 @@ data class TagEntity(
     val name: String
 )
 
+
 /**
  * Demonstrates that the transition functions might be representer by "extension" functions, not only class members functions
  */
+
+/*
+TODO: move to TaskAggregateState
+
 @StateTransitionFunc
 fun ProjectAggregateState.tagAssignedApply(event: TagAssignedToTaskEvent) {
     tasks[event.taskId]?.tagsAssigned?.add(event.tagId)
         ?: throw IllegalArgumentException("No such task: ${event.taskId}")
     updatedAt = createdAt
 }
+*/

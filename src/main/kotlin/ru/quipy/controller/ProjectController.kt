@@ -31,10 +31,12 @@ class ProjectController(
         return projectEsService.getState(projectId)
     }
 
+    /*
+    TODO: move to task controller
     @PostMapping("/{projectId}/tasks/{taskName}")
     fun createTask(@PathVariable projectId: UUID, @PathVariable taskName: String) : TaskCreatedEvent {
         return projectEsService.update(projectId) {
             it.addTask(taskName)
         }
-    }
+    }*/
 }
