@@ -1,5 +1,6 @@
 package ru.quipy
 
+import kotlinx.coroutines.*
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -10,10 +11,7 @@ import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
-import ru.quipy.api.ProjectAggregate
-import ru.quipy.api.StatusCreatedEvent
-import ru.quipy.api.TaskCreatedEvent
-import ru.quipy.api.TaskRenamedEvent
+import ru.quipy.api.*
 import ru.quipy.core.EventSourcingService
 import ru.quipy.logic.*
 import java.util.*
@@ -21,6 +19,7 @@ import java.util.*
 @SpringBootTest
 @ActiveProfiles("test")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+//@Import({EventSourcingLibConfiguration::class})
 class ProjectAggregateStateTest {
     companion object {
         private val testId = UUID.fromString("ba4463d8-4332-4b4c-ac5e-2763bb83ada4")
@@ -41,11 +40,19 @@ class ProjectAggregateStateTest {
     private lateinit var projectEsService: EventSourcingService<UUID, ProjectAggregate, ProjectAggregateState>
 
     @Autowired
+    private lateinit var userEsService: EventSourcingService<UUID, UserAggregate, UserAggregateState>
+
+    @Autowired
     lateinit var mongoTemplate: MongoTemplate
 
     @BeforeEach
     fun init() {
         mongoTemplate.remove(Query.query(Criteria.where("aggregateId").`is`(testId)), "aggregate-project")
+        mongoTemplate.remove(Query.query(Criteria.where("aggregateId").`is`(userId)), "aggregate-user")
+
+        userEsService.create {
+            it.create(userId, "Aboba", "Abobvich", "hashhhhhhhh")
+        }
 
         projectEsService.create {
             it.create(testId, testProjectName, userId);
@@ -55,8 +62,11 @@ class ProjectAggregateStateTest {
 
     @Test
     fun createProject() {
+
         val state = projectEsService.getState(testId)
         Assertions.assertEquals(testId, state?.getId());
+
+        Assertions.assertNotNull(state)
     }
 
     @Test
@@ -113,4 +123,88 @@ class ProjectAggregateStateTest {
             }
         }
     }
+
+
+    // короче тут выбрасывается ошика при оптимитичной блокировке, хотя мы просто меняем статусы у задачи
+    @Test
+    fun asyncStatusChange() {
+        val scope = CoroutineScope(Job())
+
+        val oneStatusEvent: StatusCreatedEvent = projectEsService.update(testId) {
+            it.addStatus("1", statusColor)
+        }
+        val twoStatusEvent: StatusCreatedEvent = projectEsService.update(testId) {
+            it.addStatus("2", statusColor)
+        }
+        val createdTaskEvent: TaskCreatedEvent = projectEsService.update(testId) {
+            it.addTask(taskName)
+        }
+
+        // TODO: это плохо или нет, optimisticLock exception?
+        Assertions.assertThrows(IllegalStateException::class.java) {
+            runBlocking {
+                val jobs = List(1000) {
+                    scope.async {
+                        delay(1000)
+                        projectEsService.update(testId) {
+                            it.assignStatus(testId, createdTaskEvent.taskId, oneStatusEvent.statusId)
+                        }
+                        delay(1000)
+                        projectEsService.update(testId) {
+                            it.assignStatus(testId, createdTaskEvent.taskId, twoStatusEvent.statusId)
+                        }
+                    }
+                }
+
+                jobs.awaitAll()
+            }
+        }
+    }
+
+    @Test
+    fun asyncAddStatusesAndTryDeleteWhileStatusChanges() {
+        val scope = CoroutineScope(Job())
+
+        val oneStatusEvent: StatusCreatedEvent = projectEsService.update(testId) {
+            it.addStatus("1", statusColor)
+        }
+        val twoStatusEvent: StatusCreatedEvent = projectEsService.update(testId) {
+            it.addStatus("2", statusColor)
+        }
+        val createdTaskEvent: TaskCreatedEvent = projectEsService.update(testId) {
+            it.addTask(taskName)
+        }
+
+        runBlocking {
+            val jobs = List(10) {
+                scope.async {
+                    try {
+                        delay(100)
+                        projectEsService.update(testId) {
+                            it.assignStatus(testId, createdTaskEvent.taskId, oneStatusEvent.statusId)
+                        }
+                        delay(100)
+                        projectEsService.update(testId) {
+                            it.assignStatus(testId, createdTaskEvent.taskId, twoStatusEvent.statusId)
+                        }
+                        delay(100)
+                        projectEsService.update(testId) {
+                            it.deleteStatus(testId, oneStatusEvent.statusId)
+                        }
+                    } catch (_: IllegalArgumentException) {
+                    }
+                }
+            }
+
+            jobs.awaitAll()
+        }
+
+        val state = projectEsService.getState(testId)
+        Assertions.assertNull(state?.projectStatuses?.get(oneStatusEvent.statusId))
+
+    }
+
+    //todo аналогично добавление много тасок?
+
+
 }
