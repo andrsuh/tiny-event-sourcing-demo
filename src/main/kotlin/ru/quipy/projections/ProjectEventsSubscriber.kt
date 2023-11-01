@@ -19,21 +19,21 @@ class ProjectEventsSubscriber {
     @Autowired
     lateinit var subscriptionsManager: AggregateSubscriptionsManager
 
-    @PostConstruct
-    fun init() {
-        subscriptionsManager.createSubscriber(ProjectAggregate::class, "some-meaningful-name") {
-
-            `when`(TaskCreatedEvent::class) { event ->
-                logger.info("Task created: {}", event.taskName)
-            }
-
-            `when`(TagCreatedEvent::class) { event ->
-                logger.info("Tag created: {}", event.tagName)
-            }
-
-            `when`(TagAssignedToTaskEvent::class) { event ->
-                logger.info("Tag {} assigned to task {}: ", event.tagId, event.taskId)
-            }
-        }
-    }
+//    @PostConstruct
+//    fun init() {
+//        subscriptionsManager.createSubscriber(ProjectAggregate::class, "some-meaningful-name") {
+//
+//            `when`(TaskCreatedEvent::class) { event ->
+//                logger.info("Task created: {}", event.taskName)
+//            }
+//
+//            `when`(TagCreatedEvent::class) { event ->
+//                logger.info("Tag created: {}", event.tagName)
+//            }
+//
+//            `when`(TagAssignedToTaskEvent::class) { event ->
+//                logger.info("Tag {} assigned to task {}: ", event.tagId, event.taskId)
+//            }
+//        }
+//    }
 }
