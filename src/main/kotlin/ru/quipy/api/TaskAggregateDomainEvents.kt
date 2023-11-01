@@ -41,7 +41,7 @@ class TaskNameChangedEvent(
 class TaskStatusChangedEvent(
     val taskId: UUID,
     val projectId: UUID,
-    val newTaskStatus: String,
+    val statusId: UUID,
     createdAt: Long = System.currentTimeMillis(),
 ) : Event<TaskAggregate>(
     name = TASK_STATUS_CHANGED_EVENT,

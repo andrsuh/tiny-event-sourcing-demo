@@ -37,38 +37,39 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
 
     @StateTransitionFunc
     fun taskCreatedApply(event: TaskCreatedEvent) {
-        tasks[event.taskId] = TaskEntity(event.taskId, event.taskName, null)
+        tasks[event.taskId] = TaskEntity(event.taskId, event.taskName, null, executors = emptyList())
         updatedAt = createdAt
     }
 
     @StateTransitionFunc
     fun executorChangedApply(event: TaskExecutorChangedEvent) {
-//        tasks[event.taskId] = TaskEntity(event.taskId, event.taskName, null)
-//        updatedAt = createdAt
+        tasks[event.taskId]?.executors?.plus(event.userId)
+        updatedAt = System.currentTimeMillis()
     }
 
     @StateTransitionFunc
     fun userAssignedToProjectEventApply(event: UserAssignedToProjectEvent) {
-//        tasks[event.taskId] = TaskEntity(event.taskId, event.taskName, null)
-//        updatedAt = createdAt
+        projectMembers[event.userId] = ProjectMemberEntity(event.userId, event.username, event.nickname)
+        updatedAt = System.currentTimeMillis()
     }
 }
 
 data class TaskEntity(
-    val id: UUID = UUID.randomUUID(),
-    val name: String,
-    var tagsAssigned: UUID? // cтатусы
-)
+        val id: UUID = UUID.randomUUID(),
+        val name: String,
+        var tagsAssigned: UUID?,
+        var executors: List<UUID>,
+        )
 
 data class TagEntity(
-    val id: UUID = UUID.randomUUID(),
-    val name: String
+        val id: UUID = UUID.randomUUID(),
+        val name: String
 )
 
 data class ProjectMemberEntity(
-    val id: UUID = UUID.randomUUID(),
-    val name: String,
-    val nickname: String
+        val id: UUID = UUID.randomUUID(),
+        val name: String,
+        val nickname: String
 )
 
 /**
@@ -77,6 +78,6 @@ data class ProjectMemberEntity(
 @StateTransitionFunc
 fun ProjectAggregateState.tagAssignedApply(event: TagAssignedToTaskEvent) {
     tasks[event.taskId]?.tagsAssigned = (event.tagId)
-        ?: throw IllegalArgumentException("No such task: ${event.taskId}")
+            ?: throw IllegalArgumentException("No such task: ${event.taskId}")
     updatedAt = createdAt
 }

@@ -48,6 +48,8 @@ class TagAssignedToTaskEvent(
 class UserAssignedToProjectEvent(
     val projectId: UUID,
     val userId: UUID,
+    val username: String,
+    val nickname: String,
     createdAt: Long = System.currentTimeMillis(),
 ) : Event<ProjectAggregate>(
     name = USER_ASSIGNED_TO_PROJECT_EVENT,

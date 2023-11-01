@@ -35,13 +35,13 @@ class TaskAggregateState : AggregateState<UUID, TaskAggregate> {
 
     @StateTransitionFunc
     fun taskNameChangedApply(event: TaskNameChangedEvent) {
-//        tasks[event.taskId] = TaskEntity(event.taskId, event.taskName, null)
-//        updatedAt = createdAt
+        taskTitle = event.name
+        updatedAt = System.currentTimeMillis()
     }
 
     @StateTransitionFunc
     fun taskStatusChangedApply(event: TaskStatusChangedEvent) {
-//        tasks[event.taskId] = TaskEntity(event.taskId, event.taskName, null)
-//        updatedAt = createdAt
+        tagId = event.statusId;
+        updatedAt = System.currentTimeMillis()
     }
 }
