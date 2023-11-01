@@ -16,7 +16,7 @@
 	<properties>
 		<java.version>11</java.version>
 		<kotlin.version>1.6.21</kotlin.version>
-		<tiny.es.version>2.1.1</tiny.es.version>
+		<tiny.es.version>2.2.2</tiny.es.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -70,6 +70,7 @@
 			<plugin>
 				<groupId>org.jetbrains.kotlin</groupId>
 				<artifactId>kotlin-maven-plugin</artifactId>
+				<version>${kotlin.version}</version>
 				<configuration>
 					<args>
 						<arg>-Xjsr305=strict</arg>
