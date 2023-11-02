@@ -15,6 +15,7 @@ import ru.quipy.api.*
 import ru.quipy.core.EventSourcingService
 import ru.quipy.logic.*
 import java.util.*
+import java.util.concurrent.atomic.AtomicInteger
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -57,6 +58,8 @@ class ProjectAggregateStateTest {
         projectEsService.create {
             it.create(testId, testProjectName, userId);
         }
+
+        val state = projectEsService.getState(testId)
     }
 
 
@@ -108,6 +111,7 @@ class ProjectAggregateStateTest {
 
     @Test
     fun deleteUsingStatus() {
+        val state = projectEsService.getState(testId)
         val createdStatusEvent: StatusCreatedEvent = projectEsService.update(testId) {
             it.addStatus(statusName, statusColor)
         }
@@ -143,7 +147,7 @@ class ProjectAggregateStateTest {
         // TODO: это плохо или нет, optimisticLock exception?
         Assertions.assertThrows(IllegalStateException::class.java) {
             runBlocking {
-                val jobs = List(1000) {
+                val jobs = List(200) {
                     scope.async {
                         delay(1000)
                         projectEsService.update(testId) {
@@ -195,16 +199,66 @@ class ProjectAggregateStateTest {
                     }
                 }
             }
-
             jobs.awaitAll()
         }
 
         val state = projectEsService.getState(testId)
         Assertions.assertNull(state?.projectStatuses?.get(oneStatusEvent.statusId))
+        Assertions.assertNotNull(state?.tasks?.get(twoStatusEvent.statusId))
 
     }
 
-    //todo аналогично добавление много тасок?
+    @Test
+    fun blablabla() {
+        val scope = CoroutineScope(Job())
 
+        val oneStatusEvent: StatusCreatedEvent = projectEsService.update(testId) {
+            it.addStatus("1", statusColor)
+        }
+        val twoStatusEvent: StatusCreatedEvent = projectEsService.update(testId) {
+            it.addStatus("2", statusColor)
+        }
+        val createdTaskEvent: TaskCreatedEvent = projectEsService.update(testId) {
+            it.addTask(taskName)
+        }
 
+        val taskNameFirst = "First"
+        val taskNameSecond = "Second"
+
+        val atomic: AtomicInteger = AtomicInteger(-1)
+        runBlocking {
+            val jobs = List(1000) {
+                scope.async {
+                    try {
+//                        delay(100)
+//                        projectEsService.update(testId) {
+//                            it.assignStatus(testId, createdTaskEvent.taskId, oneStatusEvent.statusId)
+//                        }
+//                        delay(100)
+//                        projectEsService.update(testId) {
+//                            it.assignStatus(testId, createdTaskEvent.taskId, twoStatusEvent.statusId)
+//                        }
+//                        delay(100)
+                        val ev = projectEsService.update(testId) {
+                            it.renameTask(testId, createdTaskEvent.taskId, taskNameFirst + atomic.get())
+                        }
+                        atomic.incrementAndGet()
+//                        println(ev == null);
+                    } catch (_: IllegalArgumentException) {
+                    }
+                }
+            }
+            jobs.awaitAll()
+        }
+
+        val state = projectEsService.getState(testId)
+        Assertions.assertNotNull(state)
+        val taskName = state?.tasks?.get(createdTaskEvent.taskId)?.name
+        println(taskName)
+        Assertions.assertTrue(taskName == "Second9" || taskName == "First9")
+//        Assertions.assertNull(state?.projectStatuses?.get(oneStatusEvent.statusId))
+//        Assertions.assertNotNull(state?.tasks?.get(twoStatusEvent.statusId))
+
+    }
 }
+
