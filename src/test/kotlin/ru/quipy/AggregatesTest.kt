@@ -9,13 +9,7 @@ import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import ru.quipy.api.*
 import ru.quipy.core.EventSourcingService
-import ru.quipy.logic.ProjectAggregateState
-import ru.quipy.logic.UserAggregateState
-import ru.quipy.logic.assignUserToProject
-import ru.quipy.logic.changeColor
-import ru.quipy.logic.changeName
-import ru.quipy.logic.create
-import ru.quipy.logic.createTag
+import ru.quipy.logic.*
 import java.lang.IllegalArgumentException
 import java.util.*
 
@@ -27,6 +21,8 @@ class AggregatesTest {
     private lateinit var projectEsService: EventSourcingService<UUID, ProjectAggregate, ProjectAggregateState>
     @Autowired
     private lateinit var userEsService: EventSourcingService<UUID, UserAggregate, UserAggregateState>
+    @Autowired
+    private lateinit var taskEsService: EventSourcingService<UUID, TaskAggregate, TaskAggregateState>
 
     @Test
     fun createUser() {
@@ -99,6 +95,41 @@ class AggregatesTest {
     }
 
     @Test
+    fun createTaskAndCheckCorrectChangedNameAtTask() {
+        val userId =  UUID.randomUUID()
+        userEsService.create { it.create(userId, "Leia", "Leia", "SimplePassword")}
+        val projectId =  UUID.randomUUID()
+        projectEsService.create { it.create(projectId, "TestTitleFifth", projectId)}
+
+        projectEsService.update(projectId) { it.createTag("TestTag", "White, Blue, Red") }
+        val received = projectEsService.getState(projectId)
+        if (received != null) {
+            val taskId = UUID.randomUUID()
+            var tagId = received.projectTags.keys.first()
+            taskEsService.create { it.create(taskId, "TestTaskTitle", projectId, tagId, userId) }
+            var receivedTask = taskEsService.getState(taskId)
+            Assertions.assertEquals(receivedTask?.taskTitle, "TestTaskTitle")
+
+            taskEsService.update(taskId) { it.changeTitle(taskId, "newTitle", projectId) }
+            receivedTask = taskEsService.getState(taskId)
+            Assertions.assertEquals(receivedTask?.taskTitle, "newTitle")
+
+// TODO            Assertions.assertEquals(projectEsService.getState(projectId)?.tasks?.size, 1)
+
+            projectEsService.update(projectId) { it.createTag("NewName", "NewColor") }
+            var receivedProject = projectEsService.getState(projectId)
+            tagId = received.projectTags.keys.first()
+            taskEsService.update(taskId) { it.changeStatus(taskId, tagId, projectId) }
+            Assertions.assertEquals(taskEsService.getState(taskId)?.tagId, tagId)
+
+            val secondUserId =  UUID.randomUUID()
+            userEsService.create { it.create(secondUserId, "Padme", "Padme", "SimplePassword")}
+            taskEsService.update(taskId) { it.assignUserToTask(taskId, secondUserId, projectId) }
+            Assertions.assertEquals(taskEsService.getState(taskId)?.executors?.contains(secondUserId), true)
+        }
+    }
+
+    @Test
     fun changeProjectStatus() {
         val scope = CoroutineScope(Job())
         val userId =  UUID.randomUUID()
@@ -113,7 +144,7 @@ class AggregatesTest {
                     try {
                         delay(1000)
                         projectEsService.update(projectId) {
-                            it.changeName("Eagle", tagCreatedEvent.tagId)
+                            it.changeName("Eagle" + UUID.randomUUID(), tagCreatedEvent.tagId)
                         }
                         delay(1000)
                         projectEsService.create { it.create(projectId, "Project X", userId)}
