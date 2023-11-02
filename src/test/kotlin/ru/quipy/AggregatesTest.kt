@@ -1,5 +1,6 @@
 package ru.quipy
 
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -46,7 +47,7 @@ class AggregatesTest {
     }
 
     @Test
-    fun createProjectLifecycle() {
+    fun createProjectLifecycle() = runBlocking{
         val secondUserId =  UUID.randomUUID()
         val firstProjectId =  UUID.randomUUID()
         val secondProjectId =  UUID.randomUUID()
@@ -76,7 +77,7 @@ class AggregatesTest {
     }
 
     @Test
-    fun createTagToProject() {
+    fun createTagToProject() = runBlocking{
         val fourthUserId =  UUID.randomUUID()
         userEsService.create { it.create(fourthUserId, "Luke", "Luke", "SimplePassword4")}
         val fourthProjectId =  UUID.randomUUID()
@@ -127,7 +128,7 @@ class AggregatesTest {
             Assertions.assertEquals(taskEsService.getState(taskId)?.tagId, tagId)
 
             val secondUserId =  UUID.randomUUID()
-            userEsService.create { it.create(userId, "Padme", "Padme", "SimplePassword")}
+            userEsService.create { it.create(secondUserId, "Padme", "Padme", "SimplePassword")}
             taskEsService.update(taskId) { it.assignUserToTask(taskId, secondUserId, projectId) }
             Assertions.assertEquals(taskEsService.getState(taskId)?.executors?.contains(secondUserId), true)
         }
