@@ -83,6 +83,8 @@ class TagDeletedEvent(
 class UserAddedEvent(
     val projectId: UUID,
     val userId: UUID,
+    val userName: String,
+    val nickname: String,
     createdAt: Long = System.currentTimeMillis(),
 ) : Event<ProjectAggregate>(
     name = USER_ADDED_EVENT,

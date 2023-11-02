@@ -57,9 +57,9 @@ class ProjectController(
     }
 
     @PostMapping("/{projectId}/user/{userId}")
-    fun addUser(@PathVariable projectId: UUID, @PathVariable userId: UUID) : UserAddedEvent {
+    fun addUser(@PathVariable projectId: UUID, @PathVariable userId: UUID, @RequestParam name: String, @RequestParam nickname: String) : UserAddedEvent {
         return projectEsService.update(projectId) {
-            it.addUser(userId)
+            it.addUser(userId, name, nickname)
         }
     }
 }

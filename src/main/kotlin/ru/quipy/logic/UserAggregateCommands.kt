@@ -1,14 +1,13 @@
 package ru.quipy.logic
 
-import ru.quipy.api.UserAggregate
 import ru.quipy.api.UserCreatedEvent
 import java.util.*
 
-fun UserAggregate.create(
+fun UserAggregateState.create(
     userId: UUID = UUID.randomUUID(),
     name: String,
-    password: String,
-    login: String
+    nickname: String,
+    password: String
 ): UserCreatedEvent {
     if (name.length < 3) {
         throw IllegalArgumentException("Name is too small")
@@ -22,7 +21,7 @@ fun UserAggregate.create(
 
     return UserCreatedEvent(
         userId = userId,
-        nickname = login,
+        nickname = nickname,
         password = password,
         userName = name
     )

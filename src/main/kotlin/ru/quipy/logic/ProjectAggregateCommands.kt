@@ -50,9 +50,9 @@ fun ProjectAggregateState.renameTask(taskId: UUID, taskName: String): TaskRename
     return TaskRenamedEvent(projectId = this.getId(), taskId = taskId, taskName = taskName)
 }
 
-fun ProjectAggregateState.addUser(userId: UUID): UserAddedEvent {
+fun ProjectAggregateState.addUser(userId: UUID, name: String, nickname: String): UserAddedEvent {
     if (projectMembers.values.any { it.id == userId }) {
         throw IllegalArgumentException("User $userId already is member of project")
     }
-    return UserAddedEvent(projectId = this.getId(), userId = userId)
+    return UserAddedEvent(projectId = this.getId(), userId = userId, userName = name, nickname = nickname)
 }

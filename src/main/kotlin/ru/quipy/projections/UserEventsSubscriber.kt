@@ -8,21 +8,21 @@ import ru.quipy.api.*
 import ru.quipy.streams.AggregateSubscriptionsManager
 import javax.annotation.PostConstruct
 
-@Service
-class UserEventsSubscriber {
-
-    val logger: Logger = LoggerFactory.getLogger(UserEventsSubscriber::class.java)
-
-    @Autowired
-    lateinit var subscriptionsManager: AggregateSubscriptionsManager
-
-    @PostConstruct
-    fun init() {
-        subscriptionsManager.createSubscriber(UserAggregate::class, "user") {
-
-            `when`(UserCreatedEvent::class) { event ->
-                logger.info("User created: {}", event.userName)
-            }
-        }
-    }
-}
+//@Service
+//class UserEventsSubscriber {
+//
+//    val logger: Logger = LoggerFactory.getLogger(UserEventsSubscriber::class.java)
+//
+//    @Autowired
+//    lateinit var subscriptionsManager: AggregateSubscriptionsManager
+//
+//    @PostConstruct
+//    fun init() {
+//        subscriptionsManager.createSubscriber(UserAggregate::class, "user") {
+//
+//            `when`(UserCreatedEvent::class) { event ->
+//                logger.info("User created: {}", event.userName)
+//            }
+//        }
+//    }
+//}

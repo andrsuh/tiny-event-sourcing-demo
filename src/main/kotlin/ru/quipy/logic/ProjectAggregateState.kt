@@ -57,6 +57,19 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
         tasks[event.taskId]?.tagsAssigned?.add(event.tagId)
         updatedAt = System.currentTimeMillis()
     }
+
+    @StateTransitionFunc
+    fun ProjectAggregateState.tagAssignedApply(event: TagAssignedToTaskEvent) {
+        tasks[event.taskId]?.tagsAssigned?.add(event.tagId)
+            ?: throw IllegalArgumentException("No such task: ${event.taskId}")
+        updatedAt = System.currentTimeMillis()
+    }
+
+    @StateTransitionFunc
+    fun userAddedApply(event: UserAddedEvent) {
+        projectMembers[event.userId] = MemberEntity(event.userId, event.userName, event.nickname)
+        updatedAt = System.currentTimeMillis()
+    }
 }
 
 data class TaskEntity(
@@ -76,13 +89,3 @@ data class MemberEntity(
     val name: String,
     val nickname: String
 )
-
-/**
- * Demonstrates that the transition functions might be representer by "extension" functions, not only class members functions
- */
-@StateTransitionFunc
-fun ProjectAggregateState.tagAssignedApply(event: TagAssignedToTaskEvent) {
-    tasks[event.taskId]?.tagsAssigned?.add(event.tagId)
-        ?: throw IllegalArgumentException("No such task: ${event.taskId}")
-    updatedAt = System.currentTimeMillis()
-}
