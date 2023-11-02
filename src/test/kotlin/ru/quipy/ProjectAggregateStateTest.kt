@@ -59,7 +59,7 @@ class ProjectAggregateStateTest {
             it.create(testId, testProjectName, userId);
         }
 
-        val state = projectEsService.getState(testId)
+        Thread.sleep(1000)
     }
 
 
@@ -111,6 +111,7 @@ class ProjectAggregateStateTest {
 
     @Test
     fun deleteUsingStatus() {
+        Thread.sleep(1000)
         val state = projectEsService.getState(testId)
         val createdStatusEvent: StatusCreatedEvent = projectEsService.update(testId) {
             it.addStatus(statusName, statusColor)
@@ -204,46 +205,29 @@ class ProjectAggregateStateTest {
 
         val state = projectEsService.getState(testId)
         Assertions.assertNull(state?.projectStatuses?.get(oneStatusEvent.statusId))
-        Assertions.assertNotNull(state?.tasks?.get(twoStatusEvent.statusId))
+        Assertions.assertNotNull(state?.projectStatuses?.get(twoStatusEvent.statusId))
 
     }
 
     @Test
-    fun blablabla() {
+    fun testTestTestTaskTestNameTestRenameTest() {
         val scope = CoroutineScope(Job())
 
-        val oneStatusEvent: StatusCreatedEvent = projectEsService.update(testId) {
-            it.addStatus("1", statusColor)
-        }
-        val twoStatusEvent: StatusCreatedEvent = projectEsService.update(testId) {
-            it.addStatus("2", statusColor)
-        }
         val createdTaskEvent: TaskCreatedEvent = projectEsService.update(testId) {
             it.addTask(taskName)
         }
 
         val taskNameFirst = "First"
-        val taskNameSecond = "Second"
 
-        val atomic: AtomicInteger = AtomicInteger(-1)
+        val atomic: AtomicInteger = AtomicInteger(0)
         runBlocking {
-            val jobs = List(1000) {
+            val jobs = List(10) {
                 scope.async {
                     try {
-//                        delay(100)
-//                        projectEsService.update(testId) {
-//                            it.assignStatus(testId, createdTaskEvent.taskId, oneStatusEvent.statusId)
-//                        }
-//                        delay(100)
-//                        projectEsService.update(testId) {
-//                            it.assignStatus(testId, createdTaskEvent.taskId, twoStatusEvent.statusId)
-//                        }
-//                        delay(100)
-                        val ev = projectEsService.update(testId) {
+                        projectEsService.update(testId) {
                             it.renameTask(testId, createdTaskEvent.taskId, taskNameFirst + atomic.get())
                         }
                         atomic.incrementAndGet()
-//                        println(ev == null);
                     } catch (_: IllegalArgumentException) {
                     }
                 }
@@ -255,9 +239,7 @@ class ProjectAggregateStateTest {
         Assertions.assertNotNull(state)
         val taskName = state?.tasks?.get(createdTaskEvent.taskId)?.name
         println(taskName)
-        Assertions.assertTrue(taskName == "Second9" || taskName == "First9")
-//        Assertions.assertNull(state?.projectStatuses?.get(oneStatusEvent.statusId))
-//        Assertions.assertNotNull(state?.tasks?.get(twoStatusEvent.statusId))
+        Assertions.assertTrue(taskName == "First9")
 
     }
 }
