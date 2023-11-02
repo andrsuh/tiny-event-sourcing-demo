@@ -141,7 +141,6 @@ class AggregatesTest {
         runBlocking {
             val jobs = List(10) {
                 scope.async {
-                    try {
                         delay(1000)
                         projectEsService.update(projectId) {
                             it.changeName("Eagle" + UUID.randomUUID(), tagCreatedEvent.tagId)
@@ -150,11 +149,8 @@ class AggregatesTest {
                         projectEsService.create { it.create(UUID.randomUUID(), "Project X", userId)}
                         delay(1000)
                         projectEsService.update(projectId) {
-                            it.changeColor("Blue", tagCreatedEvent.tagId)
+                            it.changeColor("Blue" + UUID.randomUUID(), tagCreatedEvent.tagId)
                         }
-                    } catch (e: IllegalArgumentException) {
-                        println(e.message)
-                    }
                 }
             }
             jobs.awaitAll()
