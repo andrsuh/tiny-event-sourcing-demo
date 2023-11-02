@@ -15,18 +15,24 @@ fun ProjectAggregateState.create(id: UUID, title: String, creatorId: UUID): Proj
     )
 }
 
-fun ProjectAggregateState.addTask(name: String): TaskCreatedEvent {
-    return TaskCreatedEvent(projectId = this.getId(), taskId = UUID.randomUUID(), taskName = name)
+fun ProjectAggregateState.addTask(id: UUID, name: String): TaskCreatedEvent {
+    if (tasks.values.any { it.id == id }){
+        throw IllegalArgumentException("Task already exists: $id")
+    }
+    return TaskCreatedEvent(projectId = this.getId(), taskId = id, taskName = name)
 }
 
-fun ProjectAggregateState.createTag(name: String, color: String): TagCreatedEvent {
+fun ProjectAggregateState.createTag(id: UUID, name: String, color: String): TagCreatedEvent {
     if (projectTags.values.any { it.name == name }) {
         throw IllegalArgumentException("Tag already exists: $name")
     }
-    return TagCreatedEvent(projectId = this.getId(), tagId = UUID.randomUUID(), tagName = name, tagColor = color)
+    return TagCreatedEvent(projectId = this.getId(), tagId = id, tagName = name, tagColor = color)
 }
 
 fun ProjectAggregateState.deleteTag(tagId: UUID): TagDeletedEvent {
+    if (tasks.values.any { it.tagsAssigned.contains(tagId) }){
+        throw IllegalArgumentException("Tag $tagId assigned to task")
+    }
     return TagDeletedEvent(projectId = this.getId(), tagId = tagId)
 }
 fun ProjectAggregateState.assignTagToTask(tagId: UUID, taskId: UUID): TagAssignedToTaskEvent {
@@ -55,4 +61,14 @@ fun ProjectAggregateState.addUser(userId: UUID): UserAddedEvent {
         throw IllegalArgumentException("User $userId already is member of project")
     }
     return UserAddedEvent(projectId = this.getId(), userId = userId)
+}
+
+fun ProjectAggregateState.assignUserToTask(taskId: UUID, userId: UUID): UserAssignedToTaskEvent {
+    if (!tasks.containsKey(taskId)) {
+        throw IllegalArgumentException("Task doesn't exists: $taskId")
+    }
+    if (tasks[taskId]?.usersAssigned?.contains(userId) == true) {
+        throw IllegalArgumentException("User $userId already assigned to task: $taskId")
+    }
+    return UserAssignedToTaskEvent(projectId = this.getId(), taskId = taskId, userId = userId)
 }

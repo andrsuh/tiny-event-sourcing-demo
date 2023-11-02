@@ -15,7 +15,7 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
     lateinit var creatorId: UUID
     var tasks = mutableMapOf<UUID, TaskEntity>()
     var projectTags = mutableMapOf<UUID, TagEntity>()
-    var projectMembers = mutableListOf<UUID>()
+    var projectMembers = mutableSetOf<UUID>()
 
     override fun getId() = projectId
 
@@ -26,6 +26,7 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
         projectTitle = event.title
         creatorId = event.creatorId
         updatedAt = createdAt
+        projectMembers.add(creatorId)
     }
 
     @StateTransitionFunc
@@ -42,7 +43,7 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
 
     @StateTransitionFunc
     fun taskCreatedApply(event: TaskCreatedEvent) {
-        tasks[event.taskId] = TaskEntity(event.taskId, event.taskName, mutableSetOf())
+        tasks[event.taskId] = TaskEntity(event.taskId, event.taskName, mutableSetOf(), mutableSetOf())
         updatedAt = System.currentTimeMillis()
     }
 
@@ -59,7 +60,7 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
     }
 
     @StateTransitionFunc
-    fun ProjectAggregateState.tagAssignedApply(event: TagAssignedToTaskEvent) {
+    fun tagAssignedApply(event: TagAssignedToTaskEvent) {
         tasks[event.taskId]?.tagsAssigned?.add(event.tagId)
             ?: throw IllegalArgumentException("No such task: ${event.taskId}")
         updatedAt = System.currentTimeMillis()
@@ -70,12 +71,20 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
         projectMembers.add(event.userId)
         updatedAt = System.currentTimeMillis()
     }
+
+    @StateTransitionFunc
+    fun userAssignedToTaskApply(event: UserAssignedToTaskEvent) {
+        tasks[event.taskId]?.usersAssigned?.add(event.userId)
+            ?: throw IllegalArgumentException("No such task: ${event.taskId}")
+        updatedAt = System.currentTimeMillis()
+    }
 }
 
 data class TaskEntity(
     val id: UUID = UUID.randomUUID(),
     var name: String,
-    val tagsAssigned: MutableSet<UUID>
+    val tagsAssigned: MutableSet<UUID>,
+    val usersAssigned: MutableSet<UUID>
 )
 
 data class TagEntity(

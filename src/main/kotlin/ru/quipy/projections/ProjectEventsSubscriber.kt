@@ -39,6 +39,14 @@ class ProjectEventsSubscriber {
             `when`(TaskRenamedEvent::class) { event ->
                 logger.info("Task {} renamed: {}", event.taskId, event.taskName)
             }
+
+            `when`(UserAddedEvent::class) { event ->
+                logger.info("User added: {}", event.userId)
+            }
+
+            `when`(UserAssignedToTaskEvent::class) { event ->
+                logger.info("User {} assigned to task: {}", event.userId, event.taskId)
+            }
         }
     }
 }
