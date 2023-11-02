@@ -12,6 +12,8 @@ import ru.quipy.core.EventSourcingService
 import ru.quipy.logic.ProjectAggregateState
 import ru.quipy.logic.UserAggregateState
 import ru.quipy.logic.assignUserToProject
+import ru.quipy.logic.changeColor
+import ru.quipy.logic.changeName
 import ru.quipy.logic.create
 import ru.quipy.logic.createTag
 import java.util.*
@@ -75,7 +77,16 @@ class AggregatesTest {
 
         val createdTag = projectEsService.update(fourthProjectId) { it.createTag("TestTag", "White, Blue, Red") }
         val received = projectEsService.getState(fourthProjectId)
-        Assertions.assertNotNull(createdTag)
+        Assertions.assertNotNull(received)
         Assertions.assertEquals(received?.projectTags?.any { it.value.color == "White, Blue, Red" }, true)
+        Assertions.assertEquals(received?.projectTags?.any { it.value.name == "TestTag" }, true)
+
+        if (received != null) {
+            projectEsService.update(fourthProjectId) { it.changeName("NewName", received.getId()) }
+            projectEsService.update(fourthProjectId) { it.changeColor("NewColor", received.getId()) }
+        }
+        val newReceived = projectEsService.getState(fourthProjectId)
+        Assertions.assertEquals(received?.projectTags?.any { it.value.color == "NewColor" }, true)
+        Assertions.assertEquals(received?.projectTags?.any { it.value.name == "NewName" }, true)
     }
 }
