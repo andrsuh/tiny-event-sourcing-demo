@@ -7,7 +7,7 @@ import java.util.*
 // Commands : takes something -> returns event
 // Here the commands are represented by extension functions, but also can be the class member functions
 
-fun ProjectAggregateState.create(id: UUID, title: String, creatorId: String): ProjectCreatedEvent {
+fun ProjectAggregateState.create(id: UUID, title: String, creatorId: UUID): ProjectCreatedEvent {
     return ProjectCreatedEvent(
         projectId = id,
         title = title,
@@ -50,9 +50,9 @@ fun ProjectAggregateState.renameTask(taskId: UUID, taskName: String): TaskRename
     return TaskRenamedEvent(projectId = this.getId(), taskId = taskId, taskName = taskName)
 }
 
-fun ProjectAggregateState.addUser(userId: UUID, name: String, nickname: String): UserAddedEvent {
-    if (projectMembers.values.any { it.id == userId }) {
+fun ProjectAggregateState.addUser(userId: UUID): UserAddedEvent {
+    if (projectMembers.any { it == userId }) {
         throw IllegalArgumentException("User $userId already is member of project")
     }
-    return UserAddedEvent(projectId = this.getId(), userId = userId, userName = name, nickname = nickname)
+    return UserAddedEvent(projectId = this.getId(), userId = userId)
 }

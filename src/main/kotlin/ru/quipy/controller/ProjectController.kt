@@ -13,7 +13,7 @@ class ProjectController(
 ) {
 
     @PostMapping()
-    fun createProject(@RequestParam projectTitle: String, @RequestParam creatorId: String) : ProjectCreatedEvent {
+    fun createProject(@RequestParam projectTitle: String, @RequestParam creatorId: UUID) : ProjectCreatedEvent {
         return projectEsService.create { it.create(UUID.randomUUID(), projectTitle, creatorId) }
     }
 
@@ -57,9 +57,9 @@ class ProjectController(
     }
 
     @PostMapping("/{projectId}/user/{userId}")
-    fun addUser(@PathVariable projectId: UUID, @PathVariable userId: UUID, @RequestParam name: String, @RequestParam nickname: String) : UserAddedEvent {
+    fun addUser(@PathVariable projectId: UUID, @PathVariable userId: UUID) : UserAddedEvent {
         return projectEsService.update(projectId) {
-            it.addUser(userId, name, nickname)
+            it.addUser(userId)
         }
     }
 }

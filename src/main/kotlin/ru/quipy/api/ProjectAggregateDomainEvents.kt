@@ -17,7 +17,7 @@ const val USER_ADDED_EVENT = "USER_ADDED_EVENT"
 class ProjectCreatedEvent(
     val projectId: UUID,
     val title: String,
-    val creatorId: String,
+    val creatorId: UUID,
     createdAt: Long = System.currentTimeMillis(),
 ) : Event<ProjectAggregate>(
     name = PROJECT_CREATED_EVENT,
@@ -83,8 +83,6 @@ class TagDeletedEvent(
 class UserAddedEvent(
     val projectId: UUID,
     val userId: UUID,
-    val userName: String,
-    val nickname: String,
     createdAt: Long = System.currentTimeMillis(),
 ) : Event<ProjectAggregate>(
     name = USER_ADDED_EVENT,
