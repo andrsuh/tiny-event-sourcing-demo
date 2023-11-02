@@ -105,7 +105,7 @@ class AggregatesTest {
         val projectId =  UUID.randomUUID()
         var userCreatedEvent: UserCreatedEvent = userEsService.create { it.create(userId, "Aiven", "sputnik6109", "gagarin")}
         var projectCreatedEvent: ProjectCreatedEvent = projectEsService.create { it.create(projectId, "Project X", userId)}
-        var tagCreatedEvent: TagCreatedEvent = projectEsService.update(projectId) { it.createTag("TestTag", "White, Blue, Red") }
+        var tagCreatedEvent: TagCreatedEvent = projectEsService.update(projectId) { it.createTag("TestTag", "White") }
 
         runBlocking {
             val jobs = List(10) {
@@ -114,6 +114,12 @@ class AggregatesTest {
                         delay(1000)
                         projectEsService.update(projectId) {
                             it.changeName("Eagle", tagCreatedEvent.tagId)
+                        }
+                        delay(1000)
+                        projectEsService.create { it.create(projectId, "Project X", userId)}
+                        delay(1000)
+                        projectEsService.update(projectId) {
+                            it.changeColor("Blue", tagCreatedEvent.tagId)
                         }
                     } catch (e: IllegalArgumentException) {
                         println(e.message)
