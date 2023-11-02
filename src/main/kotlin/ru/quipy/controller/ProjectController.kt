@@ -39,11 +39,6 @@ class ProjectController(
         return projectEsService.getState(projectId)
     }
 
-    @GetMapping("/get-all")
-    fun getProjectNames(@RequestBody projectIds: List<UUID>): List<ProjectAggregateState?> {
-        return projectIds.map { projectId -> projectEsService.getState(projectId) }
-    }
-
     @PostMapping("/{projectId}/add-user")
     fun addUserToProject(@PathVariable projectId: UUID, @RequestParam userId: UUID, @RequestParam username: String, @RequestParam nickname: String): UserAssignedToProjectEvent {
         return projectEsService.update(projectId) {

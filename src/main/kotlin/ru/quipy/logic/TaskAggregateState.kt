@@ -41,7 +41,7 @@ class TaskAggregateState : AggregateState<UUID, TaskAggregate> {
 
     @StateTransitionFunc
     fun taskNameChangedApply(event: TaskNameChangedEvent) {
-        taskTitle = event.name
+        taskTitle = event.newTaskName
         updatedAt = createdAt
     }
 
