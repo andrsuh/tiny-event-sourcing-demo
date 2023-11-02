@@ -11,12 +11,12 @@ const val USER_CREATED_EVENT = "USER_CREATED_EVENT"
 
 @DomainEvent(name = USER_CREATED_EVENT)
 class UserCreatedEvent(
-    val userId: UUID,
-    val surname: String,
-    val username: String,
-    val password: String,
-    createdAt: Long = System.currentTimeMillis(),
+        val userId: UUID,
+        val username: String,
+        val nickname: String,
+        val password: String,
+        createdAt: Long = System.currentTimeMillis(),
 ) : Event<UserAggregate>(
-    name = USER_CREATED_EVENT,
-    createdAt = createdAt
+        name = USER_CREATED_EVENT,
+        createdAt = createdAt
 )

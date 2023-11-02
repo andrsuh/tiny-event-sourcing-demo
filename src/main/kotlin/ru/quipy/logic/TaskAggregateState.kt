@@ -1,6 +1,11 @@
 package ru.quipy.logic
 
-import ru.quipy.api.*
+import ru.quipy.api.TagAssignedToTaskEvent
+import ru.quipy.api.TaskAggregate
+import ru.quipy.api.TaskCreatedEvent
+import ru.quipy.api.TaskExecutorChangedEvent
+import ru.quipy.api.TaskNameChangedEvent
+import ru.quipy.api.TaskStatusChangedEvent
 import ru.quipy.core.annotations.StateTransitionFunc
 import ru.quipy.domain.AggregateState
 import java.util.*
@@ -37,12 +42,25 @@ class TaskAggregateState : AggregateState<UUID, TaskAggregate> {
     @StateTransitionFunc
     fun taskNameChangedApply(event: TaskNameChangedEvent) {
         taskTitle = event.name
-        updatedAt = System.currentTimeMillis()
+        updatedAt = createdAt
     }
 
     @StateTransitionFunc
     fun taskStatusChangedApply(event: TaskStatusChangedEvent) {
         tagId = event.statusId
-        updatedAt = System.currentTimeMillis()
+        updatedAt = createdAt
+    }
+
+    @StateTransitionFunc
+    fun executorChangedApply(event: TaskExecutorChangedEvent) {
+        executors.plus(event.userId)
+        updatedAt = createdAt
+    }
+
+    @StateTransitionFunc
+    fun tagAssignedApply(event: TagAssignedToTaskEvent) {
+        tagId = (event.tagId)
+                ?: throw IllegalArgumentException("No such task: ${event.tagId}")
+        updatedAt = createdAt
     }
 }

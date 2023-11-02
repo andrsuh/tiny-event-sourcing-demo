@@ -16,8 +16,8 @@ class UserAggregateState : AggregateState<UUID, UserAggregate> {
     var createdAt: Long = System.currentTimeMillis()
     var updatedAt: Long = System.currentTimeMillis()
 
-    lateinit var surname: String
     lateinit var username: String
+    lateinit var nickname: String
     lateinit var password: String
     override fun getId() = userId
 
@@ -26,8 +26,8 @@ class UserAggregateState : AggregateState<UUID, UserAggregate> {
         userId = event.userId
         createdAt = event.createdAt
         updatedAt = createdAt
-        surname = event.surname
         username = event.username
+        nickname = event.nickname
         password = event.password
     }
 }

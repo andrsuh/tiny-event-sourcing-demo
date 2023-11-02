@@ -1,6 +1,10 @@
 package ru.quipy.logic
 
-import ru.quipy.api.*
+import ru.quipy.api.ProjectCreatedEvent
+import ru.quipy.api.TagChangeColorEvent
+import ru.quipy.api.TagChangeNameEvent
+import ru.quipy.api.TagCreatedEvent
+import ru.quipy.api.UserAssignedToProjectEvent
 import java.util.*
 
 
@@ -8,11 +12,11 @@ import java.util.*
 // Here the commands are represented by extension functions, but also can be the class member functions
 
 // Create Project
-fun ProjectAggregateState.create(id: UUID, title: String, creatorId: String): ProjectCreatedEvent {
+fun ProjectAggregateState.create(id: UUID, title: String, creatorId: UUID): ProjectCreatedEvent {
     return ProjectCreatedEvent(
-        projectId = id,
-        title = title,
-        creatorId = creatorId,
+            projectId = id,
+            title = title,
+            creatorId = creatorId,
     )
 }
 
@@ -25,31 +29,27 @@ fun ProjectAggregateState.createTag(name: String, color: String): TagCreatedEven
     return TagCreatedEvent(projectId = this.getId(), tagId = UUID.randomUUID(), tagName = name, color = color)
 }
 
-// Add Status To Project
-fun ProjectAggregateState.assignTagToTask(tagId: UUID, taskId: UUID): TagAssignedToTaskEvent {
-    if (!projectTags.containsKey(tagId)) {
-        throw IllegalArgumentException("Tag doesn't exists: $tagId")
-    }
 
-    if (!tasks.containsKey(taskId)) {
-        throw IllegalArgumentException("Task doesn't exists: $taskId")
-    }
-
-    return TagAssignedToTaskEvent(projectId = this.getId(), tagId = tagId, taskId = taskId)
-}
-
-fun ProjectAggregateState.assignUserToProject(userId: UUID): UserAssignedToProjectEvent {
+fun ProjectAggregateState.assignUserToProject(userId: UUID, username: String, nickname: String): UserAssignedToProjectEvent {
     if (projectMembers.containsKey(userId)) {
         throw IllegalArgumentException("User already exists: $userId")
     }
 
-    return UserAssignedToProjectEvent(projectId = this.getId(), userId = userId)
+    return UserAssignedToProjectEvent(projectId = this.getId(), userId = userId, username=username, nickname=nickname)
 }
 
-fun ProjectAggregateState.assignUserToTask(id: UUID, userId: String, projectId: UUID): TaskExecutorChangedEvent {
-    return TaskExecutorChangedEvent(
-        taskId = id,
-        projectId = projectId,
-        userId = userId,
-    )
+// Change Status name
+fun ProjectAggregateState.changeName(name: String, tagId: UUID): TagChangeNameEvent {
+    if (projectTags.values.any { it.name == name }) {
+        throw IllegalArgumentException("Tag already exists: $name")
+    }
+    return TagChangeNameEvent(this.getId(), tagId, name)
+}
+
+// Change Status color
+fun ProjectAggregateState.changeColor(color: String, tagId: UUID): TagChangeColorEvent {
+    if (projectTags.values.any { it.color == color }) {
+        throw IllegalArgumentException("Tag already exists: $color")
+    }
+    return TagChangeColorEvent(this.getId(), tagId, color)
 }

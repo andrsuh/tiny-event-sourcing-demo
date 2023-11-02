@@ -25,8 +25,8 @@ class UserAggregateTest {
         val createdUser = userEsService.create { it.create(userId, "Zmushko", "Andrew", "SimplePassword")}
         val receivedUser = userEsService.getState(userId)
         Assertions.assertNotNull(receivedUser)
-        Assertions.assertEquals(createdUser.surname, receivedUser?.surname)
         Assertions.assertEquals(createdUser.username, receivedUser?.username)
+        Assertions.assertEquals(createdUser.nickname, receivedUser?.nickname)
         Assertions.assertEquals(createdUser.password, receivedUser?.password)
     }
 }

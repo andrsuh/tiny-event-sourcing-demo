@@ -1,6 +1,10 @@
 package ru.quipy.logic
 
-import ru.quipy.api.*
+import ru.quipy.api.TagAssignedToTaskEvent
+import ru.quipy.api.TaskCreatedEvent
+import ru.quipy.api.TaskExecutorChangedEvent
+import ru.quipy.api.TaskNameChangedEvent
+import ru.quipy.api.TaskStatusChangedEvent
 import java.util.*
 
 /**
@@ -35,4 +39,17 @@ fun TaskAggregateState.changeStatus(id: UUID, statusId: UUID, projectId: UUID): 
             projectId = projectId,
             statusId = statusId,
     )
+}
+
+
+fun TaskAggregateState.assignUserToTask(id: UUID, userId: UUID, projectId: UUID): TaskExecutorChangedEvent {
+    return TaskExecutorChangedEvent(
+            taskId = id,
+            projectId = projectId,
+            userId = userId,
+    )
+}
+
+fun TaskAggregateState.assignTagToTask(tagId: UUID, taskId: UUID): TagAssignedToTaskEvent {
+    return TagAssignedToTaskEvent(projectId = this.getId(), tagId = tagId, taskId = taskId)
 }

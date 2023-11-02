@@ -10,11 +10,11 @@ import java.util.*
 // Here the commands are represented by extension functions, but also can be the class member functions
 
 // Create Project
-fun UserAggregateState.create(id: UUID, surname: String, username: String, password: String): UserCreatedEvent {
+fun UserAggregateState.create(id: UUID, username: String, nickname: String, password: String): UserCreatedEvent {
     return UserCreatedEvent(
-        userId = id,
-        surname = surname,
-        username = username,
-        password = password,
+            userId = id,
+            username = username,
+            nickname = nickname,
+            password = password,
     )
 }
