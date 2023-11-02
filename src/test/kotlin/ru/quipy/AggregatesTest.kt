@@ -139,14 +139,18 @@ class AggregatesTest {
         var tagCreatedEvent: TagCreatedEvent = projectEsService.update(projectId) { it.createTag("TestTag", "White") }
 
         runBlocking {
-            val jobs = List(10) {
+            val jobs = List(10000) {
                 scope.async {
                         delay(1000)
                         projectEsService.update(projectId) {
                             it.changeName("Eagle" + UUID.randomUUID(), tagCreatedEvent.tagId)
                         }
                         delay(1000)
-                        projectEsService.create { it.create(UUID.randomUUID(), "Project X", userId)}
+                        var i = 0;
+                        while (i < 1000){
+                            projectEsService.create { it.create(UUID.randomUUID(), "Project X" + UUID.randomUUID(), userId)}
+                            i++
+                        }
                         delay(1000)
                         projectEsService.update(projectId) {
                             it.changeColor("Blue" + UUID.randomUUID(), tagCreatedEvent.tagId)
