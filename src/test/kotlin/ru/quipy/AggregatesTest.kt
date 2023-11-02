@@ -65,7 +65,7 @@ class AggregatesTest {
             it.assignUserToProject(thirdUserId, "Lion", "King") }
         val received = projectEsService.getState(thirdProjectId)
         Assertions.assertNotNull(projectMember)
-        Assertions.assertEquals(received?.projectMembers?.contains(thirdProjectId), true)
+        Assertions.assertEquals(received?.projectMembers?.contains(thirdUserId), true)
     }
 
     @Test
@@ -82,11 +82,11 @@ class AggregatesTest {
         Assertions.assertEquals(received?.projectTags?.any { it.value.name == "TestTag" }, true)
 
         if (received != null) {
-            projectEsService.update(fourthProjectId) { it.changeName("NewName", received.getId()) }
-            projectEsService.update(fourthProjectId) { it.changeColor("NewColor", received.getId()) }
+            projectEsService.update(fourthProjectId) { it.changeName("NewName", received.projectTags.keys.first()) }
+            projectEsService.update(fourthProjectId) { it.changeColor("NewColor", received.projectTags.keys.first()) }
         }
         val newReceived = projectEsService.getState(fourthProjectId)
-        Assertions.assertEquals(received?.projectTags?.any { it.value.color == "NewColor" }, true)
-        Assertions.assertEquals(received?.projectTags?.any { it.value.name == "NewName" }, true)
+        Assertions.assertEquals(newReceived?.projectTags?.any { it.value.color == "NewColor" }, true)
+        Assertions.assertEquals(newReceived?.projectTags?.any { it.value.name == "NewName" }, true)
     }
 }
