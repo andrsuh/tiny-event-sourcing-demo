@@ -25,15 +25,10 @@ class AggregatesTest {
     @Autowired
     private lateinit var userEsService: EventSourcingService<UUID, UserAggregate, UserAggregateState>
 
-    private val firstUserId =  UUID.randomUUID()
-    private val secondUserId =  UUID.randomUUID()
-    private val firstProjectId =  UUID.randomUUID()
-    private val secondProjectId =  UUID.randomUUID()
-    private val thirdProjectId =  UUID.randomUUID()
     @Test
     fun createUser() {
+        val firstUserId =  UUID.randomUUID()
         val createdUser = userEsService.create { it.create(firstUserId, "Zmushko", "Andrew", "SimplePassword")}
-        val createdUser2 = userEsService.create { it.create(secondUserId, "Zinchik", "Nagibator228", "SimplePassword2")}
         val receivedUser = userEsService.getState(firstUserId)
         Assertions.assertNotNull(receivedUser)
         Assertions.assertEquals(createdUser.username, receivedUser?.username)
@@ -43,21 +38,29 @@ class AggregatesTest {
 
     @Test
     fun createProjectLifecycle() {
-        val created = projectEsService.create { it.create(firstProjectId, "TestTitleOne", firstUserId)}
-        val created2 = projectEsService.create { it.create(firstProjectId, "TestTitleTwo", secondProjectId)}
-        val created3 = projectEsService.create { it.create(firstProjectId, "TestTitleThree", secondProjectId)}
-        val listId = emptyList<UUID>().plus(created).plus(created2).plus(created3)
+        val secondUserId =  UUID.randomUUID()
+        val firstProjectId =  UUID.randomUUID()
+        val secondProjectId =  UUID.randomUUID()
+        val thirdProjectId =  UUID.randomUUID()
+        val createdUser2 = userEsService.create { it.create(secondUserId, "Zinchik", "Nagibator228", "SimplePassword2")}
+        val createdProject = projectEsService.create { it.create(firstProjectId, "TestTitleOne", secondUserId)}
+        val createdProject2 = projectEsService.create { it.create(secondProjectId, "TestTitleTwo", secondUserId)}
+        val listId = emptyList<UUID>().plus(createdProject.projectId).plus(createdProject2.projectId)
         val received = projectEsService.getState(firstProjectId)
         Assertions.assertNotNull(received)
-        Assertions.assertEquals(created.title, received?.projectTitle)
-        val listReceived = listId.map { projectId -> projectEsService.getState(projectId as UUID) }
-        Assertions.assertEquals(listReceived.size, 3)
+        Assertions.assertEquals(createdProject.title, received?.projectTitle)
+        val listReceived = listId.map { projectId -> projectEsService.getState(projectId) }
+        Assertions.assertEquals(listReceived.size, 2)
     }
 
     @Test
-    fun createUserToProject() {
+    fun addUserToProject() {
+        val thirdUserId =  UUID.randomUUID()
+        val createdUser3 = userEsService.create { it.create(thirdUserId, "Lion", "King", "SimplePassword3")}
+        val thirdProjectId =  UUID.randomUUID()
+        val createdProject3 = projectEsService.create { it.create(thirdProjectId, "TestTitleThree", thirdUserId)}
         val projectMember = projectEsService.update(thirdProjectId) {
-            it.assignUserToProject(secondUserId, "Zinchik", "Nagibator228",) }
+            it.assignUserToProject(thirdUserId, "Lion", "King") }
         val received = projectEsService.getState(thirdProjectId)
         Assertions.assertNotNull(projectMember)
         Assertions.assertEquals(received?.projectMembers?.contains(thirdProjectId), true)
@@ -65,8 +68,13 @@ class AggregatesTest {
 
     @Test
     fun createTagToProject() {
-        val createdTag = projectEsService.update(secondProjectId) { it.createTag("TestTag", "White, Blue, Red") }
-        val received = projectEsService.getState(secondProjectId)
+        val fourthUserId =  UUID.randomUUID()
+        val createdUser4 = userEsService.create { it.create(fourthUserId, "Luke", "blbla", "SimplePassword4")}
+        val fourthProjectId =  UUID.randomUUID()
+        val createdProject4 = projectEsService.create { it.create(fourthProjectId, "TestTitleFour", fourthUserId)}
+
+        val createdTag = projectEsService.update(fourthProjectId) { it.createTag("TestTag", "White, Blue, Red") }
+        val received = projectEsService.getState(fourthProjectId)
         Assertions.assertNotNull(createdTag)
         Assertions.assertEquals(received?.projectTags?.any { it.value.color == "White, Blue, Red" }, true)
     }
