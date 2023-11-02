@@ -37,7 +37,7 @@ class AggregatesTest {
     @Test
     fun createUser() {
         val firstUserId =  UUID.randomUUID()
-        val createdUser = userEsService.create { it.create(firstUserId, "Zmushko", "Andrew", "SimplePassword")}
+        val createdUser = userEsService.create { it.create(firstUserId, "ivan", "ivangenius", "SimplePassword")}
         val receivedUser = userEsService.getState(firstUserId)
         Assertions.assertNotNull(receivedUser)
         Assertions.assertEquals(createdUser.username, receivedUser?.username)
