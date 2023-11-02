@@ -53,7 +53,7 @@ class TaskAggregateState : AggregateState<UUID, TaskAggregate> {
 
     @StateTransitionFunc
     fun executorChangedApply(event: TaskExecutorChangedEvent) {
-        executors.plus(event.userId)
+        executors = executors.plus(event.userId)
         updatedAt = createdAt
     }
 

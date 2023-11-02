@@ -147,7 +147,7 @@ class AggregatesTest {
                             it.changeName("Eagle" + UUID.randomUUID(), tagCreatedEvent.tagId)
                         }
                         delay(1000)
-                        projectEsService.create { it.create(projectId, "Project X", userId)}
+                        projectEsService.create { it.create(UUID.randomUUID(), "Project X", userId)}
                         delay(1000)
                         projectEsService.update(projectId) {
                             it.changeColor("Blue", tagCreatedEvent.tagId)

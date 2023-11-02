@@ -21,7 +21,8 @@ fun TaskAggregateState.create(id: UUID, title: String, projectId: UUID, tagId: U
             projectId = projectId,
             taskName = title,
             creatorId = creatorId,
-            tagId = tagId
+            tagId = tagId,
+            executors = emptyList()
     )
 }
 
