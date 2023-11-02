@@ -10,6 +10,7 @@ const val TAG_ASSIGNED_TO_TASK_EVENT = "TAG_ASSIGNED_TO_TASK_EVENT"
 const val TASK_CREATED_EVENT = "TASK_CREATED_EVENT"
 const val TASK_RENAMED_EVENT = "TASK_RENAMED_EVENT"
 const val TAG_DELETED_EVENT = "TAG_DELETED_EVENT"
+const val USER_ADDED_EVENT = "USER_ADDED_EVENT"
 
 // API
 @DomainEvent(name = PROJECT_CREATED_EVENT)
@@ -28,6 +29,7 @@ class TagCreatedEvent(
     val projectId: UUID,
     val tagId: UUID,
     val tagName: String,
+    val tagColor: String,
     createdAt: Long = System.currentTimeMillis(),
 ) : Event<ProjectAggregate>(
     name = TAG_CREATED_EVENT,
@@ -74,5 +76,15 @@ class TagDeletedEvent(
     createdAt: Long = System.currentTimeMillis(),
 ) : Event<ProjectAggregate>(
     name = TAG_DELETED_EVENT,
+    createdAt = createdAt
+)
+
+@DomainEvent(name = USER_ADDED_EVENT)
+class UserAddedEvent(
+    val projectId: UUID,
+    val userId: UUID,
+    createdAt: Long = System.currentTimeMillis(),
+) : Event<ProjectAggregate>(
+    name = USER_ADDED_EVENT,
     createdAt = createdAt
 )

@@ -15,6 +15,7 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
     lateinit var creatorId: String
     var tasks = mutableMapOf<UUID, TaskEntity>()
     var projectTags = mutableMapOf<UUID, TagEntity>()
+    var projectMembers = mutableMapOf<UUID, MemberEntity>()
 
     override fun getId() = projectId
 
@@ -29,32 +30,32 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
 
     @StateTransitionFunc
     fun tagCreatedApply(event: TagCreatedEvent) {
-        projectTags[event.tagId] = TagEntity(event.tagId, event.tagName)
-        updatedAt = createdAt
+        projectTags[event.tagId] = TagEntity(event.tagId, event.tagName, event.tagColor)
+        updatedAt = System.currentTimeMillis()
     }
 
     @StateTransitionFunc
     fun tagDeletedApply(event: TagDeletedEvent) {
         projectTags.remove(event.tagId)
-        updatedAt = createdAt
+        updatedAt = System.currentTimeMillis()
     }
 
     @StateTransitionFunc
     fun taskCreatedApply(event: TaskCreatedEvent) {
         tasks[event.taskId] = TaskEntity(event.taskId, event.taskName, mutableSetOf())
-        updatedAt = createdAt
+        updatedAt = System.currentTimeMillis()
     }
 
     @StateTransitionFunc
     fun taskRenamedApply(event: TaskRenamedEvent) {
         tasks[event.taskId]?.name = event.taskName
-        updatedAt = createdAt
+        updatedAt = System.currentTimeMillis()
     }
 
     @StateTransitionFunc
     fun tagAssignedToTaskApply(event: TagAssignedToTaskEvent) {
         tasks[event.taskId]?.tagsAssigned?.add(event.tagId)
-        updatedAt = createdAt
+        updatedAt = System.currentTimeMillis()
     }
 }
 
@@ -66,7 +67,14 @@ data class TaskEntity(
 
 data class TagEntity(
     val id: UUID = UUID.randomUUID(),
-    val name: String
+    val name: String,
+    val color: String
+)
+
+data class MemberEntity(
+    val id: UUID = UUID.randomUUID(),
+    val name: String,
+    val nickname: String
 )
 
 /**
@@ -76,5 +84,5 @@ data class TagEntity(
 fun ProjectAggregateState.tagAssignedApply(event: TagAssignedToTaskEvent) {
     tasks[event.taskId]?.tagsAssigned?.add(event.tagId)
         ?: throw IllegalArgumentException("No such task: ${event.taskId}")
-    updatedAt = createdAt
+    updatedAt = System.currentTimeMillis()
 }

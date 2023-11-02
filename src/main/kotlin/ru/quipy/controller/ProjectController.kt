@@ -23,9 +23,9 @@ class ProjectController(
     }
 
     @PostMapping("/{projectId}/tags")
-    fun createTag(@PathVariable projectId: UUID, @RequestParam tagName: String) : TagCreatedEvent {
+    fun createTag(@PathVariable projectId: UUID, @RequestParam tagName: String, @RequestParam tagColor: String) : TagCreatedEvent {
         return projectEsService.update(projectId) {
-            it.createTag(tagName)
+            it.createTag(tagName, tagColor)
         }
     }
 
@@ -53,6 +53,13 @@ class ProjectController(
     fun assignTag(@PathVariable projectId: UUID, @PathVariable taskId: UUID, @PathVariable tagId: UUID ) : TagAssignedToTaskEvent {
         return projectEsService.update(projectId) {
             it.assignTagToTask(tagId, taskId)
+        }
+    }
+
+    @PostMapping("/{projectId}/user/{userId}")
+    fun addUser(@PathVariable projectId: UUID, @PathVariable userId: UUID) : UserAddedEvent {
+        return projectEsService.update(projectId) {
+            it.addUser(userId)
         }
     }
 }

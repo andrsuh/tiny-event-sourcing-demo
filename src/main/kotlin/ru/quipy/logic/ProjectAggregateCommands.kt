@@ -19,11 +19,11 @@ fun ProjectAggregateState.addTask(name: String): TaskCreatedEvent {
     return TaskCreatedEvent(projectId = this.getId(), taskId = UUID.randomUUID(), taskName = name)
 }
 
-fun ProjectAggregateState.createTag(name: String): TagCreatedEvent {
+fun ProjectAggregateState.createTag(name: String, color: String): TagCreatedEvent {
     if (projectTags.values.any { it.name == name }) {
         throw IllegalArgumentException("Tag already exists: $name")
     }
-    return TagCreatedEvent(projectId = this.getId(), tagId = UUID.randomUUID(), tagName = name)
+    return TagCreatedEvent(projectId = this.getId(), tagId = UUID.randomUUID(), tagName = name, tagColor = color)
 }
 
 fun ProjectAggregateState.deleteTag(tagId: UUID): TagDeletedEvent {
@@ -48,4 +48,11 @@ fun ProjectAggregateState.renameTask(taskId: UUID, taskName: String): TaskRename
     }
 
     return TaskRenamedEvent(projectId = this.getId(), taskId = taskId, taskName = taskName)
+}
+
+fun ProjectAggregateState.addUser(userId: UUID): UserAddedEvent {
+    if (projectMembers.values.any { it.id == userId }) {
+        throw IllegalArgumentException("User $userId already is member of project")
+    }
+    return UserAddedEvent(projectId = this.getId(), userId = userId)
 }
