@@ -11,8 +11,6 @@ import ru.quipy.events.projectManagment.project.StatusAddedEvent
 import ru.quipy.events.projectManagment.project.StatusRemovedEvent
 import ru.quipy.events.projectManagment.project.TaskChangedEvent
 import ru.quipy.events.projectManagment.project.TaskCreatedEvent
-import ru.quipy.events.projectManagment.project.TaskRenamedEvent
-import ru.quipy.events.projectManagment.project.TaskStatusChangedEvent
 import ru.quipy.streams.annotation.AggregateSubscriber
 import ru.quipy.streams.annotation.SubscribeEvent
 
@@ -60,25 +58,20 @@ class AnnotationBasedProjectEventsSubscriber {
 
     @SubscribeEvent
     fun taskStatusChangedSubscriber(event: TaskChangedEvent) {
-        logger.info("Task with id {} in project with id {} changed to status with id {}",
-            event.taskId,
-            event.projectId,
-            event.statusId,
-        )
-        logger.info("Task with id {} in project with id {} renamed to {}",
-            event.taskId,
-            event.projectId,
-            event.newTaskName,
-        )
-    }
-
-    @SubscribeEvent
-    fun taskRenamedSubscriber(event: TaskRenamedEvent) {
-        logger.info("Task with id {} in project with id {} renamed to {}",
-            event.taskId,
-            event.projectId,
-            event.newTaskName,
-        )
+        if (event.newTaskName != null) {
+            logger.info("Task with id {} in project with id {} renamed to {}",
+                event.taskId,
+                event.projectId,
+                event.newTaskName,
+            )
+        }
+        if (event.newStatusId != null) {
+            logger.info("Task with id {} in project with id {} changed to status with id {}",
+                event.taskId,
+                event.projectId,
+                event.newStatusId,
+            )
+        }
     }
 
     @SubscribeEvent
