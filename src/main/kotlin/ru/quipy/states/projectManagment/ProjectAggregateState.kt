@@ -84,7 +84,8 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
     @StateTransitionFunc
     fun taskChangedApply(event: TaskChangedEvent) {
         if (event.newStatusId == null &&
-            event.newTaskName == null) {
+            event.newTaskName == null
+        ) {
             throw IllegalArgumentException("All properties cannot be null while updating")
         }
         if (!tasks.containsKey(event.taskId)) {

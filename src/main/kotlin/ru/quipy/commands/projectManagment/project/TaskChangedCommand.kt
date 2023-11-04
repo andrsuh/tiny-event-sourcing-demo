@@ -4,9 +4,10 @@ import ru.quipy.events.projectManagment.project.TaskChangedEvent
 import ru.quipy.states.projectManagment.ProjectAggregateState
 import java.util.UUID
 
-fun ProjectAggregateState.changeTask(taskId: UUID, newTaskName: String?, newStatusId: UUID?) : TaskChangedEvent {
+fun ProjectAggregateState.changeTask(taskId: UUID, newTaskName: String?, newStatusId: UUID?): TaskChangedEvent {
     if (newStatusId == null &&
-        newTaskName == null) {
+        newTaskName == null
+    ) {
         throw IllegalArgumentException("All properties cannot be null while updating")
     }
     if (!this.tasks.containsKey(taskId)) {
