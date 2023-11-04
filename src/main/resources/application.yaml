@@ -1,0 +1,13 @@
+# MongoDB properties
+spring:
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: tiny-es
+
+event:
+  sourcing:
+    auto-scan-enabled: true
+    scan-package: ru.quipy
+    snapshot-frequency: 100
