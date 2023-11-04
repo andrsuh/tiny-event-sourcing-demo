@@ -4,7 +4,6 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import ru.quipy.aggregates.projectManagment.ProjectAggregate
 import ru.quipy.commands.projectManagment.project.create
@@ -16,8 +15,7 @@ import ru.quipy.events.projectManagment.project.ProjectCreatedEvent
 import ru.quipy.states.projectManagment.ProjectAggregateState
 import java.util.UUID
 
-@RestController
-@RequestMapping("/projects")
+@RestController("/projects")
 class ProjectController(
     val projectEventSourcingService: EventSourcingService<UUID, ProjectAggregate, ProjectAggregateState>
 ) {

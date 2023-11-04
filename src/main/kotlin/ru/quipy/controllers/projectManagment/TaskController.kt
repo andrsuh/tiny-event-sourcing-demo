@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import ru.quipy.aggregates.projectManagment.ProjectAggregate
 import ru.quipy.commands.projectManagment.project.addTask
@@ -20,12 +19,11 @@ import ru.quipy.events.projectManagment.project.TaskCreatedEvent
 import ru.quipy.states.projectManagment.ProjectAggregateState
 import java.util.UUID
 
-@RestController
-@RequestMapping("/projects")
+@RestController("/tasks")
 class TaskController(
     val projectEventSourcingService: EventSourcingService<UUID, ProjectAggregate, ProjectAggregateState>
 ) {
-    @PostMapping("/{projectId}/tasks/")
+    @PostMapping("/{projectId}/")
     fun addStatus(@PathVariable projectId: UUID, @RequestBody createDto: CreateTaskDto): TaskCreatedEvent {
         return projectEventSourcingService.update(projectId) {
             it.addTask(
@@ -35,7 +33,7 @@ class TaskController(
         }
     }
 
-    @GetMapping("/{projectId}/tasks/{taskId}")
+    @GetMapping("/{projectId}/{taskId}")
     fun getStatus(@PathVariable projectId: UUID, @PathVariable taskId: UUID): TaskDto? {
         return projectEventSourcingService
             .getState(projectId)
@@ -43,8 +41,7 @@ class TaskController(
     }
 
 
-
-    @PatchMapping("/{projectId}/tasks/{taskId}")
+    @PatchMapping("/{projectId}/{taskId}")
     fun removeStatus(
         @PathVariable projectId: UUID,
         @PathVariable taskId: UUID,
