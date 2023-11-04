@@ -6,6 +6,8 @@ import ru.quipy.domain.Event
 import ru.quipy.events.projectManagment.task.TASK_RENAMED_EVENT
 import java.util.UUID
 
+const val TASK_RENAMED_EVENT = "TASK_RENAMED_EVENT"
+
 @DomainEvent(name = TASK_RENAMED_EVENT)
 class TaskRenamedEvent (
     val projectId: UUID,
