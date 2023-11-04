@@ -10,6 +10,7 @@ const val ASSIGNEE_ADDED_EVENT = "ASSIGNEE_ADDED_EVENT"
 @DomainEvent(name = ASSIGNEE_ADDED_EVENT)
 class AssigneeAddedEvent(
     val projectId: UUID,
+    val taskId: UUID,
     val userId: UUID,
     createdAt: Long = System.currentTimeMillis(),
 ) : Event<ProjectAggregate>(

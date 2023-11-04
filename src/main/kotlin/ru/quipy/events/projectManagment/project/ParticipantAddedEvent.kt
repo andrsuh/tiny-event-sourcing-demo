@@ -9,7 +9,6 @@ const val PARTICIPANT_ADDED_EVENT = "PARTICIPANT_ADDED_EVENT"
 @DomainEvent(name = PARTICIPANT_ADDED_EVENT)
 class ParticipantAddedEvent(
     val projectId : UUID,
-    val taskId : UUID,
     val userId : UUID,
     createdAt : Long = System.currentTimeMillis(),
 ) : Event<ProjectAggregate> (

@@ -1,4 +1,4 @@
-package ru.quipy.events.projectManagement
+package ru.quipy.events.projectManagment.project
 
 import ru.quipy.api.ProjectAggregate
 import ru.quipy.core.annotations.DomainEvent
