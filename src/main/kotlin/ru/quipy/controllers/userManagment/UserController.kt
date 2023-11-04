@@ -21,7 +21,7 @@ import java.util.UUID
 class UserController(
     val userEventSourcingService: EventSourcingService<UUID, UserAggregate, UserAggregateState>
 ) {
-    @PostMapping()
+    @PostMapping
     fun createUser(@RequestBody createDto: CreateUserDto): UserCreatedEvent {
         return userEventSourcingService.create {
             it.create(

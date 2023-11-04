@@ -22,7 +22,7 @@ class ProjectController(
     val projectEventSourcingService: EventSourcingService<UUID, ProjectAggregate, ProjectAggregateState>
 ) {
 
-    @PostMapping()
+    @PostMapping
     fun createProject(@RequestBody createDto: CreateProjectDto): ProjectCreatedEvent {
         return projectEventSourcingService.create {
             it.create(
