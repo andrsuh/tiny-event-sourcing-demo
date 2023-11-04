@@ -23,7 +23,8 @@ class AnnotationBasedProjectEventsSubscriber {
 
     @SubscribeEvent
     fun projectCreatedSubscriber(event: ProjectCreatedEvent) {
-        logger.info("Project {} created with id {} by user with id {}",
+        logger.info(
+            "Project {} created with id {} by user with id {}",
             event.projectName,
             event.projectId,
             event.creatorId,
@@ -32,7 +33,8 @@ class AnnotationBasedProjectEventsSubscriber {
 
     @SubscribeEvent
     fun statusAddedSubscriber(event: StatusAddedEvent) {
-        logger.info("Status {} added with id {} to project with id {}",
+        logger.info(
+            "Status {} added with id {} to project with id {}",
             event.statusName,
             event.statusId,
             event.projectId,
@@ -41,7 +43,8 @@ class AnnotationBasedProjectEventsSubscriber {
 
     @SubscribeEvent
     fun statusRemovedSubscriber(event: StatusRemovedEvent) {
-        logger.info("Status with id {} removed from project with id {}",
+        logger.info(
+            "Status with id {} removed from project with id {}",
             event.statusId,
             event.projectId,
         )
@@ -49,7 +52,8 @@ class AnnotationBasedProjectEventsSubscriber {
 
     @SubscribeEvent
     fun taskCreatedSubscriber(event: TaskCreatedEvent) {
-        logger.info("Task {} added with id {} to project with id {}",
+        logger.info(
+            "Task {} added with id {} to project with id {}",
             event.taskName,
             event.taskId,
             event.projectId,
@@ -59,14 +63,16 @@ class AnnotationBasedProjectEventsSubscriber {
     @SubscribeEvent
     fun taskStatusChangedSubscriber(event: TaskChangedEvent) {
         if (event.newTaskName != null) {
-            logger.info("Task with id {} in project with id {} renamed to {}",
+            logger.info(
+                "Task with id {} in project with id {} renamed to {}",
                 event.taskId,
                 event.projectId,
                 event.newTaskName,
             )
         }
         if (event.newStatusId != null) {
-            logger.info("Task with id {} in project with id {} changed to status with id {}",
+            logger.info(
+                "Task with id {} in project with id {} changed to status with id {}",
                 event.taskId,
                 event.projectId,
                 event.newStatusId,
@@ -76,7 +82,8 @@ class AnnotationBasedProjectEventsSubscriber {
 
     @SubscribeEvent
     fun participantAddedSubscriber(event: ParticipantAddedEvent) {
-        logger.info("User with id {} added to project with id {}",
+        logger.info(
+            "User with id {} added to project with id {}",
             event.userId,
             event.projectId,
         )
@@ -84,7 +91,8 @@ class AnnotationBasedProjectEventsSubscriber {
 
     @SubscribeEvent
     fun assigneeAddedSubscriber(event: AssigneeAddedEvent) {
-        logger.info("User with id {} assigned to task with id {} in project with id {}",
+        logger.info(
+            "User with id {} assigned to task with id {} in project with id {}",
             event.userId,
             event.taskId,
             event.projectId,

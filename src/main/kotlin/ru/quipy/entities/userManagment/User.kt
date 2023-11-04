@@ -2,8 +2,8 @@ package ru.quipy.entities.userManagment
 
 import java.util.UUID
 
-data class User(
-    val id : UUID,
-    val nickname : String,
-    val name : String
+class User(
+    val id: UUID,
+    var nickname: String,
+    var name: String
 )

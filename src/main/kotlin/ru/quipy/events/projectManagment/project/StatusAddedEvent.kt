@@ -15,7 +15,7 @@ class StatusAddedEvent(
     val statusName: String,
     val color: Color,
     createdAt: Long = System.currentTimeMillis(),
-    ) : Event<ProjectAggregate>(
+) : Event<ProjectAggregate>(
     name = STATUS_ADDED_EVENT,
     createdAt = createdAt,
 )
