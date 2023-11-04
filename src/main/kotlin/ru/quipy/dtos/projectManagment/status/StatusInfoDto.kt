@@ -9,7 +9,7 @@ data class StatusInfoDto(
     val color: String
 )
 
-fun ProjectAggregateState.getStatusInfoDto(statusId: UUID) : StatusInfoDto {
+fun ProjectAggregateState.getStatusInfoDto(statusId: UUID): StatusInfoDto {
     val status = this.statuses[statusId]
         ?: throw IllegalArgumentException("Project doesn't have status with id $statusId")
 
@@ -19,7 +19,7 @@ fun ProjectAggregateState.getStatusInfoDto(statusId: UUID) : StatusInfoDto {
     )
 }
 
-fun Status.toInfoDto() : StatusInfoDto {
+fun Status.toInfoDto(): StatusInfoDto {
     return StatusInfoDto(
         this.name,
         this.color.toString()

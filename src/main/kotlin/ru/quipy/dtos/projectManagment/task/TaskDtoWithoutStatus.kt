@@ -8,7 +8,7 @@ data class TaskDtoWithoutStatus(
     val assignees: List<UUID>
 )
 
-fun Task.toDtoWithoutStatus() : TaskDtoWithoutStatus {
+fun Task.toDtoWithoutStatus(): TaskDtoWithoutStatus {
     return TaskDtoWithoutStatus(
         toInfoDto(),
         this.assigneeIds,

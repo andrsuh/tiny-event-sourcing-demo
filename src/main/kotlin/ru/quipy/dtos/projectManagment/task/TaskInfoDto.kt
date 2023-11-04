@@ -3,12 +3,12 @@ package ru.quipy.dtos.projectManagment.task
 import ru.quipy.entities.projectManagment.Task
 import java.util.UUID
 
-data class TaskInfoDto (
+data class TaskInfoDto(
     val name: String,
-    val projectId : UUID,
+    val projectId: UUID,
 )
 
-fun Task.toInfoDto() : TaskInfoDto {
+fun Task.toInfoDto(): TaskInfoDto {
     return TaskInfoDto(
         this.name,
         this.projectId,

@@ -18,7 +18,8 @@ class AnnotationBasedUserEventsSubscriber {
 
     @SubscribeEvent
     fun taskCreatedSubscriber(event: UserCreatedEvent) {
-        logger.info("User {} created with name {} and id {}",
+        logger.info(
+            "User {} created with name {} and id {}",
             event.userNickname,
             event.userName,
             event.userId,

@@ -8,10 +8,10 @@ import java.util.UUID
 data class TaskDto(
     val info: TaskInfoDto,
     val assignees: List<UUID>,
-    val status : StatusInfoDto,
+    val status: StatusInfoDto,
 )
 
-fun ProjectAggregateState.getTaskDto(taskId : UUID) : TaskDto {
+fun ProjectAggregateState.getTaskDto(taskId: UUID): TaskDto {
     val task = this.tasks[taskId]
         ?: throw IllegalArgumentException("Project doesn't have task with id $taskId")
     val status = this.statuses[task.statusId]

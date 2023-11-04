@@ -12,20 +12,20 @@ data class ProjectDto(
     val statuses: List<StatusDto>
 )
 
-fun ProjectAggregateState.toDto() : ProjectDto{
+fun ProjectAggregateState.toDto(): ProjectDto {
     return ProjectDto(
         this.getId(),
         this.projectName,
-        this.statuses.values.map {
-            status -> StatusDto(
+        this.statuses.values.map { status ->
+            StatusDto(
                 status.toInfoDto(),
                 this.tasks.values
                     .asSequence()
-                    .filter {
-                        task ->  task.statusId == status.id
+                    .filter { task ->
+                        task.statusId == status.id
                     }
-                    .map {
-                        task ->  task.toDtoWithoutStatus()
+                    .map { task ->
+                        task.toDtoWithoutStatus()
                     }
                     .toList()
             )

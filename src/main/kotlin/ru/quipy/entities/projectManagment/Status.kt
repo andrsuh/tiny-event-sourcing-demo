@@ -4,7 +4,7 @@ import java.awt.Color
 import java.util.UUID
 
 class Status(
-    val id : UUID,
-    val name : String,
-    val color : Color
+    val id: UUID,
+    val name: String,
+    val color: Color
 )
