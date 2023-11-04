@@ -9,7 +9,7 @@ fun ProjectAggregateState.changeTask(taskId: UUID, newTaskName: String?, newStat
         newTaskName == null) {
         throw IllegalArgumentException("All properties cannot be null while updating")
     }
-    if (!this.tasks.containsKey(taskId)) {
+    if (!this.project.tasks.containsKey(taskId)) {
         throw IllegalArgumentException("Project doesn't have task with id $taskId")
     }
     return TaskChangedEvent(
