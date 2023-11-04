@@ -1,4 +1,4 @@
-package ru.quipy.entities.common
+package ru.quipy.entities.userManagment
 
 import java.util.UUID
 

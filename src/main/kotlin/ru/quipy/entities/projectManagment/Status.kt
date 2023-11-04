@@ -8,5 +8,3 @@ class Status(
     val name : String,
     val color : Color
 )
-{
-}

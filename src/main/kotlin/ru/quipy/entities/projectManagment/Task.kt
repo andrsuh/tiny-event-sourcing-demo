@@ -1,6 +1,5 @@
 package ru.quipy.entities.projectManagment
 
-import ru.quipy.entities.common.User
 import java.util.UUID
 
 class Task(
@@ -8,7 +7,6 @@ class Task(
     var name : String,
     val projectId : UUID,
     var statusId : UUID,
-    val assigneeIds : List<UUID>
-)
-{
+) {
+    val assigneeIds : MutableList<UUID> = mutableListOf()
 }
