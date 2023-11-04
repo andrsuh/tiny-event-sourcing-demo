@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import ru.quipy.aggregates.projectManagment.ProjectAggregate
 import ru.quipy.commands.projectManagment.project.addStatus
@@ -18,11 +19,12 @@ import ru.quipy.events.projectManagment.project.StatusRemovedEvent
 import ru.quipy.states.projectManagment.ProjectAggregateState
 import java.util.UUID
 
-@RestController("/statuses")
+@RestController
+@RequestMapping("/projects")
 class StatusController(
     val projectEventSourcingService: EventSourcingService<UUID, ProjectAggregate, ProjectAggregateState>
 ) {
-    @PostMapping("/{projectId}")
+    @PostMapping("/{projectId}/statuses/")
     fun addStatus(@PathVariable projectId: UUID, @RequestBody createDto: CreateStatusDto): StatusAddedEvent {
         return projectEventSourcingService.update(projectId) {
             it.addStatus(
@@ -33,14 +35,14 @@ class StatusController(
         }
     }
 
-    @GetMapping("/{projectId}/{statusId}")
+    @GetMapping("/{projectId}/statuses/{statusId}")
     fun getStatus(@PathVariable projectId: UUID, @PathVariable statusId: UUID): StatusInfoDto? {
         return projectEventSourcingService
             .getState(projectId)
             ?.getStatusInfoDto(statusId)
     }
 
-    @DeleteMapping("/{projectId}/{statusId}")
+    @DeleteMapping("/{projectId}/statuses/{statusId}")
     fun removeStatus(@PathVariable projectId: UUID, @PathVariable statusId: UUID): StatusRemovedEvent {
         return projectEventSourcingService.update(projectId) {
             it.removeStatus(
