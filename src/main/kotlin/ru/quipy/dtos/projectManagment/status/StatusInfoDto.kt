@@ -10,7 +10,7 @@ data class StatusInfoDto(
 )
 
 fun ProjectAggregateState.getStatusInfoDto(statusId: UUID): StatusInfoDto {
-    val status = this.statuses[statusId]
+    val status = this.project.statuses[statusId]
         ?: throw IllegalArgumentException("Project doesn't have status with id $statusId")
 
     return StatusInfoDto(

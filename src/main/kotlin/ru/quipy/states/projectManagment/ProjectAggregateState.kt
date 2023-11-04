@@ -1,132 +1,112 @@
 package ru.quipy.states.projectManagment
 
 import ru.quipy.aggregates.projectManagment.ProjectAggregate
+import ru.quipy.commands.projectManagment.project.create
 import ru.quipy.core.annotations.StateTransitionFunc
 import ru.quipy.domain.AggregateState
+import ru.quipy.entities.projectManagment.Project
 import ru.quipy.entities.projectManagment.Status
 import ru.quipy.entities.projectManagment.Task
-import ru.quipy.events.projectManagment.project.AssigneeAddedEvent
-import ru.quipy.events.projectManagment.project.ParticipantAddedEvent
-import ru.quipy.events.projectManagment.project.ProjectCreatedEvent
-import ru.quipy.events.projectManagment.project.StatusAddedEvent
-import ru.quipy.events.projectManagment.project.StatusRemovedEvent
-import ru.quipy.events.projectManagment.project.TaskChangedEvent
-import ru.quipy.events.projectManagment.project.TaskCreatedEvent
+import ru.quipy.events.projectManagment.project.*
 import java.awt.Color
 import java.util.UUID
 
 class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
-    private lateinit var projectId: UUID
+    lateinit var project: Project
 
-    var createdAt: Long = System.currentTimeMillis()
-    var updatedAt: Long = System.currentTimeMillis()
-
-    lateinit var projectName: String
-    lateinit var creatorId: UUID
-    val participants = mutableListOf<UUID>()
-    val tasks = mutableMapOf<UUID, Task>()
-    private val defaultStatusId = UUID.randomUUID()
-    val statuses = mutableMapOf<UUID, Status>(
-        Pair(
-            defaultStatusId,
-            Status(defaultStatusId, "DefaultStatus", Color.BLACK)
-        )
-    )
-
-    override fun getId() = projectId
+    override fun getId() = project.id
 
     @StateTransitionFunc
     fun projectCreatedApply(event: ProjectCreatedEvent) {
-        projectId = event.projectId
-        projectName = event.projectName
-        creatorId = event.creatorId
-        participants.add(creatorId)
-
-
-        createdAt = event.createdAt
-        updatedAt = event.createdAt
+        project = Project(
+            id = event.projectId,
+            name = event.name,
+            creatorId = event.creatorId,
+            statuses = mutableMapOf<UUID, Status>().apply {
+                val defaultStatusId = UUID.randomUUID()
+                this[defaultStatusId] = Status(defaultStatusId, DEFAULT_STATUS_NAME, Color.BLACK)
+            }
+        )
     }
 
     @StateTransitionFunc
     fun statusCreatedApply(event: StatusAddedEvent) {
-        if (statuses.containsKey(event.statusId)) {
-            throw IllegalArgumentException("Project already has status with id ${event.statusId}")
+        val statuses = project.statuses
+        statuses[event.statusId]?.apply {
+            statuses[event.statusId] = this.copy(
+                name = event.statusName,
+                color = event.color,
+            )
+            project.updatedAt = event.createdAt
         }
-
-        statuses[event.statusId] = Status(event.statusId, event.statusName, event.color)
-        updatedAt = event.createdAt
     }
 
     @StateTransitionFunc
     fun statusRemovedApply(event: StatusRemovedEvent) {
-        if (!statuses.containsKey(event.statusId)) {
-            throw IllegalArgumentException("Project doesn't have status with id ${event.statusId}")
+        val statuses = project.statuses
+        statuses[event.statusId]?.apply {
+            if (this.name == DEFAULT_STATUS_NAME) {
+                return
+            }
+            statuses.remove(event.statusId)
+            project.updatedAt = event.createdAt
         }
-        tasks.remove(event.statusId)
-        updatedAt = event.createdAt
     }
 
     @StateTransitionFunc
     fun taskCreatedApply(event: TaskCreatedEvent) {
-        if (!tasks.containsKey(event.taskId)) {
-            throw IllegalArgumentException("Project already has task with id ${event.taskId}")
+        val tasks = project.tasks
+        tasks[event.taskId] ?: run {
+            val defaultStatus = project.statuses.values.first {
+                it.name == DEFAULT_STATUS_NAME
+            }
+            tasks[event.taskId] = Task(
+                event.taskId,
+                event.taskName,
+                event.projectId,
+                defaultStatus.id,
+            )
+            project.updatedAt = event.createdAt
         }
-        tasks[event.taskId] = Task(
-            event.taskId,
-            event.taskName,
-            event.projectId,
-            defaultStatusId
-        )
-
-        updatedAt = event.createdAt
     }
 
     @StateTransitionFunc
     fun taskChangedApply(event: TaskChangedEvent) {
-        if (event.newStatusId == null &&
-            event.newTaskName == null
-        ) {
-            throw IllegalArgumentException("All properties cannot be null while updating")
+        val tasks = project.tasks
+        tasks[event.taskId]?.apply {
+            tasks[event.taskId] = this.copy(
+                name = event.newTaskName ?: this.name,
+                statusId = event.newStatusId ?: this.statusId
+            )
+            project.updatedAt = event.createdAt
         }
-        if (!tasks.containsKey(event.taskId)) {
-            throw IllegalArgumentException("Project doesn't have task with id ${event.taskId}")
-        }
-
-        if (event.newStatusId != null) {
-            if (!statuses.containsKey(event.newStatusId)) {
-                throw IllegalArgumentException("Project doesn't have status with id ${event.newStatusId}")
-            }
-
-            tasks[event.taskId]!!.statusId = event.newStatusId
-        }
-
-        if (event.newTaskName != null) {
-            tasks[event.taskId]!!.name = event.newTaskName
-        }
-
-        updatedAt = createdAt
     }
 
     @StateTransitionFunc
     fun participantAddedApply(event: ParticipantAddedEvent) {
-        if (participants.contains(event.userId)) {
-            throw IllegalArgumentException("Project already has participant with id ${event.userId}")
+        val participants = project.participants
+        participants.firstOrNull { it == event.userId } ?: run {
+            participants.add(event.userId)
+            project.updatedAt = event.createdAt
         }
-
-        participants.add(event.userId)
-
-        updatedAt = createdAt
     }
 
     @StateTransitionFunc
     fun assigneeAddedApply(event: AssigneeAddedEvent) {
-        if (!participants.contains(event.userId)) {
-            throw IllegalArgumentException("Project doesn't have participant with id ${event.userId}")
+        val tasks = project.tasks
+
+        tasks[event.taskId]?.assigneeIds?.apply {
+            if (event.userId in this) {
+                return
+            }
+            add(event.userId)
+            project.updatedAt = event.createdAt
         }
 
-        tasks[event.taskId]?.assigneeIds?.add(event.userId)
-            ?: throw IllegalArgumentException("Project doesn't have task with id ${event.taskId}")
+    }
 
-        updatedAt = createdAt
+
+    companion object {
+        private const val DEFAULT_STATUS_NAME = "DefaultStatus"
     }
 }

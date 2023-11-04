@@ -2,11 +2,13 @@ package ru.quipy.entities.projectManagment
 
 import java.util.UUID
 
-class Project(
+data class Project(
     val id: UUID,
-    var name: String,
-) {
-    val participantIds: List<UUID> = mutableListOf()
-    val statusIds: List<UUID> = mutableListOf()
-    val taskIds: List<UUID> = mutableListOf()
-}
+    val name: String,
+    val participants: MutableList<UUID> = mutableListOf(),
+    val tasks: MutableMap<UUID, Task> = mutableMapOf(),
+    val statuses: MutableMap<UUID, Status>,
+    val createdAt: Long = System.currentTimeMillis(),
+    var updatedAt: Long = System.currentTimeMillis(),
+    val creatorId: UUID,
+)

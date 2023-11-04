@@ -6,7 +6,7 @@ import java.awt.Color
 import java.util.UUID
 
 fun ProjectAggregateState.addStatus(statusId: UUID, statusName: String, statusColor: Color): StatusAddedEvent {
-    if (this.statuses.containsKey(statusId)) {
+    if (this.project.statuses.containsKey(statusId)) {
         throw IllegalArgumentException("Project already has status with id $statusId")
     }
     return StatusAddedEvent(

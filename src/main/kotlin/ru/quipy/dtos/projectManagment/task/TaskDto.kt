@@ -12,9 +12,9 @@ data class TaskDto(
 )
 
 fun ProjectAggregateState.getTaskDto(taskId: UUID): TaskDto {
-    val task = this.tasks[taskId]
+    val task = this.project.tasks[taskId]
         ?: throw IllegalArgumentException("Project doesn't have task with id $taskId")
-    val status = this.statuses[task.statusId]
+    val status = this.project.statuses[task.statusId]
         ?: throw IllegalArgumentException("Project doesn't have status with id ${task.statusId}")
     return TaskDto(
         task.toInfoDto(),

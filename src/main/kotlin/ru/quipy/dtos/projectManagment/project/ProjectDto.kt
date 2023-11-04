@@ -15,14 +15,14 @@ data class ProjectDto(
 fun ProjectAggregateState.toDto(): ProjectDto {
     return ProjectDto(
         this.getId(),
-        this.projectName,
-        this.statuses.values.map { status ->
+        this.project.name,
+        this.project.statuses.values.map {
             StatusDto(
-                status.toInfoDto(),
-                this.tasks.values
+                it.toInfoDto(),
+                this.project.tasks.values
                     .asSequence()
                     .filter { task ->
-                        task.statusId == status.id
+                        task.statusId == it.id
                     }
                     .map { task ->
                         task.toDtoWithoutStatus()
