@@ -1,4 +1,4 @@
-package subscribers.userManagment
+package ru.quipy.subscribers.userManagment
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

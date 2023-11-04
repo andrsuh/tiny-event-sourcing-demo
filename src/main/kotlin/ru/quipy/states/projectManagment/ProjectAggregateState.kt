@@ -10,9 +10,8 @@ import ru.quipy.events.projectManagment.project.ParticipantAddedEvent
 import ru.quipy.events.projectManagment.project.ProjectCreatedEvent
 import ru.quipy.events.projectManagment.project.StatusAddedEvent
 import ru.quipy.events.projectManagment.project.StatusRemovedEvent
+import ru.quipy.events.projectManagment.project.TaskChangedEvent
 import ru.quipy.events.projectManagment.project.TaskCreatedEvent
-import ru.quipy.events.projectManagment.project.TaskRenamedEvent
-import ru.quipy.events.projectManagment.project.TaskStatusChangedEvent
 import java.awt.Color
 import java.util.UUID
 
@@ -83,26 +82,26 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
     }
 
     @StateTransitionFunc
-    fun taskStatusChangedApply(event: TaskStatusChangedEvent) {
-        if (!tasks.containsKey(event.taskId)) {
-            throw IllegalArgumentException("Project doesn't have task with id ${event.taskId}")
+    fun taskChangedApply(event: TaskChangedEvent) {
+        if (event.newStatusId == null &&
+            event.newTaskName == null) {
+            throw IllegalArgumentException("All properties cannot be null while updating")
         }
-        if (!statuses.containsKey(event.statusId)) {
-            throw IllegalArgumentException("Project doesn't have status with id ${event.statusId}")
-        }
-
-        tasks[event.taskId]!!.statusId = event.statusId
-
-        updatedAt = createdAt
-    }
-
-    @StateTransitionFunc
-    fun taskRenamedChangedApply(event: TaskRenamedEvent) {
         if (!tasks.containsKey(event.taskId)) {
             throw IllegalArgumentException("Project doesn't have task with id ${event.taskId}")
         }
 
-        tasks[event.taskId]!!.name = event.newTaskName
+        if (event.newStatusId != null) {
+            if (!statuses.containsKey(event.newStatusId)) {
+                throw IllegalArgumentException("Project doesn't have status with id ${event.newStatusId}")
+            }
+
+            tasks[event.taskId]!!.statusId = event.newStatusId
+        }
+
+        if (event.newTaskName != null) {
+            tasks[event.taskId]!!.name = event.newTaskName
+        }
 
         updatedAt = createdAt
     }
@@ -110,7 +109,7 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
     @StateTransitionFunc
     fun participantAddedApply(event: ParticipantAddedEvent) {
         if (participants.contains(event.userId)) {
-            throw IllegalArgumentException("Project already has task with id ${event.userId}")
+            throw IllegalArgumentException("Project already has participant with id ${event.userId}")
         }
 
         participants.add(event.userId)

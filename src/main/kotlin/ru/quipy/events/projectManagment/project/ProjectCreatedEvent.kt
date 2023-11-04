@@ -14,6 +14,6 @@ class ProjectCreatedEvent(
     val creatorId: UUID,
     createdAt: Long = System.currentTimeMillis(),
 ) : Event<ProjectAggregate>(
-    name = ru.quipy.api.PROJECT_CREATED_EVENT,
+    name = PROJECT_CREATED_EVENT,
     createdAt = createdAt,
 )

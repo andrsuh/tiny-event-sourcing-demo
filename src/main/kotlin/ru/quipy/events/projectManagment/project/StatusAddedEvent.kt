@@ -1,6 +1,6 @@
 package ru.quipy.events.projectManagment.project
 
-import ru.quipy.api.ProjectAggregate
+import ru.quipy.aggregates.projectManagment.ProjectAggregate
 import ru.quipy.core.annotations.DomainEvent
 import ru.quipy.domain.Event
 import java.awt.Color
