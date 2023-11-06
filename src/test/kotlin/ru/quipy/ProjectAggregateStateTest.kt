@@ -203,8 +203,7 @@ class ProjectAggregateStateTest {
                             state?.tasks?.get(createdTaskEvent.taskId)?.status)
                     } catch (_: IllegalStateException) {
                         println("EXCEPTION THROW")
-                        if (exceptionCounter.get() == 0) {
-                            exceptionCounter.incrementAndGet();
+                        if (exceptionCounter.get() == 1) {
                             try {
                                 projectEsService.update(testId) {
                                     it.assignStatus(testId, createdTaskEvent.taskId, twoStatusEvent.statusId)
@@ -213,6 +212,7 @@ class ProjectAggregateStateTest {
                                 return@async
                             }
                         }
+                        exceptionCounter.incrementAndGet()
                     }
                 }
             }
@@ -225,7 +225,5 @@ class ProjectAggregateStateTest {
         Assertions.assertEquals(oneStatusEvent.statusId, state?.tasks?.get(createdTaskEvent.taskId)?.status)
         Assertions.assertNotEquals(twoStatusEvent.statusId, state?.tasks?.get(createdTaskEvent.taskId)?.status)
     }
-
-    //TODO тест нагрузки
 }
 
