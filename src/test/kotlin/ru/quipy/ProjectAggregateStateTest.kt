@@ -1,9 +1,7 @@
 package ru.quipy
 
 import kotlinx.coroutines.*
-import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.mongodb.core.MongoTemplate
@@ -15,27 +13,30 @@ import ru.quipy.api.*
 import ru.quipy.core.EventSourcingService
 import ru.quipy.logic.*
 import java.util.*
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
 
 @SpringBootTest
 @ActiveProfiles("test")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 //@Import({EventSourcingLibConfiguration::class})
 class ProjectAggregateStateTest {
-    companion object {
-        private val testId = UUID.fromString("ba4463d8-4332-4b4c-ac5e-2763bb83ada4")
-        private val userId = UUID.fromString("43b971d0-253f-49d8-87db-10d15c552eae")
 
-        private val taskId = UUID.fromString("b8e468ec-995a-4b52-ac14-468c830f8dd0")
-        private val taskName = "Name-b8e468ec-995a-4b52-ac14-468c830f8dd0"
-        private val taskNewName = "NewName-b8e468ec-995a-4b52-ac14-468c830f8dd0"
+    private val testId = UUID.fromString("ba4463d8-4332-4b4c-ac5e-2763bb83ada4")
+    private val userId = UUID.fromString("43b971d0-253f-49d8-87db-10d15c552eae")
 
-        private val statusId = UUID.fromString("7074d67c-1831-44e7-a29e-a4210e69eb39")
-        private val statusName = "7074d67c-1831-44e7-a29e-a4210e69eb39Name"
-        private val statusColor = "4287f5"
+    private val taskId = UUID.fromString("b8e468ec-995a-4b52-ac14-468c830f8dd0")
+    private val taskName = "Name-b8e468ec-995a-4b52-ac14-468c830f8dd0"
+    private val taskNewName = "NewName-b8e468ec-995a-4b52-ac14-468c830f8dd0"
 
-        private val testProjectName = "testProjectName$541(*@#&91459"
-    }
+    private val statusId = UUID.fromString("7074d67c-1831-44e7-a29e-a4210e69eb39")
+    private val statusName = "7074d67c-1831-44e7-a29e-a4210e69eb39Name"
+    private val statusColor = "4287f5"
+
+    private val testProjectName = "testProjectName$541(*@#&91459"
+
 
     @Autowired
     private lateinit var projectEsService: EventSourcingService<UUID, ProjectAggregate, ProjectAggregateState>
@@ -50,6 +51,7 @@ class ProjectAggregateStateTest {
     fun init() {
         mongoTemplate.remove(Query.query(Criteria.where("aggregateId").`is`(testId)), "aggregate-project")
         mongoTemplate.remove(Query.query(Criteria.where("aggregateId").`is`(userId)), "aggregate-user")
+        mongoTemplate.remove(Query.query(Criteria.where("projectId").`is`(userId)), "snapshots")
 
         userEsService.create {
             it.create(userId, "Aboba", "Abobvich", "hashhhhhhhh")
@@ -65,10 +67,8 @@ class ProjectAggregateStateTest {
 
     @Test
     fun createProject() {
-
         val state = projectEsService.getState(testId)
         Assertions.assertEquals(testId, state?.getId());
-
         Assertions.assertNotNull(state)
     }
 
@@ -111,8 +111,6 @@ class ProjectAggregateStateTest {
 
     @Test
     fun deleteUsingStatus() {
-        Thread.sleep(1000)
-        val state = projectEsService.getState(testId)
         val createdStatusEvent: StatusCreatedEvent = projectEsService.update(testId) {
             it.addStatus(statusName, statusColor)
         }
@@ -129,45 +127,19 @@ class ProjectAggregateStateTest {
         }
     }
 
-
-    // короче тут выбрасывается ошика при оптимитичной блокировке, хотя мы просто меняем статусы у задачи
     @Test
-    fun asyncStatusChange() {
-        val scope = CoroutineScope(Job())
-
-        val oneStatusEvent: StatusCreatedEvent = projectEsService.update(testId) {
-            it.addStatus("1", statusColor)
-        }
-        val twoStatusEvent: StatusCreatedEvent = projectEsService.update(testId) {
-            it.addStatus("2", statusColor)
-        }
-        val createdTaskEvent: TaskCreatedEvent = projectEsService.update(testId) {
-            it.addTask(taskName)
-        }
-
-        // TODO: это плохо или нет, optimisticLock exception?
-        Assertions.assertThrows(IllegalStateException::class.java) {
-            runBlocking {
-                val jobs = List(200) {
-                    scope.async {
-                        delay(1000)
-                        projectEsService.update(testId) {
-                            it.assignStatus(testId, createdTaskEvent.taskId, oneStatusEvent.statusId)
-                        }
-                        delay(1000)
-                        projectEsService.update(testId) {
-                            it.assignStatus(testId, createdTaskEvent.taskId, twoStatusEvent.statusId)
-                        }
-                    }
-                }
-
-                jobs.awaitAll()
+    fun addAddedUserThrowIllegalArgumentException() {
+        Assertions.assertThrows(IllegalArgumentException::class.java) {
+            projectEsService.update(testId) {
+                it.addUser(testId, userId)
             }
         }
     }
 
+    // из соурсов видно, что делается максимум
+    // EventSourcingProperties.spinLockMaxAttempts, default 25
     @Test
-    fun asyncAddStatusesAndTryDeleteWhileStatusChanges() {
+    fun testOptimisticLockExceptionLessThan25() {
         val scope = CoroutineScope(Job())
 
         val oneStatusEvent: StatusCreatedEvent = projectEsService.update(testId) {
@@ -181,20 +153,11 @@ class ProjectAggregateStateTest {
         }
 
         runBlocking {
-            val jobs = List(10) {
+            val jobs = List(24) {
                 scope.async {
                     try {
-                        delay(100)
                         projectEsService.update(testId) {
                             it.assignStatus(testId, createdTaskEvent.taskId, oneStatusEvent.statusId)
-                        }
-                        delay(100)
-                        projectEsService.update(testId) {
-                            it.assignStatus(testId, createdTaskEvent.taskId, twoStatusEvent.statusId)
-                        }
-                        delay(100)
-                        projectEsService.update(testId) {
-                            it.deleteStatus(testId, oneStatusEvent.statusId)
                         }
                     } catch (_: IllegalArgumentException) {
                     }
@@ -203,32 +166,53 @@ class ProjectAggregateStateTest {
             jobs.awaitAll()
         }
 
+        projectEsService.update(testId) {
+            it.assignStatus(testId, createdTaskEvent.taskId, twoStatusEvent.statusId)
+        }
         val state = projectEsService.getState(testId)
-        Assertions.assertNull(state?.projectStatuses?.get(oneStatusEvent.statusId))
-        Assertions.assertNotNull(state?.projectStatuses?.get(twoStatusEvent.statusId))
-
+        Assertions.assertNotNull(state)
+        println(state?.tasks?.get(twoStatusEvent.statusId))
+        Assertions.assertEquals(twoStatusEvent.statusId, state?.tasks?.get(createdTaskEvent.taskId)?.status)
     }
 
+
     @Test
-    fun testTestTestTaskTestNameTestRenameTest() {
+    fun testOptimisticLockExceptionMoreThan25() {
         val scope = CoroutineScope(Job())
 
+        val oneStatusEvent: StatusCreatedEvent = projectEsService.update(testId) {
+            it.addStatus("1", statusColor)
+        }
+        val twoStatusEvent: StatusCreatedEvent = projectEsService.update(testId) {
+            it.addStatus("2", statusColor)
+        }
         val createdTaskEvent: TaskCreatedEvent = projectEsService.update(testId) {
             it.addTask(taskName)
         }
 
-        val taskNameFirst = "First"
-
-        val atomic: AtomicInteger = AtomicInteger(0)
+        val exceptionCounter = AtomicInteger(0)
         runBlocking {
-            val jobs = List(10) {
+            val jobs = List(1000) {
                 scope.async {
                     try {
                         projectEsService.update(testId) {
-                            it.renameTask(testId, createdTaskEvent.taskId, taskNameFirst + atomic.get())
+                            it.assignStatus(testId, createdTaskEvent.taskId, oneStatusEvent.statusId)
                         }
-                        atomic.incrementAndGet()
-                    } catch (_: IllegalArgumentException) {
+                        val state = projectEsService.getState(testId)
+                        Assertions.assertEquals(oneStatusEvent.statusId,
+                            state?.tasks?.get(createdTaskEvent.taskId)?.status)
+                    } catch (_: IllegalStateException) {
+                        println("EXCEPTION THROW")
+                        if (exceptionCounter.get() == 0) {
+                            exceptionCounter.incrementAndGet();
+                            try {
+                                projectEsService.update(testId) {
+                                    it.assignStatus(testId, createdTaskEvent.taskId, twoStatusEvent.statusId)
+                                }
+                            } catch (_: IllegalStateException) {
+                                return@async
+                            }
+                        }
                     }
                 }
             }
@@ -237,10 +221,11 @@ class ProjectAggregateStateTest {
 
         val state = projectEsService.getState(testId)
         Assertions.assertNotNull(state)
-        val taskName = state?.tasks?.get(createdTaskEvent.taskId)?.name
-        println(taskName)
-        Assertions.assertTrue(taskName == "First9")
-
+        println(state?.tasks?.get(createdTaskEvent.taskId)?.status == twoStatusEvent.statusId)
+        Assertions.assertEquals(oneStatusEvent.statusId, state?.tasks?.get(createdTaskEvent.taskId)?.status)
+        Assertions.assertNotEquals(twoStatusEvent.statusId, state?.tasks?.get(createdTaskEvent.taskId)?.status)
     }
+
+    //TODO тест нагрузки
 }
 
