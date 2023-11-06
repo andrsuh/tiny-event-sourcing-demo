@@ -11,10 +11,10 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
     var createdAt: Long = System.currentTimeMillis()
     var updatedAt: Long = System.currentTimeMillis()
 
-    lateinit var projectTitle: String
+    lateinit var name: String
     lateinit var creatorId: String
-    var tasks = mutableMapOf<UUID, TaskEntity>()
-    var users = mutableMapOf<UUID, UserEntity>()
+    var tasks = mutableSetOf<UUID>()
+    var users = mutableSetOf<UUID>()
     var projectStatuses = mutableMapOf<UUID, StatusEntity>()
 
     override fun getId() = projectId
@@ -23,32 +23,32 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
     @StateTransitionFunc
     fun projectCreatedApply(event: ProjectCreatedEvent) {
         projectId = event.projectId
-        projectTitle = event.title
+        name = event.title
         creatorId = event.creatorId
         updatedAt = createdAt
     }
 
     @StateTransitionFunc
     fun tagCreatedApply(event: StatusCreatedEvent) {
-        projectStatuses[event.statusId] = StatusEntity(event.statusId, event.statusName)
+        projectStatuses[event.statusId] = StatusEntity(event.statusId, event.statusName, event.statusColor)
         updatedAt = createdAt
     }
 
     @StateTransitionFunc
     fun taskCreatedApply(event: TaskCreatedEvent) {
-        tasks[event.taskId] = TaskEntity(event.taskId, event.taskName)
+        tasks.add(event.taskId)
         updatedAt = createdAt
     }
 
     @StateTransitionFunc
     fun addUserToProject(event: UserAddedToProjectEvent) {
-        users[event.userId] = UserEntity(event.userId)
+        users.add(event.userId)
         updatedAt = createdAt
     }
 
     @StateTransitionFunc
     fun changeName(event: ProjectNameChangedEvent) {
-        projectTitle = event.projectName
+        name = event.projectName
         updatedAt = createdAt
     }
 
@@ -57,18 +57,16 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
         projectStatuses.remove(event.statusId)
         updatedAt = createdAt
     }
-}
 
-data class TaskEntity(
-    val id: UUID = UUID.randomUUID(),
-    val name: String
-)
+    @StateTransitionFunc
+    fun addTask(event: TaskAddedEvent) {
+        tasks.remove(event.taskId)
+        updatedAt = createdAt
+    }
+}
 
 data class StatusEntity(
     val id: UUID = UUID.randomUUID(),
-    val name: String
-)
-
-data class UserEntity(
-    val id: UUID
+    val name: String,
+    val color: String
 )

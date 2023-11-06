@@ -32,7 +32,7 @@ class TaskAggregateState : AggregateState<UUID, TaskAggregate> {
 
 
     @StateTransitionFunc
-    fun crateTask(event: TaskCreatedEvent){
+    fun crateTask(event: TaskCreatedEvent) {
         taskId = event.taskId
         taskName = event.taskName
         description = event.description
@@ -41,7 +41,7 @@ class TaskAggregateState : AggregateState<UUID, TaskAggregate> {
     }
 
     @StateTransitionFunc
-    fun changeName(event: TaskNameChangedEvent){
+    fun changeName(event: TaskNameChangedEvent) {
         taskName = event.taskName
     }
 }
