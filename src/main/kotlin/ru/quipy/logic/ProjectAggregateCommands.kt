@@ -76,3 +76,9 @@ fun ProjectAggregateState.assignUser(projectId: UUID, taskId: UUID, userId: UUID
         userId = userId
     )
 }
+
+fun ProjectAggregateState.addUser(projectId: UUID, userId: UUID): UserAddedToProjectEvent {
+    require(this.getId() == projectId)
+    require(!this.users.contains(userId)) {"User is already in the project"}
+    return UserAddedToProjectEvent(userId, projectId)
+}

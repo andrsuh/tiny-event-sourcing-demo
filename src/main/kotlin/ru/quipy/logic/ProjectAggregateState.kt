@@ -23,6 +23,7 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
         projectId = event.projectId
         projectTitle = event.title
         creatorId = event.creatorId
+        users.add(creatorId)
         projectStatuses = mutableMapOf(Pair(createdStatusEntity.id, createdStatusEntity))
     }
 
