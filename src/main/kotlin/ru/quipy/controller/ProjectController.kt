@@ -85,4 +85,11 @@ class ProjectController(
             it.assignUser(projectId, taskId, userId)
         }
     }
+
+    @PutMapping("{projectId}/user/add")
+    fun addUser(@PathVariable projectId: UUID, @RequestParam userId: UUID): UserAddedToProjectEvent{
+        return projectEsService.update(projectId) {
+            it.addUser(projectId, userId);
+        }
+    }
 }
