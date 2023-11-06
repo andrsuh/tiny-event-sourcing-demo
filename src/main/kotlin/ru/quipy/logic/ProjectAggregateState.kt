@@ -13,6 +13,7 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
     lateinit var creatorId: UUID
     var tasks = mutableMapOf<UUID, TaskEntity>()
     var projectStatuses = mutableMapOf<UUID, StatusEntity>()
+    var users = mutableSetOf<UUID>()
 
     override fun getId() = projectId
 
@@ -60,8 +61,16 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
     @StateTransitionFunc
     fun userAssignedApply(event: UserAssignedToTaskEvent) {
         require(projectId == event.projectId)
+        require(users.contains(event.userId)) {"No such user in project: ${event.userId}"}
         tasks[event.taskId]?.assignedUsers?.add(event.userId)
             ?: throw IllegalArgumentException("No such task: ${event.taskId}")
+    }
+
+    @StateTransitionFunc
+    fun userAddedApply(event: UserAddedToProjectEvent) {
+        require(projectId == event.projectId)
+        require(!users.contains(event.userId)) {"User is already in the project"}
+        users.add(event.userId)
     }
 
 }

@@ -11,7 +11,6 @@ class UserAggregateState : AggregateState<UUID, UserAggregate> {
     private lateinit var fullName: String
     private lateinit var nickname: String
     private lateinit var password: String
-    private var userProjects = mutableSetOf<UUID>()
 
     override fun getId() = userId
 
@@ -21,11 +20,5 @@ class UserAggregateState : AggregateState<UUID, UserAggregate> {
         fullName = event.fullName
         nickname = event.nickname
         password = event.password
-    }
-
-    @StateTransitionFunc
-    fun userAddedToProjectApply(event: UserAddedToProjectEvent) {
-        userId = event.userId
-        userProjects.add(event.projectId)
     }
 }

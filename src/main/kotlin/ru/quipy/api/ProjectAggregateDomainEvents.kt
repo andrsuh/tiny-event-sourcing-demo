@@ -14,7 +14,7 @@ const val TASK_CREATED_EVENT = "TASK_CREATED_EVENT"
 const val TASK_RENAMED_EVENT = "TASK_RENAMED_EVENT"
 
 const val USER_ASSIGNED_TO_TASK_EVENT = "USER_ASSIGNED_TO_TASK_EVENT"
-
+const val USER_ADDED_TO_PROJECT_EVENT = "USER_ADDED_TO_PROJECT_EVENT"
 // API
 
 
@@ -99,6 +99,16 @@ class UserAssignedToTaskEvent(
 ) : Event<ProjectAggregate>(
     name = USER_ASSIGNED_TO_TASK_EVENT,
     createdAt = createdAt
+)
+
+@DomainEvent(name = USER_ADDED_TO_PROJECT_EVENT)
+class UserAddedToProjectEvent(
+    val userId: UUID,
+    val projectId: UUID,
+    createdAt: Long = System.currentTimeMillis(),
+) : Event<ProjectAggregate>(
+    name = USER_ADDED_TO_PROJECT_EVENT,
+    createdAt = createdAt,
 )
 
 
