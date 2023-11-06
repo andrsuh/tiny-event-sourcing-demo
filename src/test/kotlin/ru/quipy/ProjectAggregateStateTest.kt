@@ -51,7 +51,7 @@ class ProjectAggregateStateTest {
     fun init() {
         mongoTemplate.remove(Query.query(Criteria.where("aggregateId").`is`(testId)), "aggregate-project")
         mongoTemplate.remove(Query.query(Criteria.where("aggregateId").`is`(userId)), "aggregate-user")
-        mongoTemplate.remove(Query.query(Criteria.where("projectId").`is`(userId)), "snapshots")
+        mongoTemplate.remove(Query.query(Criteria.where("snapshot.projectId").`is`(testId)), "snapshots")
 
         userEsService.create {
             it.create(userId, "Aboba", "Abobvich", "hashhhhhhhh")
