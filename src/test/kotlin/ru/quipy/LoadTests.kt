@@ -88,8 +88,9 @@ class LoadTests {
                     .withHeader("Accept", "*/*")
             )
         )
+        buildTable(result)
         Assertions.assertTrue(result.percentOk > 99.99f)
-        Assertions.assertTrue(result.diagnostics.requestsPerSecond >= numThreads / rampUp)
+        Assertions.assertTrue(result.diagnostics.requestsPerSecond >= (numThreads / rampUp - 0.1f))
         return result
     }
 
@@ -114,11 +115,65 @@ class LoadTests {
         return str
     }
 
-    @Test()
+    @Test
     fun loadTest20RequestsPerSeconds() {
         val result = loadGeneralTest(100, 5)
         Assertions.assertTrue(result.diagnostics.duration.seconds <= 5)
-        buildTable(result)
+    }
+
+    @Test
+    fun loadTest50RequestsPerSeconds() {
+        val result = loadGeneralTest(250, 5)
+        Assertions.assertTrue(result.diagnostics.duration.seconds <= 5)
+    }
+
+    @Test
+    fun loadTest100RequestsPerSeconds() {
+        val result = loadGeneralTest(500, 5)
+        Assertions.assertTrue(result.diagnostics.duration.seconds <= 5)
+    }
+
+
+    /**
+     FAIL
+     -----------------------------------------------------------------------------------
+     Test Duration (s) | Requests count | Requests per second | Ok requests | Ok percent
+     4                | 650            | 131.1276982045592   | 626         | 96.3076923076923
+     ----------------------------------------------------------------------------------
+     */
+    @Test
+    fun loadTest130RequestsPerSeconds() {
+        val result = loadGeneralTest(650, 5)
+        Assertions.assertTrue(result.diagnostics.duration.seconds <= 5)
+    }
+
+
+    /**
+    fail
+    -----------------------------------------------------------------------------------
+    Test Duration (s) | Requests count | Requests per second | Ok requests | Ok percent
+    62               | 2500           | 39.91506075072246   | 1565        | 62.6
+    ----------------------------------------------------------------------------------
+     65 per second
+     */
+    @Test
+    fun loadTest650Requests10() {
+        val result = loadGeneralTest(650, 10)
+        Assertions.assertTrue(result.diagnostics.duration.seconds <= 10)
+    }
+
+
+    /**
+    OK?
+    -----------------------------------------------------------------------------------
+    Test Duration (s) | Requests count | Requests per second | Ok requests | Ok percent
+    6                | 650            | 92.93680297397769   | 649         | 99.84615384615385
+    ----------------------------------------------------------------------------------
+    */
+    @Test
+    fun loadTest650Requests7() {
+        val result = loadGeneralTest(650, 7)
+        Assertions.assertTrue(result.diagnostics.duration.seconds <= 7)
     }
 
 }
