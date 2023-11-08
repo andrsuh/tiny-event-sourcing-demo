@@ -1,15 +1,9 @@
 package ru.quipy.controller
 
 import org.springframework.web.bind.annotation.*
-import ru.quipy.api.TaskAggregate
-import ru.quipy.api.TaskCreatedEvent
-import ru.quipy.api.TaskStatusChangedEvent
-import ru.quipy.api.UserAddedToTaskEvent
+import ru.quipy.api.*
 import ru.quipy.core.EventSourcingService
-import ru.quipy.logic.TaskAggregateState
-import ru.quipy.logic.assignStatusToTask
-import ru.quipy.logic.assignUser
-import ru.quipy.logic.createTask
+import ru.quipy.logic.*
 import java.util.*
 
 @RestController
@@ -44,6 +38,13 @@ class TaskController(
     fun assignStatus(@PathVariable taskId: String, @RequestParam statusId: String): TaskStatusChangedEvent {
         return taskEsService.update(UUID.fromString(taskId)) {
             it.assignStatusToTask(UUID.fromString(statusId), UUID.fromString(taskId))
+        }
+    }
+
+    @PutMapping("/changeName/{taskId}")
+    fun changeName(@PathVariable taskId: String, @RequestParam name: String): TaskNameChangedEvent {
+        return taskEsService.update(UUID.fromString(taskId)) {
+            it.changeName(UUID.fromString(taskId), name)
         }
     }
 

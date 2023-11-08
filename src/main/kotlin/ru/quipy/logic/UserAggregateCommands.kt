@@ -9,6 +9,9 @@ fun UserAggregateState.createUser(realName: String, nickname: String, password: 
 }
 
 fun UserAggregateState.changeUsername(userId: UUID, nickname: String): UserNameChangedEvent {
+    if (nickname == this.nickName){
+        error("This nickname is already used")
+    }
     return UserNameChangedEvent(userId = userId, nickname = nickname)
 }
 

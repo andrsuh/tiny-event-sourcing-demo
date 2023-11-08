@@ -26,24 +26,44 @@ class ProjectController(
     fun createStatus(
         @PathVariable statusName: String,
         @RequestParam projectId: String,
-        @RequestParam color: String
+        @RequestParam color: String,
+        @RequestParam userInitiatorId: String,
     ): StatusCreatedEvent {
         return projectEsService.update(UUID.fromString(projectId)) {
-            it.createStatus(statusName, color)
+            it.createStatus(statusName, color, UUID.fromString(userInitiatorId))
         }
     }
 
     @PutMapping("/{name}")
-    fun changeProjectName(@PathVariable name: String, @RequestParam projectId: String): ProjectNameChangedEvent {
+    fun changeProjectName(
+        @PathVariable name: String,
+        @RequestParam projectId: String,
+        @RequestParam userInitiatorId: String
+    ): ProjectNameChangedEvent {
         return projectEsService.update(UUID.fromString(projectId)) {
-            it.changeProjectName(name)
+            it.changeProjectName(name, UUID.fromString(userInitiatorId))
+        }
+    }
+
+    @PutMapping("/addUser/{projectId}")
+    fun addUserToProject(
+        @PathVariable projectId: String,
+        @RequestParam userId: String,
+        @RequestParam userInitiatorId: String,
+    ): UserAddedToProjectEvent {
+        return projectEsService.update(UUID.fromString(projectId)) {
+            it.addUserToProject(UUID.fromString(userInitiatorId), UUID.fromString(userId))
         }
     }
 
     @DeleteMapping("/{statusId}")
-    fun deleteStatus(@PathVariable statusId: String, @RequestParam projectId: String): StatusDeletedEvent {
+    fun deleteStatus(
+        @PathVariable statusId: String,
+        @RequestParam projectId: String,
+        @RequestParam userInitiatorId: String
+    ): StatusDeletedEvent {
         return projectEsService.update(UUID.fromString(projectId)) {
-            it.deleteStatus(UUID.fromString(statusId))
+            it.deleteStatus(UUID.fromString(statusId), UUID.fromString(userInitiatorId))
         }
     }
 }
