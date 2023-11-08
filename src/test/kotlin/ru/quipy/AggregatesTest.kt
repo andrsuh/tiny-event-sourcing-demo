@@ -250,14 +250,13 @@ class AggregatesTest {
         projectEsService.create { it.create(projectId, createTestProjectName(1), projectId) }
         projectEsService.update(projectId) { it.createTag(createTestTagName(1), createTestTagColor(1)) }
 
-        var tagId = projectEsService.getState(projectId)!!.projectTags.keys.single()
+        val tagId = projectEsService.getState(projectId)!!.projectTags.keys.single()
 
         taskEsService.create { it.create(taskId, createTestTaskTitle(1), projectId, tagId, userId) }
 
-        projectEsService.update(projectId) { it.createTag(createTestTagName(2), createTestTagColor(2)) }
-        tagId = projectEsService.getState(projectId)!!.projectTags.keys.single()
+        val tagCreatedEvent: TagCreatedEvent = projectEsService.update(projectId) { it.createTag(createTestTagName(2), createTestTagColor(2)) }
 
-        taskEsService.update(taskId) { it.changeStatus(taskId, tagId, projectId) }
+        taskEsService.update(taskId) { it.changeStatus(taskId, tagCreatedEvent.tagId, projectId) }
 
         Assertions.assertEquals(taskEsService.getState(taskId)?.tagId, tagId)
 
@@ -280,12 +279,10 @@ class AggregatesTest {
 
         taskEsService.create { it.create(taskId, createTestTaskTitle(1), projectId, tagId, userId) }
 
-        val secondUserId = UUID.randomUUID()
-        userEsService.create { it.create(secondUserId, createTestUsername(2), createTestNickname(2), createTestPassword(2)) }
+        val user2: UserCreatedEvent = userEsService.create { it.create(UUID.randomUUID(), createTestUsername(2), createTestNickname(2), createTestPassword(2)) }
+        taskEsService.update(taskId) { it.assignUserToTask(taskId, user2.userId, projectId) }
 
-        taskEsService.update(taskId) { it.assignUserToTask(taskId, secondUserId, projectId) }
-
-        Assertions.assertEquals(taskEsService.getState(taskId)?.executors?.contains(secondUserId), true)
+        Assertions.assertEquals(taskEsService.getState(taskId)?.executors?.contains(user2.userId), true)
     }
 
     @Test
