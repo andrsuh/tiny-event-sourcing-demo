@@ -38,6 +38,7 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
 
     @StateTransitionFunc
     fun userAssignedToProjectEventApply(event: UserAssignedToProjectEvent) {
+        if (projectMembers.contains(event.userId)) throw Exception("This user has already been added to this project");
         projectMembers[event.userId] = ProjectMemberEntity(event.userId, event.username, event.nickname)
         updatedAt = System.currentTimeMillis()
     }

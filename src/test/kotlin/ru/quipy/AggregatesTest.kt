@@ -95,6 +95,25 @@ class AggregatesTest {
     }
 
     @Test
+    fun addDublicateUserToProject() {
+        val thirdUserId = UUID.randomUUID()
+        userEsService.create { it.create(thirdUserId, "Lion", "King", "SimplePassword3") }
+
+        val thirdProjectId = UUID.randomUUID()
+        projectEsService.create { it.create(thirdProjectId, "TestTitleThree", thirdUserId) }
+
+        projectEsService.update(thirdProjectId) {
+            it.assignUserToProject(thirdUserId, "Lion", "King")
+        }
+
+        assertThrows(IllegalArgumentException::class.java) {
+            projectEsService.update(thirdProjectId) {
+                it.assignUserToProject(thirdUserId, "Lion", "King")
+            }
+        }
+    }
+
+    @Test
     fun createTagToProject() = runBlocking {
         val fourthUserId = UUID.randomUUID()
         userEsService.create { it.create(fourthUserId, "Luke", "blbla", "SimplePassword4") }
