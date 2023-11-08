@@ -32,6 +32,7 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
 
     @StateTransitionFunc
     fun tagCreatedApply(event: TagCreatedEvent) {
+        if (projectTags.contains(event.tagId)) throw Exception("This tag has already been added to this project");
         projectTags[event.tagId] = TagEntity(event.tagId, event.tagName, event.color)
         updatedAt = createdAt
     }
@@ -63,12 +64,14 @@ data class ProjectMemberEntity(
 
 @StateTransitionFunc
 fun ProjectAggregateState.tagChangeNameApply(event: TagChangeNameEvent) {
+    if (projectTags[event.tagId]?.name == event.tagName) throw Exception("This name has already been at this tag");
     projectTags[event.tagId]?.name = event.tagName
     updatedAt = createdAt
 }
 
 @StateTransitionFunc
 fun ProjectAggregateState.tagChangeColorApply(event: TagChangeColorEvent) {
+    if (projectTags[event.tagId]?.color == event.color) throw Exception("This color has already been at this tag");
     projectTags[event.tagId]?.color = event.color
     updatedAt = createdAt
 }

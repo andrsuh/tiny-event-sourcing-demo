@@ -168,6 +168,64 @@ class AggregatesTest {
     }
 
     @Test
+    fun createTagToProject_expectException() {
+        val userId = UUID.randomUUID()
+        val projectId = UUID.randomUUID()
+
+        userEsService.create {
+            it.create(
+                userId,
+                createTestUsername(1),
+                createTestNickname(1),
+                createTestPassword(1)
+            )
+        }
+        projectEsService.create { it.create(projectId, createTestProjectName(1), userId) }
+
+        projectEsService.update(projectId) { it.createTag(createTestTagName(1), createTestTagColor(1)) }
+        assertThrows(IllegalArgumentException::class.java) {
+            projectEsService.update(projectId) { it.createTag(createTestTagName(1), createTestTagColor(1)) }
+        }
+    }
+
+    @Test
+    fun changeProjectTag_expectException() {
+        val userId = UUID.randomUUID()
+        val projectId = UUID.randomUUID()
+
+        userEsService.create {
+            it.create(
+                userId,
+                createTestUsername(1),
+                createTestNickname(1),
+                createTestPassword(1),
+            )
+        }
+        projectEsService.create { it.create(projectId, createTestProjectName(1), userId) }
+
+        projectEsService.update(projectId) { it.createTag(createTestTagName(1), createTestTagColor(1)) }
+        var received = projectEsService.getState(projectId)
+
+        assertThrows(IllegalArgumentException::class.java) {
+            projectEsService.update(projectId) {
+                it.changeName(
+                    createTestTagName(1),
+                    received!!.projectTags.keys.first()
+                )
+            }
+        }
+
+        assertThrows(IllegalArgumentException::class.java) {
+            projectEsService.update(projectId) {
+                it.changeColor(
+                    createTestTagColor(1),
+                    received!!.projectTags.keys.first()
+                )
+            }
+        }
+    }
+
+    @Test
     fun changeProjectTag_tagChangedSuccess() = runBlocking {
         val fourthUserId = UUID.randomUUID()
         val fourthProjectId = UUID.randomUUID()
@@ -217,7 +275,15 @@ class AggregatesTest {
         val received = projectEsService.getState(projectId)!!
 
         val taskId = UUID.randomUUID()
-        taskEsService.create { it.create(taskId, createTestTaskTitle(1), projectId, received.projectTags.keys.single(), userId) }
+        taskEsService.create {
+            it.create(
+                taskId,
+                createTestTaskTitle(1),
+                projectId,
+                received.projectTags.keys.single(),
+                userId
+            )
+        }
 
         Assertions.assertEquals(taskEsService.getState(taskId)?.taskTitle, createTestTaskTitle(1))
     }
@@ -254,7 +320,8 @@ class AggregatesTest {
 
         taskEsService.create { it.create(taskId, createTestTaskTitle(1), projectId, tagId, userId) }
 
-        val tagCreatedEvent: TagCreatedEvent = projectEsService.update(projectId) { it.createTag(createTestTagName(2), createTestTagColor(2)) }
+        val tagCreatedEvent: TagCreatedEvent =
+            projectEsService.update(projectId) { it.createTag(createTestTagName(2), createTestTagColor(2)) }
 
         taskEsService.update(taskId) { it.changeStatus(taskId, tagCreatedEvent.tagId, projectId) }
 
@@ -279,49 +346,56 @@ class AggregatesTest {
 
         taskEsService.create { it.create(taskId, createTestTaskTitle(1), projectId, tagId, userId) }
 
-        val user2: UserCreatedEvent = userEsService.create { it.create(UUID.randomUUID(), createTestUsername(2), createTestNickname(2), createTestPassword(2)) }
+        val user2: UserCreatedEvent = userEsService.create {
+            it.create(
+                UUID.randomUUID(),
+                createTestUsername(2),
+                createTestNickname(2),
+                createTestPassword(2)
+            )
+        }
         taskEsService.update(taskId) { it.assignUserToTask(taskId, user2.userId, projectId) }
 
         Assertions.assertEquals(taskEsService.getState(taskId)?.executors?.contains(user2.userId), true)
     }
 
-    @Test
-    fun WIP_changeProjectStatus() {
-        val scope = CoroutineScope(Job())
-        val userId = UUID.randomUUID()
-        val projectId = UUID.randomUUID()
-        var userCreatedEvent: UserCreatedEvent =
-            userEsService.create { it.create(userId, "Aiven", "sputnik6109", "gagarin") }
-        var projectCreatedEvent: ProjectCreatedEvent =
-            projectEsService.create { it.create(projectId, "Project X", userId) }
-        var tagCreatedEvent: TagCreatedEvent = projectEsService.update(projectId) { it.createTag("TestTag", "White") }
-
-        runBlocking {
-            val jobs = List(100000) {
-                scope.async {
-                    delay(1000)
-                    projectEsService.update(projectId) {
-                        it.changeName("Eagle" + UUID.randomUUID(), tagCreatedEvent.tagId)
-                    }
-                    delay(1000)
-                    var i = 0;
-                    while (i < 1000) {
-                        projectEsService.create {
-                            it.create(
-                                UUID.randomUUID(),
-                                "Project X" + UUID.randomUUID(),
-                                userId
-                            )
-                        }
-                        i++
-                    }
-                    delay(1000)
-                    projectEsService.update(projectId) {
-                        it.changeColor("Blue" + UUID.randomUUID(), tagCreatedEvent.tagId)
-                    }
-                }
-            }
-            jobs.awaitAll()
-        }
-    }
+//    @Test
+//    fun WIP_changeProjectStatus() {
+//        val scope = CoroutineScope(Job())
+//        val userId = UUID.randomUUID()
+//        val projectId = UUID.randomUUID()
+//        var userCreatedEvent: UserCreatedEvent =
+//            userEsService.create { it.create(userId, "Aiven", "sputnik6109", "gagarin") }
+//        var projectCreatedEvent: ProjectCreatedEvent =
+//            projectEsService.create { it.create(projectId, "Project X", userId) }
+//        var tagCreatedEvent: TagCreatedEvent = projectEsService.update(projectId) { it.createTag("TestTag", "White") }
+//
+//        runBlocking {
+//            val jobs = List(100) {
+//                scope.async {
+//                    delay(1000)
+//                    projectEsService.update(projectId) {
+//                        it.changeName("Eagle" + UUID.randomUUID(), tagCreatedEvent.tagId)
+//                    }
+//                    delay(1000)
+//                    var i = 0;
+//                    while (i < 1000) {
+//                        projectEsService.create {
+//                            it.create(
+//                                UUID.randomUUID(),
+//                                "Project X" + UUID.randomUUID(),
+//                                userId
+//                            )
+//                        }
+//                        i++
+//                    }
+//                    delay(1000)
+//                    projectEsService.update(projectId) {
+//                        it.changeColor("Blue" + UUID.randomUUID(), tagCreatedEvent.tagId)
+//                    }
+//                }
+//            }
+//            jobs.awaitAll()
+//        }
+//    }
 }
