@@ -2,9 +2,11 @@ package ru.quipy.user
 
 import com.google.common.eventbus.EventBus
 import javassist.NotFoundException
+import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpClientErrorException.Forbidden
+import org.springframework.web.server.ResponseStatusException
 import ru.quipy.user.dto.UserLogin
 import ru.quipy.user.dto.UserModel
 import ru.quipy.user.dto.UserRegister
@@ -30,7 +32,7 @@ class UserServiceImpl(
         } catch (e: Exception) {
             // skip if exists
         }
-        if (foundUser != null) throw IllegalStateException("user already exists")
+        if (foundUser != null) throw ResponseStatusException(HttpStatus.CONFLICT, "user already exists")
 
         val userEntity = userRepository.save(data.toEntity())
         EventBus().post(UserCreatedEvent(userEntity.toModel()))
@@ -39,17 +41,17 @@ class UserServiceImpl(
 
     override fun getOne(username: String): UserModel {
         val userEntity: UserEntity =
-                userRepository.findByUsername(username) ?: throw NotFoundException("user not found")
+                userRepository.findByUsername(username) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "user not found")
         return userEntity.toModel()
     }
 
     override fun logIn(data: UserLogin): UserModel {
         val userEntity: UserEntity =
-                userRepository.findByUsername(data.username) ?: throw NotFoundException("user not found")
+                userRepository.findByUsername(data.username) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "user not found")
         if (userEntity.password?.let { comparePassword(it, data.password) } == true) {
             return userEntity.toModel()
         }
-        throw IllegalArgumentException("password does not match")
+        throw ResponseStatusException(HttpStatus.CONFLICT, "password does not match")
     }
 
     fun UserRegister.toEntity(): UserEntity =
@@ -66,7 +68,7 @@ class UserServiceImpl(
                 name = this.name!!,
                 password = this.password!!
         )
-    }.getOrElse { exception -> throw IllegalStateException("Some fields are missing", exception) }
+    }.getOrElse { exception -> throw ResponseStatusException(HttpStatus.BAD_REQUEST, "some fields are missing") }
 
     fun comparePassword(encodedPassword: String, newPassword: String): Boolean = BCryptPasswordEncoder().matches(newPassword, encodedPassword)
 }
