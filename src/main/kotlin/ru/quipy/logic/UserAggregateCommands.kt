@@ -13,6 +13,9 @@ fun UserAggregateState.create(id: UUID, username: String, password: String): Use
 }
 
 fun UserAggregateState.changeName(id: UUID, nameUser: String): NameUserChangedEvent {
+    if (username == nameUser) {
+        throw IllegalArgumentException("This username is already assigned: $nameUser")
+    }
     return NameUserChangedEvent(
         userId = this.getId(),
         nameUser = nameUser)
