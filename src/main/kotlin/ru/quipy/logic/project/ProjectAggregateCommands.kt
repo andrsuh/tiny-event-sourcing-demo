@@ -1,9 +1,7 @@
 package ru.quipy.logic.project
 
-import ru.quipy.api.project.ProjectCreatedEvent
-import ru.quipy.api.project.TagAssignedToTaskEvent
-import ru.quipy.api.project.TagCreatedEvent
-import ru.quipy.api.project.TaskCreatedEvent
+import ru.quipy.api.project.*
+import java.lang.IllegalStateException
 import java.util.*
 
 
@@ -40,3 +38,68 @@ fun ProjectAggregateState.assignTagToTask(tagId: UUID, taskId: UUID): TagAssigne
 
     return TagAssignedToTaskEvent(projectId = this.getId(), tagId = tagId, taskId = taskId)
 }
+
+fun ProjectAggregateState.addMember(projectId: UUID, userId: UUID): MemberAddedEvent {
+    if (!memberIds.contains(userId)) {
+        memberIds.add(userId)
+    }
+    return MemberAddedEvent(
+        projectId = projectId,
+        userId = userId
+    )
+}
+
+fun ProjectAggregateState.changeProjectName(projectId: UUID, newProjectName: String): ProjectNameChangedEvent {
+    return ProjectNameChangedEvent(
+        projectId = projectId,
+        projectName = newProjectName
+    )
+}
+
+fun ProjectAggregateState.createStatus(projectId: UUID, statusName: String, color: String): StatusCreatedEvent {
+
+    val statusAlreadyExists = projectStatuses.stream()
+        .anyMatch { st -> st.name == statusName }
+    if (statusAlreadyExists) {
+        throw IllegalStateException("Status already exists: $statusName")
+    }
+
+    return StatusCreatedEvent(
+        projectId = projectId,
+        statusName = statusName,
+        color = color
+    )
+}
+
+//ToDo уточнить, необходима ли такая команда и transition-function, т.к. мы не храним Задачи в агрегате Project, а храним только список taskIds.
+// Соответственно здесь не можем поменять статус задачи
+fun ProjectAggregateState.setTaskStatus(taskId: UUID, statusId: UUID): TaskStatusChangedEvent {
+    return TaskStatusChangedEvent(
+        taskId = taskId,
+        statusId = statusId
+    )
+}
+
+
+fun ProjectAggregateState.deleteStatus(projectId: UUID, statusId: UUID): StatusDeletedEvent {
+
+    val statusEntity = projectStatuses.stream()
+        .filter({ st -> st.id.equals(statusId) })
+        .findFirst()
+
+    if (statusEntity.isPresent) {
+        val isStatusAssignedToAnyTask = tasks.values.stream()
+            .anyMatch { task -> task.statusId.equals(statusId) }
+        if (isStatusAssignedToAnyTask) {
+            throw IllegalStateException("Status ${statusEntity.get().name} can't be deleted because it's assigned to at least 1 task")
+        }
+        return StatusDeletedEvent(
+            projectId = projectId,
+            statusId = statusId
+        )
+    } else {
+        throw IllegalStateException("Status: ${statusEntity.get().name} does not exists in project")
+    }
+}
+
+
