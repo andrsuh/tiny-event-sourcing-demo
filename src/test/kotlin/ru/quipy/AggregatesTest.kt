@@ -204,7 +204,7 @@ class AggregatesTest {
 
         received = projectEsService.getState(fourthProjectId)
 
-        Assertions.assertEquals(received?.projectTags?.any { it.value.color == createTestTagName(2) }, true)
+        Assertions.assertEquals(received?.projectTags?.any { it.value.color == createTestTagColor(2) }, true)
         Assertions.assertEquals(received?.projectTags?.any { it.value.name == createTestTagName(2) }, true)
     }
 
