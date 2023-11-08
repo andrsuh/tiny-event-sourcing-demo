@@ -78,7 +78,7 @@ class AggregatesTest {
                 secondUserId,
                 createTestUsername(1),
                 createTestNickname(1),
-                createTestPassword(1)
+                createTestPassword(1),
             )
         }
 
@@ -86,15 +86,11 @@ class AggregatesTest {
             projectEsService.create { it.create(firstProjectId, createTestProjectName(1), secondUserId) }
         val createdProject2 =
             projectEsService.create { it.create(secondProjectId, createTestProjectName(2), secondUserId) }
-//        val listId = emptyList<UUID>().plus(createdProject.projectId).plus(createdProject2.projectId)
         val listId = listOf(createdProject.projectId, createdProject2.projectId)
         val received = projectEsService.getState(firstProjectId)
 
         Assertions.assertNotNull(received)
         Assertions.assertEquals(createdProject.title, received?.projectTitle)
-
-//        val listReceived = listId.map { projectId -> projectEsService.getState(projectId) }
-
         Assertions.assertEquals(listId.map { projectId -> projectEsService.getState(projectId) }.size, 2)
     }
 
@@ -181,7 +177,7 @@ class AggregatesTest {
                 fourthUserId,
                 createTestUsername(1),
                 createTestNickname(1),
-                createTestPassword(1)
+                createTestPassword(1),
             )
         }
         projectEsService.create { it.create(fourthProjectId, createTestProjectName(1), fourthUserId) }
@@ -230,28 +226,39 @@ class AggregatesTest {
     fun changeTask_TaskNameChangedSuccess() {
         val userId = UUID.randomUUID()
         val projectId = UUID.randomUUID()
-
-        userEsService.create { it.create(userId, "Leia", "Leia", "SimplePassword") }
-        projectEsService.create { it.create(projectId, "TestTitleFifth", projectId) }
-
-        projectEsService.update(projectId) { it.createTag("TestTag", "White, Blue, Red") }
-
-        val received = projectEsService.getState(projectId)!!
-
         val taskId = UUID.randomUUID()
-        var tagId = received.projectTags.keys.first()
-        taskEsService.create { it.create(taskId, "TestTaskTitle", projectId, tagId, userId) }
-        var receivedTask = taskEsService.getState(taskId)
-        Assertions.assertEquals(receivedTask?.taskTitle, "TestTaskTitle")
 
-        taskEsService.update(taskId) { it.changeTitle(taskId, "newTitle", projectId) }
-        receivedTask = taskEsService.getState(taskId)
-        Assertions.assertEquals(receivedTask?.taskTitle, "newTitle")
+        userEsService.create { it.create(userId, createTestUsername(1), createTestNickname(1), createTestPassword(1)) }
+        projectEsService.create { it.create(projectId, createTestProjectName(1), projectId) }
+        projectEsService.update(projectId) { it.createTag(createTestTagName(1), createTestTagColor(1)) }
 
-        projectEsService.update(projectId) { it.createTag("NewName", "NewColor") }
-        var receivedProject = projectEsService.getState(projectId)
-        tagId = received.projectTags.keys.first()
+        val tagId = projectEsService.getState(projectId)!!.projectTags.keys.single()
+
+        taskEsService.create { it.create(taskId, createTestTaskTitle(1), projectId, tagId, userId) }
+        taskEsService.update(taskId) { it.changeTitle(taskId, createTestTaskTitle(2), projectId) }
+
+        Assertions.assertEquals(taskEsService.getState(taskId)?.taskTitle, createTestTaskTitle(2))
+    }
+
+    @Test
+    fun changeTaskStatus_TaskStatusChangedSuccess() {
+        val userId = UUID.randomUUID()
+        val projectId = UUID.randomUUID()
+        val taskId = UUID.randomUUID()
+
+        userEsService.create { it.create(userId, createTestUsername(1), createTestNickname(1), createTestPassword(1)) }
+        projectEsService.create { it.create(projectId, createTestProjectName(1), projectId) }
+        projectEsService.update(projectId) { it.createTag(createTestTagName(1), createTestTagColor(1)) }
+
+        var tagId = projectEsService.getState(projectId)!!.projectTags.keys.single()
+
+        taskEsService.create { it.create(taskId, createTestTaskTitle(1), projectId, tagId, userId) }
+
+        projectEsService.update(projectId) { it.createTag(createTestTagName(2), createTestTagColor(2)) }
+        tagId = projectEsService.getState(projectId)!!.projectTags.keys.single()
+
         taskEsService.update(taskId) { it.changeStatus(taskId, tagId, projectId) }
+
         Assertions.assertEquals(taskEsService.getState(taskId)?.tagId, tagId)
 
         val secondUserId = UUID.randomUUID()
@@ -261,7 +268,28 @@ class AggregatesTest {
     }
 
     @Test
-    fun changeProjectStatus() {
+    fun assignUserToTask_TaskExecutorAssignedSuccess() {
+        val userId = UUID.randomUUID()
+        val projectId = UUID.randomUUID()
+        val taskId = UUID.randomUUID()
+
+        userEsService.create { it.create(userId, createTestUsername(1), createTestNickname(1), createTestPassword(1)) }
+        projectEsService.create { it.create(projectId, createTestProjectName(1), projectId) }
+        projectEsService.update(projectId) { it.createTag(createTestTagName(1), createTestTagColor(1)) }
+        val tagId = projectEsService.getState(projectId)!!.projectTags.keys.single()
+
+        taskEsService.create { it.create(taskId, createTestTaskTitle(1), projectId, tagId, userId) }
+
+        val secondUserId = UUID.randomUUID()
+        userEsService.create { it.create(secondUserId, createTestUsername(2), createTestNickname(2), createTestPassword(2)) }
+
+        taskEsService.update(taskId) { it.assignUserToTask(taskId, secondUserId, projectId) }
+
+        Assertions.assertEquals(taskEsService.getState(taskId)?.executors?.contains(secondUserId), true)
+    }
+
+    @Test
+    fun WIP_changeProjectStatus() {
         val scope = CoroutineScope(Job())
         val userId = UUID.randomUUID()
         val projectId = UUID.randomUUID()
