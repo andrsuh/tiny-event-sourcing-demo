@@ -4,6 +4,8 @@ import com.google.common.eventbus.EventBus
 import javassist.NotFoundException
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
+import org.springframework.web.client.HttpClientErrorException.Forbidden
+import ru.quipy.user.dto.UserLogin
 import ru.quipy.user.dto.UserModel
 import ru.quipy.user.dto.UserRegister
 import java.lang.Exception
@@ -11,6 +13,7 @@ import java.lang.Exception
 interface UserService {
     fun createOne(data: UserRegister): UserModel
     fun getOne(username: String): UserModel
+    fun logIn(data: UserLogin): UserModel
 }
 
 
@@ -40,6 +43,15 @@ class UserServiceImpl(
         return userEntity.toModel()
     }
 
+    override fun logIn(data: UserLogin): UserModel {
+        val userEntity: UserEntity =
+                userRepository.findByUsername(data.username) ?: throw NotFoundException("user not found")
+        if (userEntity.password?.let { comparePassword(it, data.password) } == true) {
+            return userEntity.toModel()
+        }
+        throw IllegalArgumentException("password does not match")
+    }
+
     fun UserRegister.toEntity(): UserEntity =
             UserEntity(
                     username = this.username,
@@ -55,4 +67,6 @@ class UserServiceImpl(
                 password = this.password!!
         )
     }.getOrElse { exception -> throw IllegalStateException("Some fields are missing", exception) }
+
+    fun comparePassword(encodedPassword: String, newPassword: String): Boolean = BCryptPasswordEncoder().matches(newPassword, encodedPassword)
 }

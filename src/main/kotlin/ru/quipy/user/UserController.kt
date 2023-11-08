@@ -1,6 +1,7 @@
 package ru.quipy.user
 
 import org.springframework.web.bind.annotation.*
+import ru.quipy.user.dto.UserLogin
 import ru.quipy.user.dto.UserModel
 import ru.quipy.user.dto.UserRegister
 
@@ -14,4 +15,7 @@ class UserController(private val userService: UserService) {
     @GetMapping("/{username}")
     fun getUser(@PathVariable username: String): UserModel =
             userService.getOne(username)
+
+    @GetMapping("/login")
+    fun login(@RequestBody request: UserLogin): UserModel = userService.logIn(request)
 }
