@@ -258,7 +258,7 @@ class AggregatesTest {
 
         taskEsService.update(taskId) { it.changeStatus(taskId, tagCreatedEvent.tagId, projectId) }
 
-        Assertions.assertEquals(taskEsService.getState(taskId)?.tagId, tagId)
+        Assertions.assertEquals(taskEsService.getState(taskId)?.tagId, tagCreatedEvent.tagId)
 
         val secondUserId = UUID.randomUUID()
         userEsService.create { it.create(secondUserId, "Padme", "Padme", "SimplePassword") }
