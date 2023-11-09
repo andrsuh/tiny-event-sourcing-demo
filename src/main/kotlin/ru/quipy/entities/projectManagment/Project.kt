@@ -5,8 +5,8 @@ import java.util.UUID
 data class Project(
     val id: UUID,
     val name: String,
-    val participants: MutableList<UUID> = mutableListOf(),
-    val tasks: MutableMap<UUID, Task> = mutableMapOf(),
+    val tasks: MutableMap<UUID, Task>,
+    val participants: MutableList<UUID>,
     val statuses: MutableMap<UUID, Status>,
     val createdAt: Long = System.currentTimeMillis(),
     var updatedAt: Long = System.currentTimeMillis(),

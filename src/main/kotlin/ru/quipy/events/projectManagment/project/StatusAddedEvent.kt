@@ -3,7 +3,6 @@ package ru.quipy.events.projectManagment.project
 import ru.quipy.aggregates.projectManagment.ProjectAggregate
 import ru.quipy.core.annotations.DomainEvent
 import ru.quipy.domain.Event
-import java.awt.Color
 import java.util.UUID
 
 const val STATUS_ADDED_EVENT = "STATUS_ADDED_EVENT"
@@ -13,7 +12,7 @@ class StatusAddedEvent(
     val projectId: UUID,
     val statusId: UUID,
     val statusName: String,
-    val color: Color,
+    val colorCode: String,
     createdAt: Long = System.currentTimeMillis(),
 ) : Event<ProjectAggregate>(
     name = STATUS_ADDED_EVENT,

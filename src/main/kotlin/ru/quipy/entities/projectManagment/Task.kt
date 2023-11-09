@@ -7,6 +7,5 @@ data class Task(
     var name: String,
     val projectId: UUID,
     var statusId: UUID,
-) {
-    val assigneeIds: MutableList<UUID> = mutableListOf()
-}
+    val assigneeIds: MutableList<UUID>
+)

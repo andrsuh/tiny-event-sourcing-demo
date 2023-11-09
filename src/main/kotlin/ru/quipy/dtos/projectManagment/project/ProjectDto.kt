@@ -9,6 +9,8 @@ import java.util.UUID
 data class ProjectDto(
     val id: UUID,
     val name: String,
+    val creatorId: UUID,
+    val participantIds: List<UUID>,
     val statuses: List<StatusDto>
 )
 
@@ -16,6 +18,8 @@ fun ProjectAggregateState.toDto(): ProjectDto {
     return ProjectDto(
         this.getId(),
         this.project.name,
+        this.project.creatorId,
+        this.project.participants,
         this.project.statuses.values.map {
             StatusDto(
                 it.toInfoDto(),
