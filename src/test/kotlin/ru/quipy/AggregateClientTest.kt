@@ -21,11 +21,12 @@ import ru.quipy.core.EventSourcingService
 import ru.quipy.logic.*
 import ru.quipy.utils.*
 import java.util.*
+import kotlin.random.Random
 
 @SpringBootTest
 @ActiveProfiles("test")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-class LoadTests {
+class AggregateClientTest {
 
     @Autowired
     private lateinit var projectEsService: EventSourcingService<UUID, ProjectAggregate, ProjectAggregateState>
@@ -52,13 +53,13 @@ class LoadTests {
 
     fun buildUrl(): String {
         val oneStatusEvent = projectEsService.update(projectId) {
-            it.createTag(createTestTagName(1), createTestTagColor(1))
+            it.createTag(createTestTagName(Random.nextInt(1,1000)), createTestTagColor(Random.nextInt(1,1000)))
         }
         val createdTaskEvent: TaskCreatedEvent = projectEsService.update(projectId) {
-            it.createTask(UUID.randomUUID(), createTestTaskTitle(1), projectId, oneStatusEvent.tagId, userId)
+            it.createTask(UUID.randomUUID(), createTestTaskTitle(Random.nextInt(1,1000)), projectId, oneStatusEvent.tagId, userId)
         }
 
-        return "/projects/${projectId}/status/assign/${createdTaskEvent.taskId}/${oneStatusEvent.tagId}"
+        return "/projects/${projectId}/${createdTaskEvent.taskId}/set-status/${oneStatusEvent.tagId}"
     }
 
     fun loadGeneralTest(numThreads: Int, rampUp: Int): Result {
@@ -67,10 +68,10 @@ class LoadTests {
             .withRampUp(rampUp)
             .build()
 
-        val result = loadTester.run(listOf(Request.put(buildUrl()).withHeader("Accept", "*/*")))
-
         val result1 = listOf(Request.put(buildUrl()).withHeader("Accept", "*/*"))
-        result1.forEach { println(it.toString()) }
+        result1.forEach { println(it.path) }
+
+        val result = loadTester.run(listOf(Request.put(buildUrl()).withHeader("Accept", "*/*")))
 
         buildTable(result)
         Assertions.assertTrue(result.percentOk > 99.99f)
@@ -100,19 +101,7 @@ class LoadTests {
     }
 
     @Test
-    fun loadTest20RequestsPerSeconds() {
-        val result = loadGeneralTest(100, 5)
-        Assertions.assertTrue(result.diagnostics.duration.seconds <= 5)
-    }
-
-    @Test
-    fun loadTest50RequestsPerSeconds() {
-        val result = loadGeneralTest(250, 5)
-        Assertions.assertTrue(result.diagnostics.duration.seconds <= 5)
-    }
-
-    @Test
-    fun loadTest100RequestsPerSeconds() {
+    fun loadTestRequestsPerSeconds() {
         val result = loadGeneralTest(500, 5)
         Assertions.assertTrue(result.diagnostics.duration.seconds <= 5)
     }

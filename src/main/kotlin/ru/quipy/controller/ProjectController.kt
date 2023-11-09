@@ -96,8 +96,8 @@ class ProjectController(
         return projectEsService.getState(projectId)?.tasks
     }
 
-    @PutMapping("/{projectId}/{taskId}/set-status")
-    fun setTaskStatus(@PathVariable projectId: UUID, @PathVariable taskId: UUID, @RequestParam statusId: UUID): TagAssignedToTaskEvent {
+    @PutMapping("/{projectId}/{taskId}/set-status/{statusId}")
+    fun setTaskStatus(@PathVariable projectId: UUID, @PathVariable taskId: UUID, @PathVariable statusId: UUID): TagAssignedToTaskEvent {
         return projectEsService.update(projectId) { it.assignTagToTask(taskId, statusId) }
     }
 
