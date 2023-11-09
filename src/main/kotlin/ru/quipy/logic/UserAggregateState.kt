@@ -13,8 +13,6 @@ class UserAggregateState : AggregateState<UUID, UserAggregate> {
     lateinit var name: String
     lateinit var nickname: String
     lateinit var password: String
-//    var tasks = mutableMapOf<UUID, TaskEntity>()
-//    var projectTags = mutableMapOf<UUID, TagEntity>()
 
     override fun getId() = userId
 

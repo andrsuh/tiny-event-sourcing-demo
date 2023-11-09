@@ -5,6 +5,7 @@ import ru.quipy.api.*
 import ru.quipy.core.EventSourcingService
 import ru.quipy.logic.*
 import java.util.*
+import kotlin.collections.List
 
 @RestController
 @RequestMapping("/projects")
@@ -13,14 +14,23 @@ class ProjectController(
 ) {
 
     @PostMapping()
-    fun createProject(@RequestParam projectTitle: String, @RequestParam creatorId: UUID) : ProjectCreatedEvent {
-        return projectEsService.create { it.create(UUID.randomUUID(), projectTitle, creatorId) }
+    fun createProject(@RequestParam projectTitle: String, @RequestParam creatorId: UUID) : ProjectAggregateState? {
+        val project = projectEsService.create { it.create(UUID.randomUUID(), projectTitle, creatorId) }
+        projectEsService.update(project.projectId) {
+            it.createTag(UUID.randomUUID(), "CREATED", "blue")
+        }
+        return projectEsService.getState(project.projectId)
     }
 
     @GetMapping("/{projectId}")
-    fun getAccount(@PathVariable projectId: UUID) : ProjectAggregateState? {
+    fun getProject(@PathVariable projectId: UUID) : ProjectAggregateState? {
         return projectEsService.getState(projectId)
     }
+
+//    @GetMapping()
+//    fun getAll() : List<ProjectAggregateState> {
+//        return projectEsService.
+//    }
 
     @PostMapping("/{projectId}/tags")
     fun createTag(@PathVariable projectId: UUID, @RequestParam tagName: String, @RequestParam tagColor: String) : TagCreatedEvent {

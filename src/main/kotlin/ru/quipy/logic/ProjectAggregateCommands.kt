@@ -67,6 +67,9 @@ fun ProjectAggregateState.assignUserToTask(taskId: UUID, userId: UUID): UserAssi
     if (!tasks.containsKey(taskId)) {
         throw IllegalArgumentException("Task doesn't exists: $taskId")
     }
+    if (!projectMembers.contains(userId)) {
+        throw IllegalArgumentException("User $userId isn't member of project ${getId()}")
+    }
     if (tasks[taskId]?.usersAssigned?.contains(userId) == true) {
         throw IllegalArgumentException("User $userId already assigned to task: $taskId")
     }
