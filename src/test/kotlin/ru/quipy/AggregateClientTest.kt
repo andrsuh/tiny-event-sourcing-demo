@@ -68,6 +68,10 @@ class LoadTests {
             .build()
 
         val result = loadTester.run(listOf(Request.put(buildUrl()).withHeader("Accept", "*/*")))
+
+        val result1 = listOf(Request.put(buildUrl()).withHeader("Accept", "*/*"))
+        result1.forEach { println(it.toString()) }
+
         buildTable(result)
         Assertions.assertTrue(result.percentOk > 99.99f)
         Assertions.assertTrue(result.diagnostics.requestsPerSecond >= (numThreads / rampUp - 0.1f))
