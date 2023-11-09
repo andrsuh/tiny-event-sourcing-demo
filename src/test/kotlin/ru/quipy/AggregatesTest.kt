@@ -354,44 +354,4 @@ class AggregatesTest {
 
         Assertions.assertEquals(projectEsService.getState(projectId)?.tasks?.get(taskId)?.executors?.contains(user2.userId), true)
     }
-
-    @Test
-    fun WIP_changeProjectStatus() {
-        val scope = CoroutineScope(Job())
-        val userId = UUID.randomUUID()
-        val projectId = UUID.randomUUID()
-        var userCreatedEvent: UserCreatedEvent =
-            userEsService.create { it.create(userId, "Aiven", "sputnik6109", "gagarin") }
-        var projectCreatedEvent: ProjectCreatedEvent =
-            projectEsService.create { it.create(projectId, "Project X", userId) }
-        var tagCreatedEvent: TagCreatedEvent = projectEsService.update(projectId) { it.createTag("TestTag", "White") }
-
-        runBlocking {
-            val jobs = List(100) {
-                scope.async {
-                    delay(1000)
-                    projectEsService.update(projectId) {
-                        it.changeName("Eagle" + UUID.randomUUID(), tagCreatedEvent.tagId)
-                    }
-                    delay(1000)
-                    var i = 0;
-                    while (i < 1000) {
-                        projectEsService.create {
-                            it.create(
-                                UUID.randomUUID(),
-                                "Project X" + UUID.randomUUID(),
-                                userId
-                            )
-                        }
-                        i++
-                    }
-                    delay(1000)
-                    projectEsService.update(projectId) {
-                        it.changeColor("Blue" + UUID.randomUUID(), tagCreatedEvent.tagId)
-                    }
-                }
-            }
-            jobs.awaitAll()
-        }
-    }
 }
