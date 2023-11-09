@@ -57,6 +57,14 @@
 			<artifactId>tiny-mongo-event-store-spring-boot-starter</artifactId>
 			<version>${tiny.es.version}</version>
 		</dependency>
+
+		<dependency>
+			<groupId>org.loadtest4j.drivers</groupId>
+			<artifactId>loadtest4j-jmeter</artifactId>
+			<scope>test</scope>
+			<version>0.5.0</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
