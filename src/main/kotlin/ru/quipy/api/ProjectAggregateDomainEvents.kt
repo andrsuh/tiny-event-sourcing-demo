@@ -9,6 +9,10 @@ const val TAG_CREATED_EVENT = "TAG_CREATED_EVENT"
 const val USER_ASSIGNED_TO_PROJECT_EVENT = "USER_ASSIGNED_TO_PROJECT_EVENT"
 const val TAG_CHANGE_NAME_EVENT = "TAG_CHANGE_NAME_EVENT"
 const val TAG_CHANGE_COLOR_EVENT = "TAG_CHANGE_COLOR_EVENT"
+const val TASK_CREATED_EVENT = "TASK_CREATED_EVENT"
+const val TASK_NAME_CHANGED_EVENT = "TASK_NAME_CHANGED_EVENT"
+const val TASK_EXECUTOR_CHANGED_EVENT = "TASK_EXECUTOR_CHANGED_EVENT"
+const val TAG_ASSIGNED_TO_TASK_EVENT = "TAG_ASSIGNED_TO_TASK_EVENT"
 
 // API
 @DomainEvent(name = PROJECT_CREATED_EVENT)
@@ -66,4 +70,51 @@ class TagChangeColorEvent(
 ) : Event<ProjectAggregate>(
         name = TAG_CHANGE_COLOR_EVENT,
         createdAt = createdAt,
+)
+
+@DomainEvent(name = TASK_CREATED_EVENT)
+class TaskCreatedEvent(
+        val taskId: UUID,
+        val projectId: UUID,
+        val taskName: String,
+        val creatorId: UUID,
+        val tagId: UUID,
+        var executors: List<UUID>,
+        createdAt: Long = System.currentTimeMillis(),
+) : Event<ProjectAggregate>(
+        name = TASK_CREATED_EVENT,
+        createdAt = createdAt
+)
+
+@DomainEvent(name = TASK_NAME_CHANGED_EVENT)
+class TaskNameChangedEvent(
+        val taskId: UUID,
+        val projectId: UUID,
+        val newTaskName: String,
+        createdAt: Long = System.currentTimeMillis(),
+) : Event<ProjectAggregate>(
+        name = TASK_NAME_CHANGED_EVENT,
+        createdAt = createdAt
+)
+
+@DomainEvent(name = TASK_EXECUTOR_CHANGED_EVENT)
+class TaskExecutorChangedEvent(
+        val taskId: UUID,
+        val projectId: UUID,
+        val userId: UUID,
+        createdAt: Long = System.currentTimeMillis(),
+) : Event<ProjectAggregate>(
+        name = TASK_EXECUTOR_CHANGED_EVENT,
+        createdAt = createdAt
+)
+
+@DomainEvent(name = TAG_ASSIGNED_TO_TASK_EVENT)
+class TagAssignedToTaskEvent(
+        val projectId: UUID,
+        val taskId: UUID,
+        val tagId: UUID,
+        createdAt: Long = System.currentTimeMillis(),
+) : Event<ProjectAggregate>(
+        name = TAG_ASSIGNED_TO_TASK_EVENT,
+        createdAt = createdAt
 )

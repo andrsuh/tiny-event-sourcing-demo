@@ -1,9 +1,13 @@
 package ru.quipy.logic
 
 import ru.quipy.api.ProjectCreatedEvent
+import ru.quipy.api.TagAssignedToTaskEvent
 import ru.quipy.api.TagChangeColorEvent
 import ru.quipy.api.TagChangeNameEvent
 import ru.quipy.api.TagCreatedEvent
+import ru.quipy.api.TaskCreatedEvent
+import ru.quipy.api.TaskExecutorChangedEvent
+import ru.quipy.api.TaskNameChangedEvent
 import ru.quipy.api.UserAssignedToProjectEvent
 import java.util.*
 
@@ -52,4 +56,35 @@ fun ProjectAggregateState.changeColor(color: String, tagId: UUID): TagChangeColo
         throw IllegalArgumentException("Tag already exists: $color")
     }
     return TagChangeColorEvent(this.getId(), tagId, color)
+}
+
+fun ProjectAggregateState.createTask(id: UUID, title: String, projectId: UUID, tagId: UUID, creatorId: UUID): TaskCreatedEvent {
+    return TaskCreatedEvent(
+            taskId = id,
+            projectId = projectId,
+            taskName = title,
+            creatorId = creatorId,
+            tagId = tagId,
+            executors = emptyList()
+    )
+}
+
+fun ProjectAggregateState.changeTaskTitle(id: UUID, newTitle: String, projectId: UUID): TaskNameChangedEvent {
+    return TaskNameChangedEvent(
+            taskId = id,
+            projectId = projectId,
+            newTaskName = newTitle,
+    )
+}
+
+fun ProjectAggregateState.assignUserToTask(id: UUID, userId: UUID, projectId: UUID): TaskExecutorChangedEvent {
+    return TaskExecutorChangedEvent(
+            taskId = id,
+            projectId = projectId,
+            userId = userId,
+    )
+}
+
+fun ProjectAggregateState.assignTagToTask(tagId: UUID, taskId: UUID): TagAssignedToTaskEvent {
+    return TagAssignedToTaskEvent(projectId = this.getId(), tagId = tagId, taskId = taskId)
 }

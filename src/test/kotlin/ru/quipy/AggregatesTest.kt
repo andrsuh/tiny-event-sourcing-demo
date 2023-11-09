@@ -16,21 +16,20 @@ import org.springframework.test.context.ActiveProfiles
 import ru.quipy.api.ProjectAggregate
 import ru.quipy.api.ProjectCreatedEvent
 import ru.quipy.api.TagCreatedEvent
-import ru.quipy.api.TaskAggregate
 import ru.quipy.api.UserAggregate
 import ru.quipy.api.UserCreatedEvent
 import ru.quipy.core.EventSourcingService
 import ru.quipy.logic.ProjectAggregateState
-import ru.quipy.logic.TaskAggregateState
 import ru.quipy.logic.UserAggregateState
+import ru.quipy.logic.assignTagToTask
 import ru.quipy.logic.assignUserToProject
 import ru.quipy.logic.assignUserToTask
 import ru.quipy.logic.changeColor
 import ru.quipy.logic.changeName
-import ru.quipy.logic.changeStatus
-import ru.quipy.logic.changeTitle
+import ru.quipy.logic.changeTaskTitle
 import ru.quipy.logic.create
 import ru.quipy.logic.createTag
+import ru.quipy.logic.createTask
 import ru.quipy.utils.*
 import java.util.*
 
@@ -43,9 +42,6 @@ class AggregatesTest {
 
     @Autowired
     private lateinit var userEsService: EventSourcingService<UUID, UserAggregate, UserAggregateState>
-
-    @Autowired
-    private lateinit var taskEsService: EventSourcingService<UUID, TaskAggregate, TaskAggregateState>
 
     @Test
     fun createUser_UserCreatedSuccess() = runBlocking {
@@ -275,8 +271,8 @@ class AggregatesTest {
         val received = projectEsService.getState(projectId)!!
 
         val taskId = UUID.randomUUID()
-        taskEsService.create {
-            it.create(
+        projectEsService.update(projectId) {
+            it.createTask(
                 taskId,
                 createTestTaskTitle(1),
                 projectId,
@@ -285,7 +281,7 @@ class AggregatesTest {
             )
         }
 
-        Assertions.assertEquals(taskEsService.getState(taskId)?.taskTitle, createTestTaskTitle(1))
+        Assertions.assertEquals(projectEsService.getState(projectId)?.tasks?.get(taskId)?.taskTitile, createTestTaskTitle(1))
     }
 
     @Test
@@ -300,10 +296,10 @@ class AggregatesTest {
 
         val tagId = projectEsService.getState(projectId)!!.projectTags.keys.single()
 
-        taskEsService.create { it.create(taskId, createTestTaskTitle(1), projectId, tagId, userId) }
-        taskEsService.update(taskId) { it.changeTitle(taskId, createTestTaskTitle(2), projectId) }
+        projectEsService.update(projectId) { it.createTask(taskId, createTestTaskTitle(1), projectId, tagId, userId) }
+        projectEsService.update(projectId) { it.changeTaskTitle(taskId, createTestTaskTitle(2), projectId) }
 
-        Assertions.assertEquals(taskEsService.getState(taskId)?.taskTitle, createTestTaskTitle(2))
+        Assertions.assertEquals(projectEsService.getState(projectId)?.tasks?.get(taskId)?.taskTitile, createTestTaskTitle(2))
     }
 
     @Test
@@ -318,19 +314,19 @@ class AggregatesTest {
 
         val tagId = projectEsService.getState(projectId)!!.projectTags.keys.single()
 
-        taskEsService.create { it.create(taskId, createTestTaskTitle(1), projectId, tagId, userId) }
+        projectEsService.update(projectId) { it.createTask(taskId, createTestTaskTitle(1), projectId, tagId, userId) }
 
         val tagCreatedEvent: TagCreatedEvent =
             projectEsService.update(projectId) { it.createTag(createTestTagName(2), createTestTagColor(2)) }
 
-        taskEsService.update(taskId) { it.changeStatus(taskId, tagCreatedEvent.tagId, projectId) }
+        projectEsService.update(projectId) { it.assignTagToTask(tagCreatedEvent.tagId, taskId) }
 
-        Assertions.assertEquals(taskEsService.getState(taskId)?.tagId, tagCreatedEvent.tagId)
+        Assertions.assertEquals(projectEsService.getState(projectId)?.tasks?.get(taskId)?.tagId, tagCreatedEvent.tagId)
 
         val secondUserId = UUID.randomUUID()
         userEsService.create { it.create(secondUserId, "Padme", "Padme", "SimplePassword") }
-        taskEsService.update(taskId) { it.assignUserToTask(taskId, secondUserId, projectId) }
-        Assertions.assertEquals(taskEsService.getState(taskId)?.executors?.contains(secondUserId), true)
+        projectEsService.update(projectId) { it.assignUserToTask(taskId, secondUserId, projectId) }
+        Assertions.assertEquals(projectEsService.getState(projectId)?.tasks?.get(taskId)?.executors?.contains(secondUserId), true)
     }
 
     @Test
@@ -344,7 +340,7 @@ class AggregatesTest {
         projectEsService.update(projectId) { it.createTag(createTestTagName(1), createTestTagColor(1)) }
         val tagId = projectEsService.getState(projectId)!!.projectTags.keys.single()
 
-        taskEsService.create { it.create(taskId, createTestTaskTitle(1), projectId, tagId, userId) }
+        projectEsService.update(projectId) { it.createTask(taskId, createTestTaskTitle(1), projectId, tagId, userId) }
 
         val user2: UserCreatedEvent = userEsService.create {
             it.create(
@@ -354,9 +350,9 @@ class AggregatesTest {
                 createTestPassword(2)
             )
         }
-        taskEsService.update(taskId) { it.assignUserToTask(taskId, user2.userId, projectId) }
+        projectEsService.update(projectId) { it.assignUserToTask(taskId, user2.userId, projectId) }
 
-        Assertions.assertEquals(taskEsService.getState(taskId)?.executors?.contains(user2.userId), true)
+        Assertions.assertEquals(projectEsService.getState(projectId)?.tasks?.get(taskId)?.executors?.contains(user2.userId), true)
     }
 
     @Test
