@@ -1,13 +1,35 @@
 version: "3.9"
+
 services:
-  mongo:
-    build:
-      context: mongoDb
-#      dockerfile: mongoDb/Dockerfile
+  mongodb:
+    image: mongo:6
+    container_name: ppo_mongo
     restart: always
+    environment:
+      - MONGO_INITDB_DATABASE=tiny-es
     ports:
       - 27017:27017
     volumes:
-      - mongo_data:/data/db
+      - ppo_mongo_data:/data/db
+    networks:
+      - ppo_netowrk
+
+  task-manager:
+    image: ppo_task_manager
+    container_name: ppo_task_manager
+    restart: on-failure
+    build: .
+    depends_on:
+      - mongodb
+    ports:
+      - 8080:8080
+    networks:
+      - ppo_netowrk
+
+networks:
+  ppo_netowrk:
+    name: ppo_netowrk
+
 volumes:
-  mongo_data: { }
+  ppo_mongo_data:
+    name: ppo_mongo_data

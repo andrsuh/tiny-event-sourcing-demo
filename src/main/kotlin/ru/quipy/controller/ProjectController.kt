@@ -8,11 +8,13 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import ru.quipy.api.ProjectAggregate
 import ru.quipy.api.ProjectCreatedEvent
-import ru.quipy.api.TaskCreatedEvent
+import ru.quipy.api.StatusCreatedEvent
+import ru.quipy.api.UserInvitedEvent
 import ru.quipy.core.EventSourcingService
 import ru.quipy.logic.ProjectAggregateState
-import ru.quipy.logic.addTask
 import ru.quipy.logic.create
+import ru.quipy.logic.createStatus
+import ru.quipy.logic.inviteUser
 import java.util.*
 
 @RestController
@@ -27,14 +29,18 @@ class ProjectController(
     }
 
     @GetMapping("/{projectId}")
-    fun getAccount(@PathVariable projectId: UUID) : ProjectAggregateState? {
+    fun getProject(@PathVariable projectId: UUID) : ProjectAggregateState? {
         return projectEsService.getState(projectId)
     }
 
-    @PostMapping("/{projectId}/tasks/{taskName}")
-    fun createTask(@PathVariable projectId: UUID, @PathVariable taskName: String) : TaskCreatedEvent {
-        return projectEsService.update(projectId) {
-            it.addTask(taskName)
-        }
+    @PostMapping("/status/{projectId}/{statusTitle}")
+    fun createStatus(@PathVariable projectId: UUID, @PathVariable statusTitle: String) : StatusCreatedEvent {
+        return projectEsService.update(projectId) { it.createStatus(statusTitle) }
     }
+
+    @PostMapping("/invite/{projectId}/{userId}")
+    fun inviteUser(@PathVariable projectId: UUID, @PathVariable userId: UUID) : UserInvitedEvent? {
+        return projectEsService.update(projectId) {it.inviteUser(userId)}
+    }
+
 }
