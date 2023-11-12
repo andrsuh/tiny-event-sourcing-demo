@@ -3,7 +3,11 @@ package ru.quipy.projections
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.stereotype.Service
+import org.springframework.data.annotation.Id
+import org.springframework.data.mongodb.core.mapping.Document
+import org.springframework.data.mongodb.repository.MongoRepository
+import org.springframework.stereotype.Component
+import org.springframework.stereotype.Repository
 import ru.quipy.api.aggregate.ProjectAggregate
 import ru.quipy.api.aggregate.UserAggregate
 import ru.quipy.api.event.*
@@ -14,12 +18,13 @@ import ru.quipy.streams.AggregateSubscriptionsManager
 import java.util.*
 import javax.annotation.PostConstruct
 
-@Service
-class ProjectEventsSubscriber (
+@Component
+class ProjectCache (
+    private val projectCacheRepository: ProjectCacheRepository,
     val userEsService: EventSourcingService<UUID, UserAggregate, UserAggregateState>
 ) {
 
-    val logger: Logger = LoggerFactory.getLogger(ProjectEventsSubscriber::class.java)
+    val logger: Logger = LoggerFactory.getLogger(ProjectCache::class.java)
 
     @Autowired
     lateinit var subscriptionsManager: AggregateSubscriptionsManager
@@ -28,6 +33,7 @@ class ProjectEventsSubscriber (
     fun init() {
         subscriptionsManager.createSubscriber(ProjectAggregate::class, "some-meaningful-name") {
             `when`(ProjectCreatedEvent::class) { event ->
+                projectCacheRepository.save(Project(event.projectId, event.title))
                 logger.info("Project created: {} by user {}", event.title, event.creatorId)
                 userEsService.update(event.creatorId) {
                     it.addProject(event.projectId)
@@ -51,6 +57,10 @@ class ProjectEventsSubscriber (
             }
 
             `when`(ProjectTitleChangedEvent::class) { event ->
+                val project = projectCacheRepository.findById(event.projectId).get()
+                project.projectTitle = event.title
+                projectCacheRepository.deleteById(project.projectId)
+                projectCacheRepository.save(Project(event.projectId, event.title))
                 logger.info("Project {} changed title to {}: ", event.projectId, event.title)
             }
 
@@ -68,3 +78,13 @@ class ProjectEventsSubscriber (
         }
     }
 }
+
+@Document("users-account-cache")
+data class Project(
+    @Id
+    val projectId: UUID,
+    var projectTitle: String
+)
+
+@Repository
+interface ProjectCacheRepository: MongoRepository<Project, UUID>

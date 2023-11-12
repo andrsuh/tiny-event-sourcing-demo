@@ -20,7 +20,7 @@ import java.util.*
 @RequestMapping("/users")
 class UserController(
     val userEsService: EventSourcingService<UUID, UserAggregate, UserAggregateState>,
-    //val userService: UserService
+    val userService: UserService
 ) {
 
     @PostMapping()
@@ -50,14 +50,36 @@ class UserController(
     @GetMapping("/{userId}/projects")
     fun getUserProjects(@PathVariable userId: UUID): MutableSet<UUID>? {
         val userData = userEsService.getState(userId)
-        if (userData != null) {
-            return userData.projects.keys
-        }
-        return null
+        return userData?.projects?.keys
     }
 
-//    @GetMapping("/all")
-//    fun getAllUsers(): MutableSet<String> {
-//        return userService.getAllUsersName()
-//    }
+    @GetMapping("/all")
+    fun getAllUsers(): MutableSet<String> {
+        return userService.getAllUsersName()
+    }
+
+    @GetMapping("/check")
+    fun checkUserName(@RequestParam name: String): String {
+        val usersNames = userService.getAllUsersName()
+        if (usersNames.contains(name))
+            return "User with this name already exist"
+        return "This name not used"
+    }
+
+    @GetMapping("/find")
+    fun findUser(@RequestParam name: String): MutableSet<UserAggregateState?> {
+        val usersAll = userService.getAllUsers()
+        val usersFound = mutableSetOf<UserAggregateState?>()
+        val usersIdSet = mutableSetOf<UUID>()
+        usersAll.forEach{
+            if (it.userName.contains(name, true))
+                usersIdSet.add(it.userId)
+        }
+
+        usersIdSet.forEach{
+            usersFound.add(userEsService.getState(it))
+        }
+
+        return usersFound
+    }
 }

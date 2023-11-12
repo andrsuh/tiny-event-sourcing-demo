@@ -113,7 +113,7 @@ class ProjectController(
 
         projectData?.members?.keys?.forEach{
             val userData = userEsService.getState(it);
-            if (userData?.userName?.contains(name, true) == true) {
+            if (userData?.userName?.contains(name, false) == true) {
                 foundedUsers.add(userData)
             }
         }
