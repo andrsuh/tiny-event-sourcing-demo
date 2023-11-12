@@ -13,12 +13,14 @@ import ru.quipy.logic.commands.addProject
 import ru.quipy.logic.state.UserAggregateState
 import ru.quipy.logic.commands.changeName
 import ru.quipy.logic.commands.create
+import ru.quipy.service.UserService
 import java.util.*
 
 @RestController
 @RequestMapping("/users")
 class UserController(
-    val userEsService: EventSourcingService<UUID, UserAggregate, UserAggregateState>
+    val userEsService: EventSourcingService<UUID, UserAggregate, UserAggregateState>,
+    //val userService: UserService
 ) {
 
     @PostMapping()
@@ -37,10 +39,25 @@ class UserController(
             it.changeName(name)
         }
     }
+
     @PostMapping("/{userId}/projects")
     fun addProject(@PathVariable userId: UUID, @RequestParam projectId: UUID) : UserProjectAddedEvent {
         return userEsService.update(userId) {
             it.addProject(projectId)
         }
     }
+
+    @GetMapping("/{userId}/projects")
+    fun getUserProjects(@PathVariable userId: UUID): MutableSet<UUID>? {
+        val userData = userEsService.getState(userId)
+        if (userData != null) {
+            return userData.projects.keys
+        }
+        return null
+    }
+
+//    @GetMapping("/all")
+//    fun getAllUsers(): MutableSet<String> {
+//        return userService.getAllUsersName()
+//    }
 }

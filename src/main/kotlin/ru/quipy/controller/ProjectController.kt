@@ -8,16 +8,19 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import ru.quipy.api.aggregate.ProjectAggregate
+import ru.quipy.api.aggregate.UserAggregate
 import ru.quipy.api.event.*
 import ru.quipy.core.EventSourcingService
 import ru.quipy.logic.commands.*
 import ru.quipy.logic.state.ProjectAggregateState
+import ru.quipy.logic.state.UserAggregateState
 import java.util.*
 
 @RestController
 @RequestMapping("/projects")
 class ProjectController(
-    val projectEsService: EventSourcingService<UUID, ProjectAggregate, ProjectAggregateState>
+    val projectEsService: EventSourcingService<UUID, ProjectAggregate, ProjectAggregateState>,
+    val userEsService: EventSourcingService<UUID, UserAggregate, UserAggregateState>
 ) {
 
     @PostMapping("/{projectTitle}")
@@ -83,5 +86,37 @@ class ProjectController(
         return projectEsService.update(projectId) {
             it.projectStatusCreate(statusTitle, color)
         }
+    }
+
+    @GetMapping("/{projectId}/members")
+    fun getProjectMembers(@PathVariable projectId: UUID): MutableSet<UUID>? {
+        val projectData = projectEsService.getState(projectId)
+        return projectData?.members?.keys
+    }
+
+    @GetMapping("/{projectId}/tasks")
+    fun getProjectTasks(@PathVariable projectId: UUID): MutableSet<UUID>? {
+        val projectData = projectEsService.getState(projectId)
+        return projectData?.tasks?.keys
+    }
+
+    @GetMapping("/{projectId}/statuses")
+    fun getProjectStatuses(@PathVariable projectId: UUID): MutableSet<UUID>? {
+        val projectData = projectEsService.getState(projectId)
+        return projectData?.projectStatuses?.keys
+    }
+
+    @GetMapping("/{projectId}/found_member")
+    fun getProjectUserByName(@PathVariable projectId: UUID, @RequestParam name: String): MutableSet<UserAggregateState>? {
+        val foundedUsers = mutableSetOf<UserAggregateState>()
+        val projectData = projectEsService.getState(projectId)
+
+        projectData?.members?.keys?.forEach{
+            val userData = userEsService.getState(it);
+            if (userData?.userName?.contains(name, true) == true) {
+                foundedUsers.add(userData)
+            }
+        }
+        return foundedUsers
     }
 }
