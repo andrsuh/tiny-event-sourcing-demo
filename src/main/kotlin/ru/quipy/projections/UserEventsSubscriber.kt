@@ -17,7 +17,6 @@ import ru.quipy.api.event.UserNameChangedEvent
 import ru.quipy.api.event.UserProjectAddedEvent
 import ru.quipy.core.EventSourcingService
 import ru.quipy.logic.state.UserAggregateState
-import ru.quipy.projections.repository.UserAccountCacheRepository
 import ru.quipy.streams.AggregateSubscriptionsManager
 import java.util.*
 import javax.annotation.PostConstruct
@@ -25,10 +24,13 @@ import javax.annotation.PostConstruct
 @Component
 class UserEventsSubscriber (
     private val userAccountCacheRepository: UserAccountCacheRepository,
-    private val subscriptionsManager: AggregateSubscriptionsManager
+    private val userEsService: EventSourcingService<UUID, UserAggregate, UserAggregateState>
 ) {
 
     val logger: Logger = LoggerFactory.getLogger(UserEventsSubscriber::class.java)
+
+    @Autowired
+    lateinit var subscriptionsManager: AggregateSubscriptionsManager
 
     @PostConstruct
     fun init() {
@@ -52,4 +54,7 @@ class UserEventsSubscriber (
         val userId: UUID,
         var userName: String
     )
+
+    @Repository
+    interface UserAccountCacheRepository: MongoRepository<UserAccount, UUID>
 }
