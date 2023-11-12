@@ -5,12 +5,13 @@ import ru.quipy.api.aggregate.UserAggregate
 import ru.quipy.core.EventSourcingService
 import ru.quipy.logic.state.UserAggregateState
 import ru.quipy.projections.UserEventsSubscriber
+import ru.quipy.projections.repository.UserAccountCacheRepository
 
 import java.util.*
 
 @Service
 abstract class UserService (
-    val userAccountCacheRepository: UserEventsSubscriber.UserAccountCacheRepository
+    val userAccountCacheRepository: UserAccountCacheRepository
     ) {
         fun getAllUsersName(): MutableSet<String> {
             val users = userAccountCacheRepository.findAll()
