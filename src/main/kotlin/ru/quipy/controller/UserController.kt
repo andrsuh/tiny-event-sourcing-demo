@@ -48,9 +48,9 @@ class UserController(
     }
 
     @GetMapping("/{userId}/projects")
-    fun getUserProjects(@PathVariable userId: UUID): MutableSet<UUID>? {
+    fun getUserProjects(@PathVariable userId: UUID): MutableMap<UUID, UUID>? {
         val userData = userEsService.getState(userId)
-        return userData?.projects?.keys
+        return userData?.projects
     }
 
     @GetMapping("/all")

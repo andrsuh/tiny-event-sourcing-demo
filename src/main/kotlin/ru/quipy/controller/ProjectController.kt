@@ -13,6 +13,8 @@ import ru.quipy.api.event.*
 import ru.quipy.core.EventSourcingService
 import ru.quipy.logic.commands.*
 import ru.quipy.logic.state.ProjectAggregateState
+import ru.quipy.logic.state.StatusEntity
+import ru.quipy.logic.state.TaskEntity
 import ru.quipy.logic.state.UserAggregateState
 import java.util.*
 
@@ -89,21 +91,21 @@ class ProjectController(
     }
 
     @GetMapping("/{projectId}/members")
-    fun getProjectMembers(@PathVariable projectId: UUID): MutableSet<UUID>? {
+    fun getProjectMembers(@PathVariable projectId: UUID): MutableMap<UUID, UUID>? {
         val projectData = projectEsService.getState(projectId)
-        return projectData?.members?.keys
+        return projectData?.members
     }
 
     @GetMapping("/{projectId}/tasks")
-    fun getProjectTasks(@PathVariable projectId: UUID): MutableSet<UUID>? {
+    fun getProjectTasks(@PathVariable projectId: UUID): MutableMap<UUID, TaskEntity>? {
         val projectData = projectEsService.getState(projectId)
-        return projectData?.tasks?.keys
+        return projectData?.tasks
     }
 
     @GetMapping("/{projectId}/statuses")
-    fun getProjectStatuses(@PathVariable projectId: UUID): MutableSet<UUID>? {
+    fun getProjectStatuses(@PathVariable projectId: UUID): MutableMap<UUID, StatusEntity>? {
         val projectData = projectEsService.getState(projectId)
-        return projectData?.projectStatuses?.keys
+        return projectData?.projectStatuses
     }
 
     @GetMapping("/{projectId}/found_member")
