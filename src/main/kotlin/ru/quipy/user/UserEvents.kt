@@ -1,6 +1,7 @@
 package ru.quipy.user
 
 import ru.quipy.core.annotations.DomainEvent
+import ru.quipy.domain.Event
 import ru.quipy.user.dto.UserModel
 import ru.quipy.user.eda.api.UserAggregate
 
