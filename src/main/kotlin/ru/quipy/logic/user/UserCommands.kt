@@ -9,5 +9,9 @@ fun UserAggregateState.createUser(userName: String): UserCreatedEvent {
 }
 
 fun UserAggregateState.changeUserName(userName: String, userId: UUID): UserChangedNameEvent {
+    if (this.userName == userName) {
+        throw IllegalArgumentException("Username for user with id=$userId should be different")
+    }
+
     return UserChangedNameEvent(userId, userName)
 }

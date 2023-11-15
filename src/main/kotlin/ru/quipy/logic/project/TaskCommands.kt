@@ -30,6 +30,10 @@ fun ProjectAggregateState.changeTaskTitle(callerId: UUID, taskId: UUID, title: S
         throw IllegalArgumentException("Task with id=$taskId is not in this project")
     }
 
+    if (tasks[taskId]?.title == title) {
+        throw IllegalArgumentException("Title for task with id=$taskId should be different")
+    }
+
     return TaskNameUpdatedEvent(taskId, title)
 }
 
@@ -38,6 +42,10 @@ fun ProjectAggregateState.changeTaskStatus(callerId: UUID, taskId: UUID, taskSta
 
     if (!taskStatuses.containsKey(taskStatusId)) {
         throw IllegalArgumentException("Task status with id $taskStatusId does not exist")
+    }
+
+    if (tasks[taskId]?.taskStatusId == taskStatusId) {
+        throw IllegalArgumentException("Status for task with id=$taskId should be different")
     }
 
     return TaskStatusChangedEvent(taskId, getId(), taskStatusId)
