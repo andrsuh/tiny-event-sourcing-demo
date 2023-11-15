@@ -17,6 +17,7 @@ class UserCreatedEvent(
         createdAt = createdAt
 )
 
+// do we even need this type of event?
 @DomainEvent(name = USER_DELETED_EVENT)
 class UserDeletedEvent(
         val username: String,
