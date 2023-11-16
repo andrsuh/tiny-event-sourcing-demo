@@ -57,7 +57,20 @@
 			<artifactId>tiny-mongo-event-store-spring-boot-starter</artifactId>
 			<version>${tiny.es.version}</version>
 		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-compiler</artifactId>
+            <version>1.6.21</version>
+            <scope>test</scope>
+        </dependency>
+		<!-- https://mvnrepository.com/artifact/org.loadtest4j.drivers/loadtest4j-gatling -->
+		<dependency>
+			<groupId>org.loadtest4j.drivers</groupId>
+			<artifactId>loadtest4j-gatling</artifactId>
+			<version>0.10.0</version>
+			<scope>test</scope>
+		</dependency>
+    </dependencies>
 
 	<build>
 		<sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>

@@ -31,8 +31,8 @@ class DemoApplicationTests  {
 	@Autowired
 	private lateinit var userEsService: EventSourcingService<UUID, UserAggregate, UserAggregateState>
 
-	@Autowired
-	lateinit var mongoTemplate: MongoTemplate
+//	@Autowired
+//	lateinit var mongoTemplate: MongoTemplate
 
 	@Test
 	@Order(1)

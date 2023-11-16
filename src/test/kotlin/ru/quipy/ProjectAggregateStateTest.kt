@@ -17,6 +17,11 @@ import ru.quipy.core.EventSourcingService
 import ru.quipy.logic.create
 import java.math.BigDecimal
 import java.util.*
+import org.junit.*
+import org.loadtest4j.LoadTester
+import org.loadtest4j.Request
+import org.loadtest4j.drivers.gatling.GatlingBuilder
+import java.time.Duration
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -34,9 +39,24 @@ class ProjectAggregateStateTest {
     lateinit var mongoTemplate: MongoTemplate
 
     @Test
-    fun createProject() {
-        projectEsService.create { it.create(id = testId, title = "Aaaa", creatorId = userId) }
-        val state = projectEsService.getState(testId)!!
-        Assertions.assertEquals(testId, state.getId())
+    fun loadGeneralTest() {
+        val loadTester: LoadTester = GatlingBuilder
+            .withUrl("http://localhost:8080")
+            .withDuration(Duration.ofSeconds(60))
+            .withUsersPerSecond(20)
+            .build();
+//            .withNumThreads(numThreads) // Количество пользователей
+//            .withRampUp(rampUp)
+//            .build()
+
+        val result = loadTester.run(
+            listOf(
+                Request.get("projects/1b4087b6-0119-4451-b007-047ff7122eaa")
+                    .withHeader("Accept", "*/*")
+            )
+        )
+        println(result)
+        Assertions.assertTrue(result.percentOk > 99.99f)
+//        Assertions.assertTrue(result.diagnostics.requestsPerSecond >= )
     }
 }
