@@ -16,6 +16,7 @@ class ProjectController(
     @PostMapping()
     fun createProject(@RequestParam projectTitle: String, @RequestParam creatorId: UUID) : ProjectAggregateState? {
         val project = projectEsService.create { it.create(UUID.randomUUID(), projectTitle, creatorId) }
+
         projectEsService.update(project.projectId) {
             it.createTag(UUID.randomUUID(), "CREATED", "blue")
         }
@@ -23,14 +24,12 @@ class ProjectController(
     }
 
     @GetMapping("/{projectId}")
+    @RequestMapping("/{projectId}")
     fun getProject(@PathVariable projectId: UUID) : ProjectAggregateState? {
-        return projectEsService.getState(projectId)
+        val result = projectEsService.getState(projectId)
+        println("Returning result for projectId $projectId: $result")
+        return result
     }
-
-//    @GetMapping()
-//    fun getAll() : List<ProjectAggregateState> {
-//        return projectEsService.
-//    }
 
     @PostMapping("/{projectId}/tags")
     fun createTag(@PathVariable projectId: UUID, @RequestParam tagName: String, @RequestParam tagColor: String) : TagCreatedEvent {
