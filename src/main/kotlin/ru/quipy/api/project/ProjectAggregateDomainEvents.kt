@@ -1,6 +1,5 @@
 package ru.quipy.api.project
 
-import ru.quipy.api.task.USER_ASSIGNED_TO_TASK_EVENT
 import ru.quipy.core.annotations.DomainEvent
 import ru.quipy.domain.Event
 import java.util.*

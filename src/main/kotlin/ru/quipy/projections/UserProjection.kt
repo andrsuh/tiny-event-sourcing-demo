@@ -19,14 +19,12 @@ class UserProjection(
         private val userProjectionRepository: UserProjectionRepository
 ) {
 
-    val logger: Logger = LoggerFactory.getLogger(UserEventsSubscriber::class.java)
-
     @Autowired
     lateinit var subscriptionsManager: AggregateSubscriptionsManager
 
     @PostConstruct
     fun init() {
-        subscriptionsManager.createSubscriber(UserAggregate::class, "UserAggregateSubscriber") {
+        subscriptionsManager.createSubscriber(UserAggregate::class, "UserAggregateSubscriberUProjection") {
 
             `when`(UserCreatedEvent::class) { event ->
                 userProjectionRepository.save(User(event.userId, event.nickname, event.firstName, event.name))

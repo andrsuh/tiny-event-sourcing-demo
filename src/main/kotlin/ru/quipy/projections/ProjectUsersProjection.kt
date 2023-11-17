@@ -21,18 +21,15 @@ class ProjectUserRelation(
         private val projectUserProjectionRepo: ProjectUserProjectionRepo
 ) {
 
-    val logger: Logger = LoggerFactory.getLogger(UserEventsSubscriber::class.java)
-
     @Autowired
     lateinit var subscriptionsManager: AggregateSubscriptionsManager
 
     @PostConstruct
     fun init() {
-        subscriptionsManager.createSubscriber(ProjectAggregate::class, "UserAggregateSubscriber") {
+        subscriptionsManager.createSubscriber(ProjectAggregate::class, "ProjectAggregateSubscriberPUProjection") {
 
             `when`(UserAssignedToProjectEvent::class) { event ->
                 projectUserProjectionRepo.save(ProjectUserProjection(event.projectId, event.userId))
-                logger.info("User created with id {}", event.userId)
             }
         }
     }

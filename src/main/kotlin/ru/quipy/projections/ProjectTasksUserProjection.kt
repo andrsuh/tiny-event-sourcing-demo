@@ -31,7 +31,7 @@ class ProjectTasksProjection(
 
     @PostConstruct
     fun init() {
-        subscriptionsManager.createSubscriber(ProjectAggregate::class, "UserAggregateSubscriber") {
+        subscriptionsManager.createSubscriber(ProjectAggregate::class, "ProjectAggregateSubscriberPTUProjection") {
 
             `when`(ProjectCreatedEvent::class) { event ->
                 projectTaskUserRepo.save(ProjectTaskUser(event.projectId, event.createdAt, event.createdAt,
@@ -45,7 +45,7 @@ class ProjectTasksProjection(
 
         }
 
-        subscriptionsManager.createSubscriber(TaskAggregate::class, "TaskAggregateSubscriber") {
+        subscriptionsManager.createSubscriber(TaskAggregate::class, "TaskAggregateSubscriberPTUProjection") {
             `when`(TaskCreatedEvent::class) {event ->
                 val projectTaskUser = projectTaskUserRepo.findByProjectId(event.projectId) ?: throw Exception();
                 projectTaskUser.tasks?.add(TaskEntity(event.taskId, event.projectId,

@@ -20,14 +20,12 @@ class TaskStatusProjection(
         private val taskStatusProjectionRepo: TaskStatusProjectionRepo
 ) {
 
-    val logger: Logger = LoggerFactory.getLogger(UserEventsSubscriber::class.java)
-
     @Autowired
     lateinit var subscriptionsManager: AggregateSubscriptionsManager
 
     @PostConstruct
     fun init() {
-        subscriptionsManager.createSubscriber(TaskAggregate::class, "UserAggregateSubscriber") {
+        subscriptionsManager.createSubscriber(TaskAggregate::class, "TaskAggregateSubscriberTSProjection") {
 
             `when`(StatusAssignedToTaskEvent::class) { event ->
                 val status = taskStatusProjectionRepo.findByStatusIdAndStatusNameNotNull(event.statusId)
@@ -54,7 +52,7 @@ class TaskStatusProjection(
     }
 }
 
-@Document("user-project-projection")
+@Document("task-status-projection")
 data class TaskStatus(
         var statusId: UUID?,
         var statusName: String?,
