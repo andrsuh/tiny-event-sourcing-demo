@@ -15,8 +15,8 @@ import java.util.*
 import javax.annotation.PostConstruct
 
 @Component
-class UserProjection(
-        private val userProjectionRepository: UserProjectionRepository
+class UserRelation(
+        private val userProjectionRepository: UserProjectionRepo
 ) {
 
     @Autowired
@@ -27,14 +27,14 @@ class UserProjection(
         subscriptionsManager.createSubscriber(UserAggregate::class, "UserAggregateSubscriberUProjection") {
 
             `when`(UserCreatedEvent::class) { event ->
-                userProjectionRepository.save(User(event.userId, event.nickname, event.firstName, event.name))
+                userProjectionRepository.save(UserProjection(event.userId, event.nickname, event.firstName, event.name))
             }
         }
     }
 }
 
 @Document("user-projection")
-data class User(
+data class UserProjection(
         @Id
         val userId: UUID,
         val nickname: String,
@@ -43,4 +43,4 @@ data class User(
 )
 
 @Repository
-interface UserProjectionRepository : MongoRepository<User, UUID>
+interface UserProjectionRepo : MongoRepository<UserProjection, UUID>

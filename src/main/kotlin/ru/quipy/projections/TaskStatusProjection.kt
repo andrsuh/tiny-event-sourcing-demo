@@ -16,7 +16,7 @@ import java.util.*
 import javax.annotation.PostConstruct
 
 @Component
-class TaskStatusProjection(
+class TaskStatusRelation(
         private val taskStatusProjectionRepo: TaskStatusProjectionRepo
 ) {
 
@@ -44,7 +44,7 @@ class TaskStatusProjection(
             }
 
             `when`(TaskCreatedEvent::class) { event ->
-                taskStatusProjectionRepo.save(TaskStatus(null, null, event.taskId, event.createdAt,
+                taskStatusProjectionRepo.save(TaskStatusProjection(null, null, event.taskId, event.createdAt,
                         null, event.taskTitle, event.projectId, null))
             }
         }
@@ -53,7 +53,7 @@ class TaskStatusProjection(
 }
 
 @Document("task-status-projection")
-data class TaskStatus(
+data class TaskStatusProjection(
         var statusId: UUID?,
         var statusName: String?,
         var taskId: UUID,
@@ -64,9 +64,9 @@ data class TaskStatus(
         var assignedUserId: UUID? = null
 )
  @Repository
- interface TaskStatusProjectionRepo : MongoRepository<TaskStatus, UUID> {
-     fun findByTaskId(taskId: UUID): TaskStatus?
-     fun findByStatusIdAndStatusNameNotNull(statusId: UUID): TaskStatus?
+ interface TaskStatusProjectionRepo : MongoRepository<TaskStatusProjection, UUID> {
+     fun findByTaskId(taskId: UUID): TaskStatusProjection?
+     fun findByStatusIdAndStatusNameNotNull(statusId: UUID): TaskStatusProjection?
 
-     fun findAllByTaskIdNotNull(): List<TaskStatus>
+     fun findAllByTaskIdNotNull(): List<TaskStatusProjection>
  }

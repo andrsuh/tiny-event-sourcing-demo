@@ -22,7 +22,7 @@ import javax.annotation.PostConstruct
 import kotlin.collections.HashMap
 
 @Component
-class ProjectTasksProjection(
+class ProjectTasksRelation(
         private val projectTaskUserRepo : ProjectTaskUserRepo
 ) {
 
@@ -34,7 +34,7 @@ class ProjectTasksProjection(
         subscriptionsManager.createSubscriber(ProjectAggregate::class, "ProjectAggregateSubscriberPTUProjection") {
 
             `when`(ProjectCreatedEvent::class) { event ->
-                projectTaskUserRepo.save(ProjectTaskUser(event.projectId, event.createdAt, event.createdAt,
+                projectTaskUserRepo.save(ProjectTasksUserProjection(event.projectId, event.createdAt, event.createdAt,
                         event.title, event.creatorId, HashMap(), ArrayList(), arrayListOf(event.creatorId)))
             }
 
@@ -56,7 +56,7 @@ class ProjectTasksProjection(
 }
 
 @Document("project-task-user-projection")
-data class ProjectTaskUser(
+data class ProjectTasksUserProjection(
         var projectId: UUID,
         var createdAt: Long,
         var updatedAt: Long,
@@ -74,6 +74,6 @@ data class TaskEntity(
     var title: String,
     var createdAt: Long)
 @Repository
-interface ProjectTaskUserRepo : MongoRepository<ProjectTaskUser, UUID> {
-    fun findByProjectId(projectId: UUID) : ProjectTaskUser?;
+interface ProjectTaskUserRepo : MongoRepository<ProjectTasksUserProjection, UUID> {
+    fun findByProjectId(projectId: UUID) : ProjectTasksUserProjection?;
 }
