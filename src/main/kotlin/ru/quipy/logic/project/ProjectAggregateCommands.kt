@@ -2,6 +2,7 @@ package ru.quipy.logic.project
 
 import ru.quipy.api.project.ProjectCreatedEvent
 import ru.quipy.api.project.StatusCreatedEvent
+import ru.quipy.api.project.UserAssignedToProjectEvent
 import java.util.*
 
 fun ProjectAggregateState.create(id: UUID, title: String, creatorId: String): ProjectCreatedEvent {
@@ -9,6 +10,13 @@ fun ProjectAggregateState.create(id: UUID, title: String, creatorId: String): Pr
         projectId = id,
         title = title,
         creatorId = creatorId,
+    )
+}
+
+fun ProjectAggregateState.assignUser(userId: UUID) : UserAssignedToProjectEvent {
+    return UserAssignedToProjectEvent(
+            projectId = this.getId(),
+            userId = userId,
     )
 }
 

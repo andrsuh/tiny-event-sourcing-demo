@@ -9,8 +9,10 @@ import org.springframework.web.bind.annotation.RestController
 import ru.quipy.api.project.ProjectAggregate
 import ru.quipy.api.project.ProjectCreatedEvent
 import ru.quipy.api.project.StatusCreatedEvent
+import ru.quipy.api.project.UserAssignedToProjectEvent
 import ru.quipy.core.EventSourcingService
 import ru.quipy.logic.project.ProjectAggregateState
+import ru.quipy.logic.project.assignUser
 import ru.quipy.logic.project.create
 import ru.quipy.logic.project.createStatus
 import java.util.*
@@ -36,5 +38,12 @@ class ProjectController(
     @GetMapping("/{projectId}")
     fun getProject(@PathVariable projectId: UUID) : ProjectAggregateState? {
         return projectEsService.getState(projectId)
+    }
+
+    @PostMapping("/{projectId}/{userId}")
+    fun assignUserToProject(@PathVariable projectId: UUID, @PathVariable userId: UUID) : UserAssignedToProjectEvent {
+        return projectEsService.update(projectId) {
+            it.assignUser(userId)
+        }
     }
 }

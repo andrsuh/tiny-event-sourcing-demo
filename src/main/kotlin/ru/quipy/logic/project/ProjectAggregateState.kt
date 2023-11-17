@@ -1,9 +1,11 @@
 package ru.quipy.logic.project
 
 import ru.quipy.api.project.*
+import ru.quipy.api.task.UserAssignedToTaskEvent
 import ru.quipy.core.annotations.StateTransitionFunc
 import ru.quipy.domain.AggregateState
 import ru.quipy.logic.StatusEntity
+import ru.quipy.logic.user.UserAggregateState
 import java.util.*
 
 class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
@@ -14,6 +16,7 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
     lateinit var projectTitle: String
     lateinit var creatorId: String
     var projectStatuses = mutableMapOf<UUID, StatusEntity>()
+    val users: MutableList<UUID> = ArrayList<UUID>()
 
     override fun getId() = projectId
 
@@ -23,6 +26,11 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
         projectTitle = event.title
         creatorId = event.creatorId
         updatedAt = createdAt
+    }
+
+    @StateTransitionFunc
+    fun addUserToProject(event: UserAssignedToProjectEvent) {
+        users.add(event.userId);
     }
 
     @StateTransitionFunc
