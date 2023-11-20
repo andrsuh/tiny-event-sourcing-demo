@@ -10,7 +10,9 @@ import org.springframework.stereotype.Component
 import org.springframework.stereotype.Repository
 import ru.quipy.api.project.ProjectAggregate
 import ru.quipy.api.project.ProjectCreatedEvent
+import ru.quipy.api.project.StatusCreatedEvent
 import ru.quipy.api.project.UserAssignedToProjectEvent
+import ru.quipy.api.task.StatusAssignedToTaskEvent
 import ru.quipy.api.task.TaskAggregate
 import ru.quipy.api.task.TaskCreatedEvent
 import ru.quipy.api.user.UserAggregate
@@ -43,6 +45,14 @@ class ProjectTasksRelation(
                 projectTaskUser.users.add(event.userId.toString())
             }
 
+            `when`(StatusCreatedEvent::class) { event ->
+                val status = StatusEntity(event.id, event.statusName)
+                val projectUserTask = projectTaskUserRepo.findByProjectId(event.projectId) ?: throw Exception();
+                if (!projectUserTask.projectStatuses?.contains(event.id)!!) {
+                    projectUserTask.projectStatuses!!.put(event.statusId, status);
+                }
+                projectTaskUserRepo.save(projectUserTask);
+            }
         }
 
         subscriptionsManager.createSubscriber(TaskAggregate::class, "TaskAggregateSubscriberPTUProjection") {
@@ -50,6 +60,23 @@ class ProjectTasksRelation(
                 val projectTaskUser = projectTaskUserRepo.findByProjectId(event.projectId) ?: throw Exception();
                 projectTaskUser.tasks?.add(TaskEntity(event.taskId, event.projectId,
                         event.statusId, event.taskTitle, event.createdAt));
+            }
+
+            `when`(StatusAssignedToTaskEvent::class) { event ->
+                val projectTasksUserProjections = projectTaskUserRepo.findAll()
+                var projectionFound: ProjectTasksUserProjection? = null
+                for (ptu in projectTasksUserProjections){
+                    for (task in ptu.tasks!!) {
+                        if (task.taskId.equals(event.taskId)) {
+                            projectionFound = ptu
+                            task.statusId = event.statusId
+                        }
+                    }
+                }
+                if (projectionFound == null) {
+                    throw Exception()
+                }
+                projectTaskUserRepo.save(projectionFound);
             }
         }
     }

@@ -27,10 +27,7 @@ class ProjectionsController (val projectionsService: ProjectionsService) {
     }
 
     @GetMapping("/projectTaskuser")
-    fun createProject() : List<ProjectTasksUserProjection>{
+    fun getTaskUserProjections() : List<ProjectTasksUserProjection>{
         return this.projectionsService.getAllProjectTaskUserProjection();
     }
-
-
-
 }

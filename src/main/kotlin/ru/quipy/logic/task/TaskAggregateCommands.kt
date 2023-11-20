@@ -1,5 +1,6 @@
 package ru.quipy.logic.task
 
+import ru.quipy.api.task.StatusAssignedToTaskEvent
 import ru.quipy.api.task.TaskCreatedEvent
 import ru.quipy.api.task.TaskRenamedEvent
 import ru.quipy.api.task.UserAssignedToTaskEvent
@@ -16,6 +17,13 @@ fun TaskAggregateState.assignUserToTask(userId: UUID): UserAssignedToTaskEvent {
     return UserAssignedToTaskEvent(
         taskId = this.getId(),
         userId = userId,
+    )
+}
+
+fun TaskAggregateState.assignStatusToTask(statusId: UUID): StatusAssignedToTaskEvent {
+    return StatusAssignedToTaskEvent(
+            taskId = this.getId(),
+            statusId = statusId
     )
 }
 

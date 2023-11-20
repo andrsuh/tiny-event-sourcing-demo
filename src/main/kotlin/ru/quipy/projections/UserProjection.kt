@@ -27,7 +27,7 @@ class UserRelation(
         subscriptionsManager.createSubscriber(UserAggregate::class, "UserAggregateSubscriberUProjection") {
 
             `when`(UserCreatedEvent::class) { event ->
-                userProjectionRepository.save(UserProjection(event.userId, event.nickname, event.firstName, event.name))
+                userProjectionRepository.save(UserProjection(event.userId, event.nickname, event.firstName))
             }
         }
     }
@@ -39,7 +39,6 @@ data class UserProjection(
         val userId: UUID,
         val nickname: String,
         val firstName: String,
-        val name: String
 )
 
 @Repository

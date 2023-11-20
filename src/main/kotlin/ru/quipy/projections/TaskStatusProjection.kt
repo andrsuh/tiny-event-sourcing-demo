@@ -7,6 +7,8 @@ import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.data.mongodb.repository.MongoRepository
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Repository
+import ru.quipy.api.project.ProjectAggregate
+import ru.quipy.api.project.StatusCreatedEvent
 import ru.quipy.api.task.StatusAssignedToTaskEvent
 import ru.quipy.api.task.TaskAggregate
 import ru.quipy.api.task.TaskCreatedEvent
@@ -33,6 +35,7 @@ class TaskStatusRelation(
                 val task = taskStatusProjectionRepo.findByTaskId(event.taskId) ?: throw Exception()
                 task.statusId = event.statusId
                 task.statusName = status.statusName
+                task.taskUpdatedAt = System.currentTimeMillis();
                 taskStatusProjectionRepo.save(task);
             }
 
@@ -44,11 +47,18 @@ class TaskStatusRelation(
             }
 
             `when`(TaskCreatedEvent::class) { event ->
-                taskStatusProjectionRepo.save(TaskStatusProjection(null, null, event.taskId, event.createdAt,
+                taskStatusProjectionRepo.save(TaskStatusProjection(event.statusId, null, event.taskId, event.createdAt,
                         null, event.taskTitle, event.projectId, null))
             }
         }
 
+        subscriptionsManager.createSubscriber(ProjectAggregate::class, "ProjectAggregateSubscriberTSProjection") {
+
+            `when`(StatusCreatedEvent::class) { event ->
+                taskStatusProjectionRepo.save(TaskStatusProjection(event.statusId, event.statusName, null, event.createdAt, null, null, event.projectId, null))
+            }
+
+        }
     }
 }
 
@@ -56,17 +66,17 @@ class TaskStatusRelation(
 data class TaskStatusProjection(
         var statusId: UUID?,
         var statusName: String?,
-        var taskId: UUID,
-        var taskCreatedAt: Long,
+        var taskId: UUID?,
+        var taskCreatedAt: Long?,
         var taskUpdatedAt: Long?,
-        var taskTitle: String,
+        var taskTitle: String?,
         var projectId: UUID,
         var assignedUserId: UUID? = null
 )
- @Repository
- interface TaskStatusProjectionRepo : MongoRepository<TaskStatusProjection, UUID> {
-     fun findByTaskId(taskId: UUID): TaskStatusProjection?
-     fun findByStatusIdAndStatusNameNotNull(statusId: UUID): TaskStatusProjection?
 
-     fun findAllByTaskIdNotNull(): List<TaskStatusProjection>
- }
+@Repository
+interface TaskStatusProjectionRepo : MongoRepository<TaskStatusProjection, UUID> {
+    fun findByTaskId(taskId: UUID): TaskStatusProjection?
+    fun findByStatusIdAndStatusNameNotNull(statusId: UUID): TaskStatusProjection?
+    fun findAllByTaskIdNotNull(): List<TaskStatusProjection>
+}
