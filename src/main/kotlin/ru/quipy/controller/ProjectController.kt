@@ -4,13 +4,15 @@ import org.springframework.web.bind.annotation.*
 import ru.quipy.api.*
 import ru.quipy.core.EventSourcingService
 import ru.quipy.logic.*
+import ru.quipy.projections.UserProjects
+import ru.quipy.projections.UserProjectsCacheRepository
 import java.util.*
-import kotlin.collections.List
 
 @RestController
 @RequestMapping("/projects")
 class ProjectController(
-    val projectEsService: EventSourcingService<UUID, ProjectAggregate, ProjectAggregateState>
+    val projectEsService: EventSourcingService<UUID, ProjectAggregate, ProjectAggregateState>,
+    val repo: UserProjectsCacheRepository
 ) {
 
     @PostMapping()
@@ -29,6 +31,12 @@ class ProjectController(
         val result = projectEsService.getState(projectId)
         println("Returning result for projectId $projectId: $result")
         return result
+    }
+
+    @GetMapping("user/{userId}")
+    @RequestMapping("user/{userId}")
+    fun getUserProject(@PathVariable userId: UUID) : UserProjects {
+        return repo.findById(userId).get()
     }
 
     @PostMapping("/{projectId}/tags")
