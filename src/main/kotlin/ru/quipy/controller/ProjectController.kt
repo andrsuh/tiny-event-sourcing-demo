@@ -13,7 +13,8 @@ import java.util.*
 class ProjectController(
     val projectEsService: EventSourcingService<UUID, ProjectAggregate, ProjectAggregateState>,
     val userCacheRepository: UserCacheRepository,
-    val projectMembersCacheRepository: ProjectMembersCacheRepository
+    val projectMembersCacheRepository: ProjectMembersCacheRepository,
+    val taskInfoRepo: TaskInfoCacheRepository
 ) {
 
     @PostMapping()
@@ -28,6 +29,7 @@ class ProjectController(
     }
 
     @GetMapping("/{projectId}")
+    @RequestMapping("/{projectId}")
     fun getProject(@PathVariable projectId: UUID) : ProjectAggregateState? {
         return projectEsService.getState(projectId)
     }
@@ -82,6 +84,12 @@ class ProjectController(
         return projectEsService.update(projectId) {
             it.addTask(UUID.randomUUID(), taskName)
         }
+    }
+
+    @GetMapping("/task/{taskId}")
+    @RequestMapping("/task/{taskId}")
+    fun getTaskInfo(@PathVariable taskId: UUID) : TaskInfo {
+        return taskInfoRepo.findById(taskId).get()
     }
 
     @PutMapping("/{projectId}/tasks/{taskId}")
