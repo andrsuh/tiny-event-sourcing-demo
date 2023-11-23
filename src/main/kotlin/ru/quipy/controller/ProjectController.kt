@@ -6,13 +6,16 @@ import ru.quipy.core.EventSourcingService
 import ru.quipy.logic.*
 import ru.quipy.projections.UserProjects
 import ru.quipy.projections.UserProjectsCacheRepository
+import ru.quipy.projections.TaskInfo
+import ru.quipy.projections.TaskInfoCacheRepository
 import java.util.*
 
 @RestController
 @RequestMapping("/projects")
 class ProjectController(
     val projectEsService: EventSourcingService<UUID, ProjectAggregate, ProjectAggregateState>,
-    val repo: UserProjectsCacheRepository
+    val userProjectsRepo: UserProjectsCacheRepository,
+    val taskInfoRepo: TaskInfoCacheRepository
 ) {
 
     @PostMapping()
@@ -36,7 +39,7 @@ class ProjectController(
     @GetMapping("user/{userId}")
     @RequestMapping("user/{userId}")
     fun getUserProject(@PathVariable userId: UUID) : UserProjects {
-        return repo.findById(userId).get()
+        return userProjectsRepo.findById(userId).get()
     }
 
     @PostMapping("/{projectId}/tags")
@@ -57,6 +60,12 @@ class ProjectController(
         return projectEsService.update(projectId) {
             it.addTask(UUID.randomUUID(), taskName)
         }
+    }
+
+    @GetMapping("/task/{taskId}")
+    @RequestMapping("/task/{taskId}")
+    fun getTaskInfo(@PathVariable taskId: UUID) : TaskInfo {
+        return taskInfoRepo.findById(taskId).get()
     }
 
     @PutMapping("/{projectId}/tasks/{taskId}")
