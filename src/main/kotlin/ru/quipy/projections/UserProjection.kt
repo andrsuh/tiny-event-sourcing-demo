@@ -14,26 +14,26 @@ import java.util.*
 import javax.annotation.PostConstruct
 
 @Component
-class UserExistenceCache (
-    private val userCacheRepository: UserCacheRepository,
+class UserProjection (
+    private val userRepository: UserRepository,
     private val subscriptionsManager: AggregateSubscriptionsManager
 ){
-    private val logger = LoggerFactory.getLogger(UserExistenceCache::class.java)
+    private val logger = LoggerFactory.getLogger(UserProjection::class.java)
 
     @PostConstruct
     fun init() {
-        subscriptionsManager.createSubscriber(UserAggregate::class, "users::user-cache") {
+        subscriptionsManager.createSubscriber(UserAggregate::class, "users::user-projection") {
             `when`(UserCreatedEvent::class) { event ->
                 withContext(Dispatchers.IO) {
-                    userCacheRepository.save(User(event.userId, event.userName, event.nickname))
+                    userRepository.save(User(event.userId, event.userName, event.nickname))
                 }
-                logger.info("Update user cache, create user ${event.userId}")
+                logger.info("Update user projection, create user ${event.userId}")
             }
         }
     }
 }
 
-@Document("user-cache")
+@Document("user-projection")
 data class User(
     @Id
     var userId: UUID,
@@ -42,4 +42,4 @@ data class User(
 )
 
 @Repository
-interface UserCacheRepository : MongoRepository<User, UUID>
+interface UserRepository : MongoRepository<User, UUID>

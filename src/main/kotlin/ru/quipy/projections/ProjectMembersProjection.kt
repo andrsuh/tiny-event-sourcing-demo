@@ -15,35 +15,35 @@ import java.util.*
 import javax.annotation.PostConstruct
 
 @Component
-class ProjectMembersExistenceCache (
-    private val projectMembersCacheRepository: ProjectMembersCacheRepository,
+class ProjectMembersProjection (
+    private val projectMembersRepository: ProjectMembersRepository,
     private val subscriptionsManager: AggregateSubscriptionsManager
 ){
-    private val logger = LoggerFactory.getLogger(ProjectMembersExistenceCache::class.java)
+    private val logger = LoggerFactory.getLogger(ProjectMembersProjection::class.java)
 
     @PostConstruct
     fun init() {
-        subscriptionsManager.createSubscriber(ProjectAggregate::class, "projects::project-members-cache") {
+        subscriptionsManager.createSubscriber(ProjectAggregate::class, "projects::project-members-projection") {
             `when`(ProjectCreatedEvent::class) { event ->
                 createOrUpdateProjectMembers(event.projectId, event.creatorId)
-                logger.info("Update project members cache, create project ${event.projectId}-${event.creatorId}")
+                logger.info("Update project members projection, create project ${event.projectId}-${event.creatorId}")
             }
             `when`(UserAddedEvent::class) { event ->
                 createOrUpdateProjectMembers(event.projectId, event.userId)
-                logger.info("Update project members cache, add user to project ${event.projectId}-${event.userId}")
+                logger.info("Update project members projection, add user to project ${event.projectId}-${event.userId}")
             }
         }
     }
     private fun createOrUpdateProjectMembers(projectId: UUID, userId: UUID) {
-        var projectMembers = projectMembersCacheRepository.findByIdOrNull(projectId)
+        var projectMembers = projectMembersRepository.findByIdOrNull(projectId)
         if (projectMembers == null)
             projectMembers = ProjectMembers(projectId)
         projectMembers.users.add(userId)
-        projectMembersCacheRepository.save(projectMembers)
+        projectMembersRepository.save(projectMembers)
     }
 }
 
-@Document("project-members-cache")
+@Document("project-members-projection")
 data class ProjectMembers(
     @Id
     var projectId: UUID,
@@ -51,4 +51,4 @@ data class ProjectMembers(
 )
 
 @Repository
-interface ProjectMembersCacheRepository: MongoRepository<ProjectMembers, UUID>
+interface ProjectMembersRepository: MongoRepository<ProjectMembers, UUID>

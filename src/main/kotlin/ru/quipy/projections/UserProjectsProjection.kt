@@ -17,39 +17,39 @@ import java.util.*
 import javax.annotation.PostConstruct
 
 @Component
-class UserProjectsExistenceCache (
-    private val userProjectsCacheRepository: UserProjectsCacheRepository,
+class UserProjectsProjection (
+    private val userProjectsRepository: UserProjectsRepository,
     private val subscriptionsManager: AggregateSubscriptionsManager,
     private val projectEsService: EventSourcingService<UUID, ProjectAggregate, ProjectAggregateState>
 ){
-    private val logger = LoggerFactory.getLogger(UserProjectsExistenceCache::class.java)
+    private val logger = LoggerFactory.getLogger(UserProjectsProjection::class.java)
 
     @PostConstruct
     fun init() {
-        subscriptionsManager.createSubscriber(ProjectAggregate::class, "projects::user-projects-cache") {
+        subscriptionsManager.createSubscriber(ProjectAggregate::class, "projects::user-projects-projection") {
             `when`(ProjectCreatedEvent::class) { event ->
                 createOrUpdateUserProjects(event.creatorId, event.projectId, event.title)
-                logger.info("Update user projects cache, create project ${event.creatorId}-${event.projectId}")
+                logger.info("Update user projects projection, create project ${event.creatorId}-${event.projectId}")
             }
             `when`(UserAddedEvent::class) { event ->
                 val project = projectEsService.getState(event.projectId)
                 if (project != null) {
                     createOrUpdateUserProjects(event.userId, event.projectId, project.projectTitle)
                 }
-                logger.info("Update user projects cache, add user to project ${event.userId}-${event.projectId}")
+                logger.info("Update user projects projection, add user to project ${event.userId}-${event.projectId}")
             }
         }
     }
     private fun createOrUpdateUserProjects(userId: UUID, projectId: UUID, projectName: String) {
-        var userProjects = userProjectsCacheRepository.findByIdOrNull(userId)
+        var userProjects = userProjectsRepository.findByIdOrNull(userId)
         if (userProjects == null)
             userProjects = UserProjects(userId)
         userProjects.projects[projectId] = Project(projectId, projectName)
-        userProjectsCacheRepository.save(userProjects)
+        userProjectsRepository.save(userProjects)
     }
 }
 
-@Document("user-projects-cache")
+@Document("user-projects-projection")
 data class UserProjects(
     @Id
     var userId: UUID,
@@ -62,4 +62,4 @@ data class Project(
 )
 
 @Repository
-interface UserProjectsCacheRepository: MongoRepository<UserProjects, UUID>
+interface UserProjectsRepository: MongoRepository<UserProjects, UUID>

@@ -17,32 +17,32 @@ import java.util.*
 import javax.annotation.PostConstruct
 
 @Component
-class TaskInfoCache (
-     private val taskInfoCacheRepository: TaskInfoCacheRepository,
-     private val subscriptionsManager: AggregateSubscriptionsManager,
-     private val projectEsService: EventSourcingService<UUID, ProjectAggregate, ProjectAggregateState>,
-     private val userEsService: EventSourcingService<UUID, UserAggregate, UserAggregateState>
+class TaskInfoProjection (
+    private val taskInfoRepository: TaskInfoRepository,
+    private val subscriptionsManager: AggregateSubscriptionsManager,
+    private val projectEsService: EventSourcingService<UUID, ProjectAggregate, ProjectAggregateState>,
+    private val userEsService: EventSourcingService<UUID, UserAggregate, UserAggregateState>
     ){
-        private val logger = LoggerFactory.getLogger(TaskInfoCache::class.java)
+        private val logger = LoggerFactory.getLogger(TaskInfoProjection::class.java)
 
         @PostConstruct
         fun init() {
             subscriptionsManager.createSubscriber(ProjectAggregate::class, "taskInformation::task-information-cache") {
                 `when`(TaskCreatedEvent::class) { event ->
                     val bdTaskInfo = withContext(Dispatchers.IO) {
-                        taskInfoCacheRepository.findById(event.taskId)
+                        taskInfoRepository.findById(event.taskId)
                     }
                     var taskInfo = TaskInfo(event.taskId, event.taskName)
                     if (!bdTaskInfo.isEmpty)
                         taskInfo = bdTaskInfo.get()
                     withContext(Dispatchers.IO) {
-                        taskInfoCacheRepository.save(taskInfo)
+                        taskInfoRepository.save(taskInfo)
                     }
-                    logger.info("Update task information cache, create task ${event.taskId}")
+                    logger.info("Update task information projection, create task ${event.taskId}")
                 }
                 `when`(TagAssignedToTaskEvent::class) { event ->
                     val bdTaskInfo = withContext(Dispatchers.IO) {
-                        taskInfoCacheRepository.findById(event.taskId)
+                        taskInfoRepository.findById(event.taskId)
                     }
                     val project = projectEsService.getState(event.projectId)
                     var taskName = ""
@@ -61,26 +61,26 @@ class TaskInfoCache (
                         }
                     }
                     withContext(Dispatchers.IO) {
-                        taskInfoCacheRepository.save(taskInfo)
+                        taskInfoRepository.save(taskInfo)
                     }
-                    logger.info("Update task information cache, assign tag to task ${event.tagId}-${event.taskId}")
+                    logger.info("Update task information projection, assign tag to task ${event.tagId}-${event.taskId}")
                 }
                 `when`(TaskRenamedEvent::class) { event ->
                     val bdTaskInfo = withContext(Dispatchers.IO) {
-                        taskInfoCacheRepository.findById(event.taskId)
+                        taskInfoRepository.findById(event.taskId)
                     }
                     var taskInfo = TaskInfo(event.taskId, event.taskName)
                     if (!bdTaskInfo.isEmpty)
                         taskInfo = bdTaskInfo.get()
                     taskInfo.name = event.taskName
                     withContext(Dispatchers.IO) {
-                        taskInfoCacheRepository.save(taskInfo)
+                        taskInfoRepository.save(taskInfo)
                     }
-                    logger.info("Update task information cache, task name change ${event.taskId}-${event.taskName}")
+                    logger.info("Update task information projection, task name change ${event.taskId}-${event.taskName}")
                 }
                 `when`(UserAssignedToTaskEvent::class) { event ->
                     val bdTaskInfo = withContext(Dispatchers.IO) {
-                        taskInfoCacheRepository.findById(event.taskId)
+                        taskInfoRepository.findById(event.taskId)
                     }
                     val project = projectEsService.getState(event.projectId)
                     var taskName = ""
@@ -98,15 +98,15 @@ class TaskInfoCache (
                         taskInfo.performers[event.userId] = TaskPerformer(event.userId, user.name)
                     }
                     withContext(Dispatchers.IO) {
-                        taskInfoCacheRepository.save(taskInfo)
+                        taskInfoRepository.save(taskInfo)
                     }
-                    logger.info("Update task information cache, assign user to task ${event.userId}-${event.taskId}")
+                    logger.info("Update task information projection, assign user to task ${event.userId}-${event.taskId}")
                 }
             }
         }
 }
 
-@Document("task-information-cache")
+@Document("task-information-projection")
 data class TaskInfo(
         @Id
         var taskId: UUID,
@@ -127,4 +127,4 @@ data class TaskPerformer(
 )
 
 @Repository
-interface TaskInfoCacheRepository: MongoRepository<TaskInfo, UUID>
+interface TaskInfoRepository: MongoRepository<TaskInfo, UUID>

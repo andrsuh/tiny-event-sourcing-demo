@@ -12,14 +12,14 @@ import java.util.*
 @RequestMapping("/projects")
 class ProjectController(
     val projectEsService: EventSourcingService<UUID, ProjectAggregate, ProjectAggregateState>,
-    val userCacheRepository: UserCacheRepository,
-    val projectMembersCacheRepository: ProjectMembersCacheRepository,
-    val taskInfoRepo: TaskInfoCacheRepository
+    val userRepository: UserRepository,
+    val projectMembersRepository: ProjectMembersRepository,
+    val taskInfoRepo: TaskInfoRepository
 ) {
 
     @PostMapping()
     fun createProject(@RequestParam projectTitle: String, @RequestParam creatorId: UUID) : ProjectAggregateState? {
-        userCacheRepository.findByIdOrNull(creatorId) ?: throw Exception("Invalid сreator id ${creatorId}")
+        userRepository.findByIdOrNull(creatorId) ?: throw Exception("Invalid сreator id ${creatorId}")
         val project = projectEsService.create { it.create(UUID.randomUUID(), projectTitle, creatorId) }
 
         projectEsService.update(project.projectId) {
@@ -36,32 +36,32 @@ class ProjectController(
 
     @GetMapping("/all")
     fun getAllProjects() : List<ProjectMembers> {
-        return projectMembersCacheRepository.findAll()
+        return projectMembersRepository.findAll()
     }
 
     @GetMapping("/{projectId}/members")
     fun getProjectMembers(@PathVariable projectId: UUID) : List<User> {
-        val projectMembers = projectMembersCacheRepository.findByIdOrNull(projectId)
+        val projectMembers = projectMembersRepository.findByIdOrNull(projectId)
             ?: throw Exception("Invalid project id ${projectId}")
-        val users = userCacheRepository.findAll()
+        val users = userRepository.findAll()
         users.removeAll { x -> !projectMembers.users.contains(x.userId)}
         return users
     }
 
     @GetMapping("/{projectId}/users-to-add")
     fun getAllUsersToAdd(@PathVariable projectId: UUID) : List<User> {
-        val projectMembers = projectMembersCacheRepository.findByIdOrNull(projectId)
+        val projectMembers = projectMembersRepository.findByIdOrNull(projectId)
             ?: throw Exception("Invalid project id ${projectId}")
-        val users = userCacheRepository.findAll()
+        val users = userRepository.findAll()
         users.removeAll { x -> projectMembers.users.contains(x.userId)}
         return users
     }
 
     @GetMapping("/{projectId}/users-to-add/{input}")
     fun findUsersToAdd(@PathVariable projectId: UUID, @PathVariable input: String) : List<User> {
-        val projectMembers = projectMembersCacheRepository.findByIdOrNull(projectId)
+        val projectMembers = projectMembersRepository.findByIdOrNull(projectId)
             ?: throw Exception("Invalid project id ${projectId}")
-        val users = userCacheRepository.findAll()
+        val users = userRepository.findAll()
         users.removeAll { x -> projectMembers.users.contains(x.userId) || (!x.nickname.contains(input) && !x.name.contains(input))}
         return users
     }
@@ -108,7 +108,7 @@ class ProjectController(
 
     @PostMapping("/{projectId}/user/{userId}")
     fun addUser(@PathVariable projectId: UUID, @PathVariable userId: UUID) : UserAddedEvent {
-        userCacheRepository.findByIdOrNull(userId) ?: throw Exception("Invalid user id ${userId}")
+        userRepository.findByIdOrNull(userId) ?: throw Exception("Invalid user id ${userId}")
         return projectEsService.update(projectId) {
             it.addUser(userId)
         }
