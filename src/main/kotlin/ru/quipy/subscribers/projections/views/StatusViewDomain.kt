@@ -12,7 +12,7 @@ class StatusViewDomain {
         override val id: StatusId,
         val name: String,
         val colorCode: String,
-        val tasks: MutableSet<UUID> = mutableSetOf(),
+        val taskIds: MutableSet<UUID> = mutableSetOf(),
     ) : Unique<StatusId>
 
     data class StatusId(

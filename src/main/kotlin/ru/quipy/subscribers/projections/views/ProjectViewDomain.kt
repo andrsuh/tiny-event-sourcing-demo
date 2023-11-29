@@ -11,8 +11,8 @@ class ProjectViewDomain {
         override val id: UUID,
         val name: String,
         val creatorId: UUID,
-        val participants: MutableSet<UUID> = mutableSetOf(creatorId),
-        val tasks: MutableSet<UUID> = mutableSetOf(),
-        val statuses: MutableSet<UUID> = mutableSetOf(ProjectAggregateState.DEFAULT_STATUS.id)
+        val participantIds: MutableSet<UUID> = mutableSetOf(creatorId),
+        val taskIds: MutableSet<UUID> = mutableSetOf(),
+        val statusIds: MutableSet<UUID> = mutableSetOf(ProjectAggregateState.DEFAULT_STATUS.id)
     ) : Unique<UUID>
 }

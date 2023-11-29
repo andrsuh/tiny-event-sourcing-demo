@@ -62,7 +62,7 @@ class LoggingProjectEventsSubscriber {
     }
 
     @SubscribeEvent
-    fun taskStatusChangedSubscriber(event: TaskChangedEvent) {
+    fun taskChangedSubscriber(event: TaskChangedEvent) {
         if (event.newTaskName != null) {
             logger.info(
                 "Task with id {} in project with id {} renamed to {}",
