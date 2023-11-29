@@ -10,6 +10,5 @@ class UserViewDomain {
         override val id: UUID,
         var name: String,
         val nickname: String,
-        val projectIds: MutableSet<UUID>
     ) : Unique<UUID>
 }
