@@ -8,16 +8,16 @@ import java.util.UUID
 class UserEntity {
 
     @Id
-    var id: String = UUID.randomUUID().toString()
-    var username: String? = null
-    var name: String? = null
-    var password: String? = null
+    var userId: UUID = UUID.randomUUID()
+    lateinit var username: String
+    lateinit var realName: String
+    lateinit var password: String
 
     constructor()
 
-    constructor(username: String?, name: String?, password: String?) {
-        this.username = username!!
-        this.name = name!!
-        this.password = password!!
+    constructor(username: String, name: String, password: String) {
+        this.username = username
+        this.realName = name
+        this.password = password
     }
 }

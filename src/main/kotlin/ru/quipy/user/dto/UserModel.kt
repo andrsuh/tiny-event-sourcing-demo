@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import java.util.*
 
 data class UserModel(
-        val id: String,
+        val userId: UUID,
         val username: String,
-        val name: String,
+        val realName: String,
         @JsonIgnore
         val password: String) {
 }
