@@ -7,7 +7,7 @@ import ru.quipy.user.dto.UserRegister
 
 @RestController
 @RequestMapping("/users")
-class UserController(private val userService: UserServiceImpl) {
+class UserController(private val userService: UserService) {
 
     @PostMapping
     fun register(@RequestBody request: UserRegister) = userService.createOne(request)
