@@ -15,6 +15,7 @@ import ru.quipy.events.projectManagment.project.TaskCreatedEvent
 import ru.quipy.repositories.ProjectRepository
 import ru.quipy.repositories.StatusRepository
 import ru.quipy.repositories.TaskRepository
+import ru.quipy.states.projectManagment.ProjectAggregateState
 import ru.quipy.streams.annotation.AggregateSubscriber
 import ru.quipy.streams.annotation.SubscribeEvent
 import ru.quipy.subscribers.projections.views.ProjectViewDomain
@@ -37,36 +38,40 @@ class ProjectionProjectEventsSubscriber(
 
     @SubscribeEvent
     fun projectCreatedSubscriber(event: ProjectCreatedEvent) {
+        val statusView = StatusViewDomain.Status(StatusViewDomain.StatusId(event.projectId, ProjectAggregateState.DEFAULT_STATUS.id),
+            ProjectAggregateState.DEFAULT_STATUS.name, ProjectAggregateState.DEFAULT_STATUS.colorCode)
+        statusRepository.insert(statusView)
+
         val projectView = ProjectViewDomain.Project(event.projectId, event.name, event.creatorId)
         projectRepository.insert(projectView)
 
         logger.info(
-            "Project {} created with id {} by user with id {}",
-            event.projectName,
+            "Project VIEW created with id {}, name {} by user with id {}",
             event.projectId,
+            event.projectName,
             event.creatorId,
         )
     }
 
     @SubscribeEvent
     fun statusAddedSubscriber(event: StatusAddedEvent) {
-//        val statusView = StatusViewDomain.Status(event.statusId, event.statusName, event.colorCode)
-//        statusRepository.insert(statusView)
+        val statusView = StatusViewDomain.Status(StatusViewDomain.StatusId(event.projectId, event.statusId), event.statusName, event.colorCode)
+        statusRepository.insert(statusView)
 
         logger.info(
-            "Status {} added with id {} to project with id {}",
-            event.statusName,
+            "Status VIEW added with id {}, name {} to project with id {}",
             event.statusId,
+            event.statusName,
             event.projectId,
         )
     }
 
     @SubscribeEvent
     fun statusRemovedSubscriber(event: StatusRemovedEvent) {
-        statusRepository.deleteById(event.statusId)
+        statusRepository.deleteById(StatusViewDomain.StatusId(event.projectId, event.statusId))
 
         logger.info(
-            "Status with id {} removed from project with id {}",
+            "Status VIEW with id {} removed from project with id {}",
             event.statusId,
             event.projectId,
         )
@@ -74,40 +79,55 @@ class ProjectionProjectEventsSubscriber(
 
     @SubscribeEvent
     fun taskCreatedSubscriber(event: TaskCreatedEvent) {
-//        val taskView = TaskViewDomain.Task(event.taskId, event.taskName, event.projectId)
+        val taskView = TaskViewDomain.Task(TaskViewDomain.TaskId(event.projectId, event.taskId), event.taskName, ProjectAggregateState.DEFAULT_STATUS.id)
+        taskRepository.insert(taskView)
 
         logger.info(
-            "Task {} added with id {} to project with id {}",
-            event.taskName,
+            "Task VIEW added with id {}, name {} to project with id {}",
             event.taskId,
+            event.taskName,
             event.projectId,
         )
     }
 
     @SubscribeEvent
-    fun taskStatusChangedSubscriber(event: TaskChangedEvent) {
+    fun taskChangedSubscriber(event: TaskChangedEvent) {
+        val taskView = taskRepository.findById(TaskViewDomain.TaskId(event.projectId, event.taskId)).get()
+        taskRepository.deleteById(TaskViewDomain.TaskId(event.projectId, event.taskId))
+
         if (event.newTaskName != null) {
+            taskView.name = event.newTaskName
+
             logger.info(
-                "Task with id {} in project with id {} renamed to {}",
+                "Task VIEW with id {} in project with id {} renamed to {}",
                 event.taskId,
                 event.projectId,
                 event.newTaskName,
             )
         }
         if (event.newStatusId != null) {
+            taskView.statusId = event.newStatusId
+
             logger.info(
-                "Task with id {} in project with id {} changed to status with id {}",
+                "Task VIEW with id {} in project with id {} changed to status with id {}",
                 event.taskId,
                 event.projectId,
                 event.newStatusId,
             )
         }
+
+        taskRepository.insert(taskView)
     }
 
     @SubscribeEvent
     fun participantAddedSubscriber(event: ParticipantAddedEvent) {
+        val projectView = projectRepository.findById(event.projectId).get()
+        projectRepository.deleteById(event.projectId)
+        projectView.participantIds.add(event.userId)
+        projectRepository.insert(projectView)
+
         logger.info(
-            "User with id {} added to project with id {}",
+            "User with id {} added to project VIEW with id {}",
             event.userId,
             event.projectId,
         )
@@ -115,8 +135,13 @@ class ProjectionProjectEventsSubscriber(
 
     @SubscribeEvent
     fun assigneeAddedSubscriber(event: AssigneeAddedEvent) {
+        val taskView = taskRepository.findById(TaskViewDomain.TaskId(event.projectId, event.taskId)).get()
+        taskRepository.deleteById(TaskViewDomain.TaskId(event.projectId, event.taskId))
+        taskView.assigneeIds.add(event.userId)
+        taskRepository.insert(taskView)
+
         logger.info(
-            "User with id {} assigned to task with id {} in project with id {}",
+            "User with id {} assigned to task VIEW with id {} in project with id {}",
             event.userId,
             event.taskId,
             event.projectId,
