@@ -1,5 +1,6 @@
 package ru.quipy.subscribers.projections.views
 
+import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
 import ru.quipy.domain.Unique
 import java.util.UUID
@@ -7,9 +8,15 @@ import java.util.UUID
 class StatusViewDomain {
     @Document("status-view")
     data class Status(
-        override val id: UUID,
+        @Id
+        override val id: StatusId,
         val name: String,
         val colorCode: String,
-        val tasks: MutableSet<UUID>,
-    ) : Unique<UUID>
+        val tasks: MutableSet<UUID> = mutableSetOf(),
+    ) : Unique<StatusId>
+
+    data class StatusId(
+        val projectId: UUID,
+        val id: UUID
+    )
 }

@@ -12,7 +12,9 @@ import ru.quipy.states.userManagment.UserAggregateState
 import ru.quipy.streams.AggregateEventStreamManager
 import ru.quipy.streams.AggregateSubscriptionsManager
 import ru.quipy.subscribers.logging.projectManagment.LoggingProjectEventsSubscriber
+import ru.quipy.subscribers.projections.handlers.ProjectionProjectEventsSubscriber
 import ru.quipy.subscribers.logging.userManagment.LoggingUserEventsSubscriber
+import ru.quipy.subscribers.projections.handlers.ProjectionUserEventsSubscriber
 import java.util.UUID
 import javax.annotation.PostConstruct
 
@@ -45,10 +47,16 @@ class EventSourcingLibConfiguration {
     private lateinit var subscriptionsManager: AggregateSubscriptionsManager
 
     @Autowired
-    private lateinit var projectEventSubscriber: LoggingProjectEventsSubscriber
+    private lateinit var loggingProjectEventsSubscriber: LoggingProjectEventsSubscriber
 
     @Autowired
-    private lateinit var userEventSubscriber: LoggingUserEventsSubscriber
+    private lateinit var loggingUserEventsSubscriber: LoggingUserEventsSubscriber
+
+    @Autowired
+    private lateinit var projectionProjectEventsSubscriber: ProjectionProjectEventsSubscriber
+
+    @Autowired
+    private lateinit var projectionUserEventsSubscriber: ProjectionUserEventsSubscriber
 
     @Autowired
     private lateinit var eventSourcingServiceFactory: EventSourcingServiceFactory
@@ -70,9 +78,13 @@ class EventSourcingLibConfiguration {
     @PostConstruct
     fun init() {
         // Demonstrates how to explicitly subscribe the instance of annotation based subscriber to some stream. See the [AggregateSubscriptionsManager]
-        subscriptionsManager.subscribe<ProjectAggregate>(projectEventSubscriber)
+        subscriptionsManager.subscribe<ProjectAggregate>(loggingProjectEventsSubscriber)
 
-        subscriptionsManager.subscribe<UserAggregate>(userEventSubscriber)
+        subscriptionsManager.subscribe<UserAggregate>(loggingUserEventsSubscriber)
+
+        subscriptionsManager.subscribe<ProjectAggregate>(projectionProjectEventsSubscriber)
+
+        subscriptionsManager.subscribe<UserAggregate>(projectionUserEventsSubscriber)
 
         // Demonstrates how you can set up the listeners to the event stream
         eventStreamManager.maintenance {
