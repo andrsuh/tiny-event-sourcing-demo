@@ -1,4 +1,4 @@
-package ru.quipy.subscribers.userManagment
+package ru.quipy.subscribers.logging.userManagment
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -12,9 +12,9 @@ import ru.quipy.streams.annotation.SubscribeEvent
 @AggregateSubscriber(
     aggregateClass = UserAggregate::class, subscriberName = "user-event-subscriber"
 )
-class AnnotationBasedUserEventsSubscriber {
+class LoggingUserEventsSubscriber {
 
-    val logger: Logger = LoggerFactory.getLogger(AnnotationBasedUserEventsSubscriber::class.java)
+    val logger: Logger = LoggerFactory.getLogger(LoggingUserEventsSubscriber::class.java)
 
     @SubscribeEvent
     fun taskCreatedSubscriber(event: UserCreatedEvent) {

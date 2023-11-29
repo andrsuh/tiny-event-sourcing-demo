@@ -11,8 +11,8 @@ import ru.quipy.states.projectManagment.ProjectAggregateState
 import ru.quipy.states.userManagment.UserAggregateState
 import ru.quipy.streams.AggregateEventStreamManager
 import ru.quipy.streams.AggregateSubscriptionsManager
-import ru.quipy.subscribers.projectManagment.AnnotationBasedProjectEventsSubscriber
-import ru.quipy.subscribers.userManagment.AnnotationBasedUserEventsSubscriber
+import ru.quipy.subscribers.logging.projectManagment.LoggingProjectEventsSubscriber
+import ru.quipy.subscribers.logging.userManagment.LoggingUserEventsSubscriber
 import java.util.UUID
 import javax.annotation.PostConstruct
 
@@ -45,10 +45,10 @@ class EventSourcingLibConfiguration {
     private lateinit var subscriptionsManager: AggregateSubscriptionsManager
 
     @Autowired
-    private lateinit var projectEventSubscriber: AnnotationBasedProjectEventsSubscriber
+    private lateinit var projectEventSubscriber: LoggingProjectEventsSubscriber
 
     @Autowired
-    private lateinit var userEventSubscriber: AnnotationBasedUserEventsSubscriber
+    private lateinit var userEventSubscriber: LoggingUserEventsSubscriber
 
     @Autowired
     private lateinit var eventSourcingServiceFactory: EventSourcingServiceFactory

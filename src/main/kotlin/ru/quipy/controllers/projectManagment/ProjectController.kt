@@ -1,7 +1,6 @@
 package ru.quipy.controllers.projectManagment
 
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -44,7 +43,7 @@ class ProjectController(
             ?.toDto()
     }
 
-    @PatchMapping("/{projectId}/participants/")
+    @PostMapping("/{projectId}/participants/")
     fun assigneeToTask(
         @PathVariable projectId: UUID,
         @RequestBody participantDto: UserDto

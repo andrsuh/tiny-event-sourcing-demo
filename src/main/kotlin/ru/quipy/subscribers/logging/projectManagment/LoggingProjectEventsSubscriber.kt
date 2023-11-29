@@ -1,4 +1,4 @@
-package ru.quipy.subscribers.projectManagment
+package ru.quipy.subscribers.logging.projectManagment
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -18,8 +18,8 @@ import ru.quipy.streams.annotation.SubscribeEvent
 @AggregateSubscriber(
     aggregateClass = ProjectAggregate::class, subscriberName = "project-event-subscriber"
 )
-class AnnotationBasedProjectEventsSubscriber {
-    val logger: Logger = LoggerFactory.getLogger(AnnotationBasedProjectEventsSubscriber::class.java)
+class LoggingProjectEventsSubscriber {
+    val logger: Logger = LoggerFactory.getLogger(LoggingProjectEventsSubscriber::class.java)
 
     @SubscribeEvent
     fun projectCreatedSubscriber(event: ProjectCreatedEvent) {

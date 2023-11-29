@@ -45,7 +45,7 @@ class TaskController(
             ?.getTaskDto(taskId)
     }
 
-    @PatchMapping("/{projectId}/tasks/{taskId}/assignees")
+    @PostMapping("/{projectId}/tasks/{taskId}/assignees")
     fun assigneeToTask(
         @PathVariable projectId: UUID,
         @PathVariable taskId: UUID,
