@@ -1,11 +1,8 @@
 package ru.quipy.user
 
-import com.google.common.eventbus.EventBus
-import javassist.NotFoundException
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
-import org.springframework.web.client.HttpClientErrorException.Forbidden
 import org.springframework.web.server.ResponseStatusException
 import ru.quipy.core.EventSourcingService
 import ru.quipy.user.dto.UserLogin
@@ -70,7 +67,7 @@ class UserServiceImpl(
     fun UserRegister.toEntity(): UserEntity =
             UserEntity(
                     username = this.username,
-                    name = this.realName,
+                    realName = this.realName,
                     password = BCryptPasswordEncoder().encode(this.password)
             )
 
@@ -81,7 +78,7 @@ class UserServiceImpl(
                 realName = this.realName,
                 password = this.password
         )
-    }.getOrElse { exception -> throw ResponseStatusException(HttpStatus.BAD_REQUEST, "some fields are missing") }
+    }.getOrElse { _ -> throw ResponseStatusException(HttpStatus.BAD_REQUEST, "some fields are missing") }
 
     fun UserCreatedEvent.toModel(): UserModel = kotlin.runCatching {
         UserModel(
@@ -90,7 +87,7 @@ class UserServiceImpl(
             realName = this.realName,
             password = this.password
         )
-    }.getOrElse { exception -> throw ResponseStatusException(HttpStatus.BAD_REQUEST, "some fields are missing") }
+    }.getOrElse { _ -> throw ResponseStatusException(HttpStatus.BAD_REQUEST, "some fields are missing") }
 
-    fun comparePassword(encodedPassword: String, newPassword: String): Boolean = BCryptPasswordEncoder().matches(newPassword, encodedPassword)
+    private fun comparePassword(encodedPassword: String, newPassword: String): Boolean = BCryptPasswordEncoder().matches(newPassword, encodedPassword)
 }
