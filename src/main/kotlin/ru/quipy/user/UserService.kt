@@ -29,7 +29,7 @@ interface UserService {
 @Service
 class UserServiceImpl(
         private val userRepository: UserRepository,
-        private val esService: EventSourcingService<UUID, UserAggregate, UserAggregateState>
+        private val userEsService: EventSourcingService<UUID, UserAggregate, UserAggregateState>
 ): UserService {
 
     override fun createOne(data: UserRegister): UserModel {
@@ -42,7 +42,7 @@ class UserServiceImpl(
         if (foundUser != null) throw ResponseStatusException(HttpStatus.CONFLICT, "user already exists")
 
         val userEntity = userRepository.save(data.toEntity())
-        return esService.create {
+        return userEsService.create {
             it.create(
                 userEntity.userId,
                 userEntity.username,
@@ -54,7 +54,7 @@ class UserServiceImpl(
     override fun getOne(username: String): UserModel {
         val userEntity: UserEntity =
                 userRepository.findByUsername(username) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "user not found")
-        val lastUser = esService.getState(userEntity.userId)
+        val lastUser = userEsService.getState(userEntity.userId)
         return lastUser?.toModel() ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "user is not present in es queue")
     }
 

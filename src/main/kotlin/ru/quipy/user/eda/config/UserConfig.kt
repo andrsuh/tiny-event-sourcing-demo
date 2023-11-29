@@ -30,6 +30,9 @@ class UserConfig {
     @Autowired
     private lateinit var eventSourcingServiceFactory: EventSourcingServiceFactory
 
+    @Bean
+    fun userEsService() = eventSourcingServiceFactory.create<UUID, UserAggregate, UserAggregateState>()
+
     @PostConstruct
     fun init() {
         subscriptionsManager.subscribe<UserAggregate>(userEventSubscriber)
