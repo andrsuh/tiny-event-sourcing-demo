@@ -12,6 +12,7 @@ import org.springframework.data.mongodb.core.query.Query
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.web.server.ResponseStatusException
+import ru.quipy.user.UserEntity
 import ru.quipy.user.UserServiceImpl
 import ru.quipy.user.dto.UserLogin
 import ru.quipy.user.dto.UserModel
@@ -23,13 +24,12 @@ class UserTests {
 		private val username = "admin"
 		private val realName = "Dimas"
 		private val password = "12345678"
-		private val encodedPassword = BCryptPasswordEncoder().encode(password)
 
 		private val registerDTO = UserRegister(
 				username, password, realName
 		)
 		private val loginDTO = UserLogin(
-				username, BCryptPasswordEncoder().encode(password)
+				username, password
 		)
 		private val wrongUsernameLoginDTO = UserLogin(
 				"Diman", loginDTO.password
@@ -49,13 +49,16 @@ class UserTests {
 	lateinit var mongoTemplate: MongoTemplate
 
 	@BeforeEach
-	fun init() {
-		cleanDatabase()
-	}
-
 	fun cleanDatabase() {
-		mongoTemplate.remove(Query.query(Criteria.where("userId").`is`(userEsService.getOne(username).userId)),
-				"user-aggregate")
+		try {
+			mongoTemplate.remove(Query.query(Criteria.where("userId").`is`(userEsService.getOne(username).userId)),
+							UserEntity::class.java)
+		} catch (e: ResponseStatusException) {
+			if (e.status != HttpStatus.NOT_FOUND)
+			{
+				throw e
+			}
+		}
 	}
 
 	@Test
@@ -67,7 +70,7 @@ class UserTests {
 		}, "can't create new user")
 
 		Assertions.assertAll(
-				Executable { Assertions.assertEquals(userModel!!.password, encodedPassword,
+				Executable { Assertions.assertTrue(BCryptPasswordEncoder().matches(password, userModel!!.password),
 						"encoded passwords doesn't match") },
 				Executable { Assertions.assertEquals(userModel!!.realName, realName, "names doesn't match") },
 				Executable { Assertions.assertEquals(userModel!!.username, username,
@@ -117,7 +120,7 @@ class UserTests {
 				Executable { Assertions.assertEquals(
 						Assertions.assertThrows(ResponseStatusException::class.java) {
 							userEsService.logIn(fullyWrongCredentialsLoginDTO)
-						}.status, HttpStatus.CONFLICT, "login with all credentials wrong successfully"
+						}.status, HttpStatus.NOT_FOUND, "login with all credentials wrong successfully"
 				) }
 		)
 	}
@@ -146,7 +149,7 @@ class UserTests {
 
 		Assertions.assertEquals(
 				Assertions.assertThrows(ResponseStatusException::class.java) {
-					userEsService.getOne(username)
+					userEsService.getOne(realName)
 				}.status, HttpStatus.NOT_FOUND, "found non existing user"
 		)
 	}

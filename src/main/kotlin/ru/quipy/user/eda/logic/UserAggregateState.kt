@@ -13,7 +13,7 @@ class UserAggregateState: AggregateState<UUID, UserAggregate> {
     private lateinit var username: String
     private lateinit var realName: String
     private lateinit var password: String
-    private var createdAt: Long = System.currentTimeMillis()
+    var createdAt: Long = System.currentTimeMillis()
 
     override fun getId() = userId
 
