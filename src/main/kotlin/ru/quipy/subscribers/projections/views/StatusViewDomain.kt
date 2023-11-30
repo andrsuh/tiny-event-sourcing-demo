@@ -17,6 +17,6 @@ class StatusViewDomain {
 
     data class StatusId(
         val projectId: UUID,
-        val id: UUID
+        val innerId: UUID
     )
 }

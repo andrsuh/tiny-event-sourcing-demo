@@ -7,6 +7,10 @@ import org.springframework.context.annotation.Configuration
 import ru.quipy.aggregates.projectManagment.ProjectAggregate
 import ru.quipy.aggregates.userManagment.UserAggregate
 import ru.quipy.core.EventSourcingServiceFactory
+import ru.quipy.services.projectManaging.ProjectQueryHandlingService
+import ru.quipy.services.projectManaging.StatusQueryHandlingService
+import ru.quipy.services.projectManaging.TaskQueryHandlingService
+import ru.quipy.services.userManaging.UserQueryHandlingService
 import ru.quipy.states.projectManagment.ProjectAggregateState
 import ru.quipy.states.userManagment.UserAggregateState
 import ru.quipy.streams.AggregateEventStreamManager
@@ -63,6 +67,18 @@ class EventSourcingLibConfiguration {
 
     @Autowired
     private lateinit var eventStreamManager: AggregateEventStreamManager
+
+    @Autowired
+    private lateinit var projectQueryHandlingService: ProjectQueryHandlingService
+
+    @Autowired
+    private lateinit var statusQueryHandlingService: StatusQueryHandlingService
+
+    @Autowired
+    private lateinit var taskQueryHandlingService: TaskQueryHandlingService
+
+    @Autowired
+    private lateinit var userQueryHandlingService: UserQueryHandlingService
 
     /**
      * Use this object to create/update the aggregate

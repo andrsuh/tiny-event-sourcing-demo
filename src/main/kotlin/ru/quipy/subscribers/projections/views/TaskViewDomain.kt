@@ -17,6 +17,6 @@ class TaskViewDomain {
 
     data class TaskId(
         val projectId: UUID,
-        val id: UUID
+        val innerId: UUID
     )
 }

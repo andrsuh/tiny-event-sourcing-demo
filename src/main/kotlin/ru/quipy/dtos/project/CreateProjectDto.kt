@@ -1,4 +1,4 @@
-package ru.quipy.dtos.projectManagment.project
+package ru.quipy.dtos.project
 
 import java.util.UUID
 

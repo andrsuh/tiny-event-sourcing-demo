@@ -1,4 +1,4 @@
-package ru.quipy.dtos.userManagment.user
+package ru.quipy.dtos.user
 
 data class CreateUserDto(
     val nickName: String,

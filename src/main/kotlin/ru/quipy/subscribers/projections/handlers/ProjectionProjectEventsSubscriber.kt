@@ -42,7 +42,7 @@ class ProjectionProjectEventsSubscriber(
             ProjectAggregateState.DEFAULT_STATUS.name, ProjectAggregateState.DEFAULT_STATUS.colorCode)
         statusRepository.insert(statusView)
 
-        val projectView = ProjectViewDomain.Project(event.projectId, event.name, event.creatorId)
+        val projectView = ProjectViewDomain.Project(event.projectId, event.projectName, event.creatorId)
         projectRepository.insert(projectView)
 
         logger.info(

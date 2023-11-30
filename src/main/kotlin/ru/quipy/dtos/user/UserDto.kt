@@ -1,6 +1,6 @@
-package ru.quipy.dtos.userManagment.user
+package ru.quipy.dtos.user
 
-import ru.quipy.states.userManagment.UserAggregateState
+import ru.quipy.subscribers.projections.views.UserViewDomain
 import java.util.UUID
 
 data class UserDto(
@@ -9,9 +9,9 @@ data class UserDto(
     val name: String
 )
 
-fun UserAggregateState.toDto(): UserDto {
+fun UserViewDomain.User.toDto(): UserDto {
     return UserDto(
-        this.getId(),
+        this.id,
         this.nickname,
         this.name
     )
