@@ -46,7 +46,8 @@ class ProjectController(
     }
 
     @GetMapping("/")
-    fun getProject(@RequestParam creatorId: UUID?, @RequestParam participantId: UUID): List<ProjectInfoDto> {
+    fun getProject(@RequestParam(required = false) creatorId: UUID?,
+                   @RequestParam(required = false) participantId: UUID?): List<ProjectInfoDto> {
         return projectQueryHandlingService
             .findProjectsByFilters(creatorId, participantId)
     }
