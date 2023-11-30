@@ -12,21 +12,23 @@ import ru.quipy.commands.projectManagment.project.addTask
 import ru.quipy.commands.projectManagment.project.assignToTask
 import ru.quipy.commands.projectManagment.project.changeTask
 import ru.quipy.core.EventSourcingService
-import ru.quipy.dtos.projectManagment.task.CreateTaskDto
-import ru.quipy.dtos.projectManagment.task.TaskDto
-import ru.quipy.dtos.projectManagment.task.UpdateTaskDto
-import ru.quipy.dtos.projectManagment.task.getTaskDto
-import ru.quipy.dtos.projectManagment.user.UserDto
+import ru.quipy.dtos.task.CreateTaskDto
+import ru.quipy.dtos.task.TaskDto
+import ru.quipy.dtos.task.TaskInfoDto
+import ru.quipy.dtos.task.UpdateTaskDto
+import ru.quipy.dtos.user.AssigneeDto
 import ru.quipy.events.projectManagment.project.AssigneeAddedEvent
 import ru.quipy.events.projectManagment.project.TaskChangedEvent
 import ru.quipy.events.projectManagment.project.TaskCreatedEvent
+import ru.quipy.services.projectManaging.TaskQueryHandlingService
 import ru.quipy.states.projectManagment.ProjectAggregateState
 import java.util.UUID
 
 @RestController
 @RequestMapping("/projects")
 class TaskController(
-    val projectEventSourcingService: EventSourcingService<UUID, ProjectAggregate, ProjectAggregateState>
+    val projectEventSourcingService: EventSourcingService<UUID, ProjectAggregate, ProjectAggregateState>,
+    val taskQueryHandlingService: TaskQueryHandlingService,
 ) {
     @PostMapping("/{projectId}/tasks/")
     fun addTask(@PathVariable projectId: UUID, @RequestBody createDto: CreateTaskDto): TaskCreatedEvent {
@@ -40,16 +42,21 @@ class TaskController(
 
     @GetMapping("/{projectId}/tasks/{taskId}")
     fun getTask(@PathVariable projectId: UUID, @PathVariable taskId: UUID): TaskDto? {
-        return projectEventSourcingService
-            .getState(projectId)
-            ?.getTaskDto(taskId)
+        return taskQueryHandlingService
+            .findTaskById(projectId, taskId)
     }
 
-    @PatchMapping("/{projectId}/tasks/{taskId}/assignees")
+    @GetMapping("/{projectId}/tasks/")
+    fun getTasksByProjectId(@PathVariable projectId: UUID): List<TaskInfoDto>? {
+        return taskQueryHandlingService
+            .findTasksByProjectId(projectId)
+    }
+
+    @PostMapping("/{projectId}/tasks/{taskId}/assignees")
     fun assigneeToTask(
         @PathVariable projectId: UUID,
         @PathVariable taskId: UUID,
-        @RequestBody assigneeDto: UserDto
+        @RequestBody assigneeDto: AssigneeDto
     ): AssigneeAddedEvent {
         return projectEventSourcingService.update(projectId) {
             it.assignToTask(

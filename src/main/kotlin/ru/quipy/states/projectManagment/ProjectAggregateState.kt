@@ -115,7 +115,7 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
 
 
     companion object {
-        private val DEFAULT_STATUS : Status = Status(
+        val DEFAULT_STATUS : Status = Status(
             UUID.fromString("00000000-0000-0000-0000-000000000000"),
             "DefaultStatus",
             "#000000"
