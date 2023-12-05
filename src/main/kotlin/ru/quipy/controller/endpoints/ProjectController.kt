@@ -39,9 +39,4 @@ class ProjectController(
             it.addMember(userId, callerId)
         }
     }
-
-    @GetMapping("/{projectId}")
-    fun getProject(@PathVariable projectId: UUID) : ProjectAggregateState? {
-        return projectEsService.getState(projectId)
-    }
 }
