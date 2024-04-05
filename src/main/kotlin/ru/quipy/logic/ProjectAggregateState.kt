@@ -57,13 +57,3 @@ data class StatusEntity(
     val title: String,
     val color: String
 )
-
-///**
-// * Demonstrates that the transition functions might be representer by "extension" functions, not only class members functions
-// */
-//@StateTransitionFunc
-//fun ProjectAggregateState.tagAssignedApply(event: TagAssignedToTaskEvent) {
-//    tasks[event.taskId]?.tagsAssigned?.add(event.tagId)
-//        ?: throw IllegalArgumentException("No such task: ${event.taskId}")
-//    updatedAt = createdAt
-//}

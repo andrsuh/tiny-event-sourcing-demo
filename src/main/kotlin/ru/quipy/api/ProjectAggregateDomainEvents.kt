@@ -6,12 +6,11 @@ import java.util.*
 
 const val PROJECT_CREATED_EVENT = "PROJECT_CREATED_EVENT"
 const val PARTICIPANT_ADDED_EVENT = "PARTICIPANT_ADDED_EVENT"
-const val EDIT_PROJECT_TITLE_EVENT = "EDIT_PROJECT_TITLE_EVENT"
+const val PROJECT_TITLE_EDITED_EVENT = "PROJECT_TITLE_EDITE_EVENT"
 const val STATUS_CREATED_EVENT = "STATUS_CREATED_EVENT"
 const val STATUS_DELETED_EVENT = "STATUS_DELETED_EVENT"
 
 
-// API
 @DomainEvent(name = PROJECT_CREATED_EVENT)
 class ProjectCreatedEvent(
     val projectId: UUID,
@@ -33,13 +32,13 @@ class ParticipantAddedEvent(
     createdAt = createdAt
 )
 
-@DomainEvent(name = EDIT_PROJECT_TITLE_EVENT)
+@DomainEvent(name = PROJECT_TITLE_EDITED_EVENT)
 class EditProjectTitleEvent(
     val projectId: UUID,
     val title: String,
     createdAt: Long = System.currentTimeMillis()
 ) : Event<ProjectAggregate>(
-    name = EDIT_PROJECT_TITLE_EVENT,
+    name = PROJECT_TITLE_EDITED_EVENT,
     createdAt = createdAt
 )
 
