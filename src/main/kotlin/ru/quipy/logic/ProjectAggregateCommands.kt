@@ -1,42 +1,60 @@
 package ru.quipy.logic
 
-import ru.quipy.api.ProjectCreatedEvent
-import ru.quipy.api.TagAssignedToTaskEvent
-import ru.quipy.api.TagCreatedEvent
-import ru.quipy.api.TaskCreatedEvent
+import ru.quipy.api.*
+
 import java.util.*
 
 
 // Commands : takes something -> returns event
 // Here the commands are represented by extension functions, but also can be the class member functions
 
-fun ProjectAggregateState.create(id: UUID, title: String, creatorId: String): ProjectCreatedEvent {
+fun ProjectAggregateState.create(title: String, creatorId: String): ProjectCreatedEvent {
     return ProjectCreatedEvent(
-        projectId = id,
+        projectId = UUID.randomUUID(),
         title = title,
         creatorId = creatorId,
     )
 }
 
-fun ProjectAggregateState.addTask(name: String): TaskCreatedEvent {
-    return TaskCreatedEvent(projectId = this.getId(), taskId = UUID.randomUUID(), taskName = name)
+fun ProjectAggregateState.addParticipant(participantId: UUID): ParticipantAddedEvent {
+    if (participantIds.contains(participantId)) {
+        throw IllegalArgumentException("Participant with id=$participantId is already in the project")
+    }
+    return ParticipantAddedEvent(
+        projectId = getId(),
+        participantId = participantId,
+    )
 }
 
-fun ProjectAggregateState.createTag(name: String): TagCreatedEvent {
-    if (projectTags.values.any { it.name == name }) {
-        throw IllegalArgumentException("Tag already exists: $name")
+fun ProjectAggregateState.updateTitle(updatedTitle: String): ProjectTitleUpdated {
+    if (title == updatedTitle) {
+        throw IllegalArgumentException("New title is not different")
     }
-    return TagCreatedEvent(projectId = this.getId(), tagId = UUID.randomUUID(), tagName = name)
+    return ProjectTitleUpdated(
+        projectId = getId(),
+        updatedTitle = updatedTitle,
+    )
 }
 
-fun ProjectAggregateState.assignTagToTask(tagId: UUID, taskId: UUID): TagAssignedToTaskEvent {
-    if (!projectTags.containsKey(tagId)) {
-        throw IllegalArgumentException("Tag doesn't exists: $tagId")
+fun ProjectAggregateState.createStatus(title: String, color: String, numberOfTaskInStatus: Int): StatusCreatedEvent {
+    if (projectStatuses.values.any { it.title == title }) {
+        throw IllegalArgumentException("Status already exists: $title")
     }
+    return StatusCreatedEvent(
+        projectId = getId(),
+        statusId = UUID.randomUUID(),
+        title = title,
+        color = color,
+        numberOfTaskInStatus = numberOfTaskInStatus,
+    )
+}
 
-    if (!tasks.containsKey(taskId)) {
-        throw IllegalArgumentException("Task doesn't exists: $taskId")
+fun ProjectAggregateState.deleteStatus(statusId: UUID): StatusDeletedEvent {
+    if (projectStatuses.keys.none { it == statusId }) {
+        throw IllegalArgumentException("Status not exists: $statusId")
     }
-
-    return TagAssignedToTaskEvent(projectId = this.getId(), tagId = tagId, taskId = taskId)
+    return StatusDeletedEvent(
+        projectId = getId(),
+        statusId = statusId
+    )
 }

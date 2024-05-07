@@ -6,13 +6,9 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import ru.quipy.api.ProjectAggregate
-import ru.quipy.api.ProjectCreatedEvent
-import ru.quipy.api.TaskCreatedEvent
+import ru.quipy.api.*
 import ru.quipy.core.EventSourcingService
-import ru.quipy.logic.ProjectAggregateState
-import ru.quipy.logic.addTask
-import ru.quipy.logic.create
+import ru.quipy.logic.*
 import java.util.*
 
 @RestController
@@ -23,18 +19,37 @@ class ProjectController(
 
     @PostMapping("/{projectTitle}")
     fun createProject(@PathVariable projectTitle: String, @RequestParam creatorId: String) : ProjectCreatedEvent {
-        return projectEsService.create { it.create(UUID.randomUUID(), projectTitle, creatorId) }
+        return projectEsService.create { it.create(projectTitle, creatorId) }
+    }
+
+    @PostMapping("/addParticipant/{projectId}")
+    fun addParticipant(@PathVariable projectId: UUID, @RequestParam participantId: UUID) : ParticipantAddedEvent {
+        return projectEsService.update(projectId) { it.addParticipant(participantId) }
+    }
+
+    @PostMapping("/updateTitle/{projectId}")
+    fun updateTitle(@PathVariable projectId: UUID, @RequestParam title: String) : ProjectTitleUpdated {
+        return projectEsService.update(projectId) { it.updateTitle(title) }
+    }
+
+    @PostMapping("/createStatus/{projectId}")
+    fun createStatus(@PathVariable projectId: UUID, @RequestParam title: String, @RequestParam color: String, @RequestParam numberOfTaskInStatus: Int) : StatusCreatedEvent {
+        return projectEsService.update(projectId) { it.createStatus(title, color, numberOfTaskInStatus) }
+    }
+
+    @PostMapping("/deleteStatus/{projectId}")
+    fun deleteStatus(@PathVariable projectId: UUID, @RequestParam statusId: UUID) : StatusDeletedEvent {
+        return projectEsService.update(projectId) { it.deleteStatus(statusId) }
     }
 
     @GetMapping("/{projectId}")
-    fun getAccount(@PathVariable projectId: UUID) : ProjectAggregateState? {
+    fun getProject(@PathVariable projectId: UUID) : ProjectAggregateState? {
         return projectEsService.getState(projectId)
     }
 
-    @PostMapping("/{projectId}/tasks/{taskName}")
-    fun createTask(@PathVariable projectId: UUID, @PathVariable taskName: String) : TaskCreatedEvent {
-        return projectEsService.update(projectId) {
-            it.addTask(taskName)
-        }
+    @GetMapping("/statuses/{projectId}")
+    fun getProjectStatuses(@PathVariable projectId: UUID) : Collection<StatusEntity> {
+        return projectEsService.getState(projectId)?.projectStatuses?.values ?: listOf()
     }
+
 }

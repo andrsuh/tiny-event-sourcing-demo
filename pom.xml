@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.7.7</version>
+		<version>2.7.18</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>ru.quipy</groupId>
@@ -14,9 +14,9 @@
 	<name>demo</name>
 	<description>Demo project for Tiny Event Sourcing lib</description>
 	<properties>
-		<java.version>11</java.version>
-		<kotlin.version>1.6.21</kotlin.version>
-		<tiny.es.version>2.1.1</tiny.es.version>
+		<java.version>21</java.version>
+		<kotlin.version>1.9.23</kotlin.version>
+		<tiny.es.version>2.6.1</tiny.es.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -70,6 +70,7 @@
 			<plugin>
 				<groupId>org.jetbrains.kotlin</groupId>
 				<artifactId>kotlin-maven-plugin</artifactId>
+				<version>${kotlin.version}</version>
 				<configuration>
 					<args>
 						<arg>-Xjsr305=strict</arg>
